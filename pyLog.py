@@ -16,7 +16,7 @@ from udsoncan import configs
 from udsoncan import exceptions
 from udsoncan import services
 
-udsoncan.setup_logging()
+#udsoncan.setup_logging()
 
 params = {
   'tx_padding': 0x55
@@ -28,9 +28,9 @@ def send_raw(data):
     conn2.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
     conn2.open()
     conn2.send(data)
-    print(conn2.wait_frame())
-    print(conn2.wait_frame())
+    results = conn2.wait_frame()
     conn2.close()
+    return results
 
 conn = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
 conn.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
@@ -39,10 +39,10 @@ conn.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
 #Gain level 3 security access to the ECU
 def gainSecurityAccess(level, seed, params=None):
     #Print a debug message
-    print("Level " + level + " security")
+    #print("Level " + level + " security")
 
     #Print the seed for debugging purposes
-    print(seed)
+    #print(seed)
 
     #static resopnse used for testing
     #response = "01 02 1B 57 2C 42"
@@ -54,9 +54,9 @@ def gainSecurityAccess(level, seed, params=None):
     privateBytes = bytearray.fromhex(private)
 
     #Sum the private keey and the seed - this will be the key
-    theKey = int.from_bytes(privateBytes, byteorder="big") + int.from_bytes(challenge, byteorder="big")
+    theKey = int.from_bytes(privateBytes, byteorder="big") + int.from_bytes(seed, byteorder="big")
 
-    return theKey
+    return theKey.to_bytes(4, 'big')
 
 def getValuesFromECU(client = None):
     #Define the global variables that we'll use...  They're the logging parameters
@@ -67,18 +67,18 @@ def getValuesFromECU(client = None):
 
     #Start logging
     while(True):
-        results = client.read_data_by_identifier_first(0xF200)
+        results = (send_raw(bytes.fromhex('22F200'))).hex()
         print(results)
         #Static result for testing purposes
-        #results = "62F2000000725D"
+        #results = "F2000000725D"
 
         #Make sure the result starts with an affirmative
-        if results.startswith("62F200"):
+        if results.startswith("62f200"):
 
             #Set the datetime for the beginning of the row
             row = str(datetime.now().time())
 
-            #Strip off the first 6 characters (62F200) so we only have the data
+            #Strip off the first 6 characters (F200) so we only have the data
             results = results[6:]
 
             #The data comes back as raw data, so we need the size of each variable and its
@@ -107,9 +107,10 @@ def getValuesFromECU(client = None):
                 logFile.close()
                 logFile = None
 
-
+        else:
+            print("Logging not active")
         #sleep to slow things down for testing        
-        time.sleep(.3)
+        #time.sleep(.05)
  
 
 def main(client = None):
@@ -130,7 +131,7 @@ def main(client = None):
 
     #Start the polling thread
     try:
-        readData = threading.Thread(target=getValuesFromECU, args=(obd,))
+        readData = threading.Thread(target=getValuesFromECU, args=(client,))
         readData.start()
     except:
         print("Error starting thread")
@@ -145,7 +146,7 @@ def main(client = None):
 #try to open the parameter file, if we can't, we'll work with a static
 #  list of logged parameters for testing
 try:
-    with open('./parameter.yaml', 'r') as parameterFile:
+    with open('./parameters.yaml', 'r') as parameterFile:
         logParams = yaml.load(parameterFile)
 except:
     print("No parameter file found, logging default values only")
