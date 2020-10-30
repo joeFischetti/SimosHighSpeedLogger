@@ -6,7 +6,7 @@ from datetime import datetime
 #yaml is used to define the logged parameters, bytes is for byte stuff, and
 #  threading is so we can handle multiple threads (start the reader thread)
 #  time is used so I could put pauses in various places
-import yaml, bytes, threading, time
+import yaml, threading, time
 
 #import the udsoncan stuff
 import udsoncan
@@ -24,7 +24,7 @@ params = {
 
 def send_raw(data):
     global params
-    conn2 = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x700, params=params)
+    conn2 = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
     conn2.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
     conn2.open()
     conn2.send(data)
@@ -123,7 +123,7 @@ def main(client = None):
         client.unlock_security_access(3)
  
         #clear the f200 dynamic id
-        send_raw(bytes([0x2c, 0x03, 0xf2, 0x00]))
+        send_raw(bytes.fromhex('2C03f200'))
 
         #Initate the dynamicID with a bunch of memory addresses
         send_raw(bytes.fromhex(defineIdentifier))
@@ -165,7 +165,6 @@ if logParams is not None:
         defineIdentifier += str(logParams[param]['length'])
 
 logging = False
-
 
 
 with Client(conn,  request_timeout=2, config=configs.default_client_config) as client:
