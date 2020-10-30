@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-
 #import datetime so we can put something in the CSV
 from datetime import datetime
 
@@ -9,18 +8,40 @@ from datetime import datetime
 #  time is used so I could put pauses in various places
 import yaml, bytes, threading, time
 
+#import the udsoncan stuff
+import udsoncan
+from udsoncan.connections import IsoTPSocketConnection
+from udsoncan.client import Client
+from udsoncan.exceptions import *
+from udsoncan.services import *
+
+udsoncan.setup_logging()
+
+params = {
+  'tx_padding': 0x55
+}
+
+def send_raw(data):
+    global params
+    conn2 = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x700, params=params)
+    conn2.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
+    conn2.open()
+    conn2.send(data)
+    conn2.wait_frame()
+    conn2.wait_frame()
+    conn2.close()
+
+conn = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
+conn.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
+
 
 #Gain level 3 security access to the ECU
-def gainLevel3(obd):
+def gainSecurityAccess(level, seed, params=None):
     #Print a debug message
-    print("Level 3 security")
-
-    #Tell the ECU we want to gain level 3 access
-    #  The response will include the challenge seed
-    response = obd.sendRawCommand("27 03")
+    print("Level " + level + " security")
 
     #Print the seed for debugging purposes
-    print("response")
+    print(seed)
 
     #static resopnse used for testing
     #response = "01 02 1B 57 2C 42"
@@ -28,36 +49,13 @@ def gainLevel3(obd):
     #the private key is used as a sum against the seed (for ED)
     private = "00 00 6D 43"
 
-    #Convert the seed into a bytearray, strip off the carriage returns
-    challenge = bytearray.fromhex(response.decode("UTF-8").strip('\r\r'))
-
-    #Printing debugging info
-    #print(challenge)
-    #print("length of challenge: " + str(len(challenge)))
-
-    #The length of the seed should be 6 (the response, plus the actual 4 byte seed)
-    if len(challenge) is not 6:
-        print("Issues getting challenge")
-        return
-
-    #Remove the first two bytes from the seed 
-    del challenge[0]
-    del challenge[0]
-
     #Convert the private key into a bytearray so we can do some math with it
     privateBytes = bytearray.fromhex(private)
 
     #Sum the private keey and the seed - this will be the key
     theKey = int.from_bytes(privateBytes, byteorder="big") + int.from_bytes(challenge, byteorder="big")
 
-    #prepend 2704 to the key, and strip off the 0x
-    theKey = "2704" + hex(theKey).lstrip("0x")
-
-    #Send the key and print the response
-    print(obd.sendRawCommand(theKey))
-
-    #todo
-    #Actually verify that the return result was an affirmative response, and then return 'true'
+    return theKey
 
 def getValuesFromECU(obd = None):
     #Define the global variables that we'll use...  They're the logging parameters
@@ -112,15 +110,15 @@ def getValuesFromECU(obd = None):
         time.sleep(.3)
  
 
-def main(obd = None):
+def main(client = None):
     
-    if obd is not None:
+    if client is not None:
 
-        #initiate the elm adapter
-        print(obd.sendRawCommand("104f"))
- 
-        #gain level 3 security access
-        gainLevel3(obd)
+        print("Opening extended diagnostic session...")
+        client.change_session(services.DiagnosticSessionControl.Session.extendedDiagnosticSession) 
+
+        print("Gaining level 3 security access")
+        client.unlock_security_access(3)
  
         #clear the f200 dynamic id
         print(obd.sendRawCommand("2c03f200"))
@@ -164,21 +162,17 @@ if logParams is not None:
         defineIdentifier += "0"
         defineIdentifier += str(logParams[param]['length'])
 
-#print out the DID request for debugging
-print(defineIdentifier)
-print(csvHeader)
-exit()
-
-#I'm using a bluetooth OBDLink MX scantool
-serialPort = '/dev/cu.OBDLinkLX-STN-SPP'
 logging = False
 
 
-#Make the user hit a key to get started
-print("Press enter key to connect to the serial port")
-connect = input()
 
-#obdLink = OBDConnection(serialPort)
+with Client(conn,  request_timeout=2, config=MyCar.config) as client:
+    try:
+        #Make the user hit a key to get started
+        print("Press enter key to connect to the serial port")
+        connect = input()
 
-main()
-
+        client.config['security_algo'] = gainSecurityAccess
+        
+        main(client)
+        
