@@ -12,8 +12,9 @@ import yaml, bytes, threading, time
 import udsoncan
 from udsoncan.connections import IsoTPSocketConnection
 from udsoncan.client import Client
-from udsoncan.exceptions import *
-from udsoncan.services import *
+from udsoncan import configs
+from udsoncan import exceptions
+from udsoncan import services
 
 udsoncan.setup_logging()
 
@@ -27,8 +28,8 @@ def send_raw(data):
     conn2.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
     conn2.open()
     conn2.send(data)
-    conn2.wait_frame()
-    conn2.wait_frame()
+    print(conn2.wait_frame())
+    print(conn2.wait_frame())
     conn2.close()
 
 conn = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
@@ -57,7 +58,7 @@ def gainSecurityAccess(level, seed, params=None):
 
     return theKey
 
-def getValuesFromECU(obd = None):
+def getValuesFromECU(client = None):
     #Define the global variables that we'll use...  They're the logging parameters
     # and the boolean used for whether or not we should be logging
     global logParams
@@ -66,9 +67,10 @@ def getValuesFromECU(obd = None):
 
     #Start logging
     while(True):
-        #results = obd.sendRawCommand("22f200")
+        results = client.read_data_by_identifier_first(0xF200)
+        print(results)
         #Static result for testing purposes
-        results = "62F2000000725D"
+        #results = "62F2000000725D"
 
         #Make sure the result starts with an affirmative
         if results.startswith("62F200"):
@@ -115,16 +117,16 @@ def main(client = None):
     if client is not None:
 
         print("Opening extended diagnostic session...")
-        client.change_session(services.DiagnosticSessionControl.Session.extendedDiagnosticSession) 
+        client.change_session(0x4F)
 
         print("Gaining level 3 security access")
         client.unlock_security_access(3)
  
         #clear the f200 dynamic id
-        print(obd.sendRawCommand("2c03f200"))
+        send_raw(bytes([0x2c, 0x03, 0xf2, 0x00]))
 
         #Initate the dynamicID with a bunch of memory addresses
-        print(obd.sendRawCommand(defineIdentifier))
+        send_raw(bytes.fromhex(defineIdentifier))
 
     #Start the polling thread
     try:
@@ -166,7 +168,7 @@ logging = False
 
 
 
-with Client(conn,  request_timeout=2, config=MyCar.config) as client:
+with Client(conn,  request_timeout=2, config=configs.default_client_config) as client:
     try:
         #Make the user hit a key to get started
         print("Press enter key to connect to the serial port")
@@ -175,4 +177,10 @@ with Client(conn,  request_timeout=2, config=MyCar.config) as client:
         client.config['security_algo'] = gainSecurityAccess
         
         main(client)
+    except exceptions.NegativeResponseException as e:
+        print('Server refused our request for service %s with code "%s" (0x%02x)' % (e.response.service.get_name(), e.response.code_name, e.response.code))
+    except exceptions.InvalidResponseException as e:
+        print('Server sent an invalid payload : %s' % e.response.original_payload)
+    except exceptions.UnexpectedResponseException as e:
+        print('Server sent an invalid payload : %s' % e.response.original_payload)
         
