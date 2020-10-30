@@ -1,0 +1,239 @@
+fac_2_put_ad:
+    length: 2
+    factor: 3.99993896484375
+    location: '0xd0011e08'
+    units: 
+
+fac_1_put_ad:
+    length: 2
+    factor: 3.99993896484375
+    location: '0xd0011e04'    
+    units:
+
+"Adjustable boost: Adjustable top limit":
+    length:  0x01
+    factor:  17.0
+    units:  "hPa"
+    location: '0xD001DE90'
+
+"Adjustable octane: Octane value":
+    length:  0x01
+    factor:  1.0
+    units:  "ron"
+    location: '0xD001DE8E'
+
+"Adjustable octane: high octane basic ignition lookup":
+    length:  0x01
+    factor:  8.0
+    units:  "°CRK"
+    location: '0xD001DE8A'
+
+"Adjustable octane: low octane basic ignition lookup":
+    length:  0x01
+    factor:  8.0
+    units:  "°CRK"
+    location: '0xD001DE89'
+
+"Adjustable octane: octane interpolation factor":
+    length:  0x01
+    factor:  18.0
+    units:  "[-]"
+    location: '0xD001DE8D'
+
+Ambient pressure:
+    length:  0x02
+    factor:  2.0
+    units:  "hPa"
+    location: '0xD0013C76'
+
+lambda controller output:
+    length:  0x02
+    factor:  21.0
+    units:  "%"
+    location: '0xD001431A'
+
+Fuel rail pressure:
+    length:  0x02
+    factor:  7.0
+    units:  "hPa"
+    location: '0xD0013612'
+
+Actual gear:
+    length:  0x01
+    factor:  1.0
+    units:  "Gear"
+    location: '0xD000F39A'
+
+Knock retard cylinder 1:
+    length:  0x01
+    factor:  10.0
+    units:  "°CRK"
+    location: '0xD000EFB1'
+
+Knock retard cylinder 2:
+    length:  0x01
+    factor:  10.0
+    units:  "°CRK"
+    location: '0xD000EFB2'
+
+Knock retard cylinder 3:
+    length:  0x01
+    factor:  10.0
+    units:  "°CRK"
+    location: '0xD000EFB3'
+
+Knock retard cylinder 4:
+    length:  0x01
+    factor:  10.0
+    units:  "°CRK"
+    location: '0xD000EFB4'
+
+Ignition timing cylinder 1:
+    length:  0x01
+    factor:  8.0
+    units:  "°CRK"
+    location: '0xD000E565'
+
+Ignition timing cylinder 2:
+    length:  0x01
+    factor:  8.0
+    units:  "°CRK"
+    location: '0xD000E566'
+
+Ignition timing cylinder 3:
+    length:  0x01
+    factor:  8.0
+    units:  "°CRK"
+    location: '0xD000E567'
+
+Ignition timing cylinder 4:
+    length:  0x01
+    factor:  8.0
+    units:  "°CRK"
+    location: '0xD000E568'
+
+Lambda value:
+    length:  0x02
+    factor:  9.0
+    units:  "-"
+    location: '0xD00120C6'
+
+Lambda setpoint:
+    length:  0x02
+    factor:  9.0
+    units:  "-"
+    location: '0xD00143F6'
+
+Air mass:
+    length:  0x02
+    factor:  3.0
+    units:  "mg/stk"
+    location: '0xD0013E42'
+
+Engine speed:
+    length:  0x02
+    factor:  1.0
+    units:  "RPM"
+    location: '0xD0012400'
+
+Position of boost pressure actuator:
+    length:  0x02
+    factor:  22.0
+    units:  "%"
+    location: '0xD0011D8A'
+
+Position setpoint for boost pressure actuator:
+    length:  0x02
+    factor:  22.0
+    units:  "%"
+    location: '0xD0011D96'
+
+Pressure upstream throttle:
+    length:  0x02
+    factor:  2.0
+    units:  "hPa"
+    location: '0xD0013FAE'
+
+Pressure before throttle set point:
+    length:  0x02
+    factor:  2.0
+    units:  "hPa"
+    location: '0xD0011EEE'
+
+Top limit of pressure upstream throttle setpoint:
+    length:  0x02
+    factor:  2.0
+    units:  "hPa"
+    location: '0xD0011EFC'
+
+Accelerator pedal:
+    length:  0x02
+    factor:  4.0
+    units:  "%"
+    location: '0xD0012022'
+
+Ambient air temperature:
+    length:  0x01
+    factor:  4.0
+    units:  "°C"
+    location: '0xD000C177'
+
+Injector pulsewidth:
+    length:  0x01
+    factor:  6.0
+    units:  "ms"
+    location: '0xD000E683'
+
+Intake air temperature:
+    length:  0x01
+    factor:  23.0
+    units:  "°C"
+    location: '0xD000C179'
+
+Throttle angle:
+    length:  0x02
+    factor:  24.0
+    units:  "°TPS"
+    location: '0xD001522E'
+
+Actual engine torque:
+    length:  0x02
+    factor:  5.0
+    units:  "Nm"
+    location: '0xD001515C'
+
+Torque limit:
+    length:  0x02
+    factor:  5.0
+    units:  "Nm"
+    location: '0xD0015444'
+
+Injector pulsewidth MPI:
+    length:  0x02
+    factor:  25.0
+    units:  "ms"
+    location: '0xD0013824'
+
+Low pressure rail pressure:
+    length:  0x02
+    factor:  26.0
+    units:  "hPa"
+    location: '0xD0011B26'
+
+Low pressure fuel pump speed:
+    length:  0x02
+    factor:  27.0
+    units:  "%"
+    location: '0xD0013600'
+
+Recirculation actuator position:
+    length:  0x02
+    factor:  27.0
+    units:  "%"
+    location: '0xD0011DB2'
+
+Recirculation actuator setpoint:
+    length:  0x02
+    factor:  27.0
+    units:  "%"
+    location: '0xD0011EC0'

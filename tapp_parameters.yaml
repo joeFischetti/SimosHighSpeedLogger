@@ -1,0 +1,819 @@
+tq_av:
+    memoryLocation:  3489735584u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tq_driv_req:
+    memoryLocation:  3489740612u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tq_eng_max:
+    memoryLocation:  3489745826u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tq_gb_intv_fast_etcu:
+    memoryLocation:  3489726482u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tq_gb_intv_slow_etcu:
+    memoryLocation:  3489726496u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tq_gb_prot:
+    memoryLocation:  3489756604u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tq_lih_max:
+    memoryLocation:  3489735660u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tq_lim_gb_prot_max:
+    memoryLocation:  3489726514u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tq_lim_gb_prot_max_etcu:
+    memoryLocation:  3489726516u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tq_loss_eng:
+    memoryLocation:  3489745962u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tq_max_clu:
+    memoryLocation:  3489745832u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tq_max_clu_cus:
+    memoryLocation:  3489736758u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tq_pow_max_bas:
+    memoryLocation:  3489735662u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tq_pow_max_bas_trans:
+    memoryLocation:  3489735666u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tq_pow_max_cam_in:
+    memoryLocation:  3489735670u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tq_pow_max_drof:
+    memoryLocation:  3489735672u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tq_pow_max_eco:
+    memoryLocation:  3489735674u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tq_pow_max_port:
+    memoryLocation:  3489735676u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tq_pt_trans_etcu:
+    memoryLocation:  3489726504u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_bas_max:
+    memoryLocation:  3489745878u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_driv_gb_intv:
+    memoryLocation:  3489736428u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_lim_heat_gdi:
+    memoryLocation:  3489735688u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_lim_mpi_fl_ref:
+    memoryLocation:  3489735690u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_max:
+    memoryLocation:  3489745890u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_max_ohp:
+    memoryLocation:  3489744722u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_n_tcha_max:
+    memoryLocation:  3489744464u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_pow_max:
+    memoryLocation:  3489735692u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_pow_max_bas_cmb:
+    memoryLocation:  3489735694u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_pow_max_eco:
+    memoryLocation:  3489735696u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_pow_max_ef:
+    memoryLocation:  3489735698u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_pow_max_err_poil:
+    memoryLocation:  3489735722u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_pow_max_err_rvc_dig:
+    memoryLocation:  3489735702u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_pow_max_fast:
+    memoryLocation:  3489735704u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_pow_max_maf:
+    memoryLocation:  3489735708u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_pow_max_maf_max:
+    memoryLocation:  3489738826u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_pow_max_pi_det:
+    memoryLocation:  3489735710u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_pow_max_pi_det_cus:
+    memoryLocation:  3489735712u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_pow_max_poil_plaus:
+    memoryLocation:  3489735714u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_pow_max_req_clu:
+    memoryLocation:  3489735716u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_pow_max_ron_knk:
+    memoryLocation:  3489735718u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_pow_max_slow:
+    memoryLocation:  3489735720u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_pow_max_vvl:
+    memoryLocation:  3489735700u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_ref_max:
+    memoryLocation:  3489745928u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_sp_h_rng_mon:
+    memoryLocation:  3489763972u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_tcha_prot:
+    memoryLocation:  3489744466u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tqi_tia_thr_tcha_max:
+    memoryLocation:  3489744468u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+psn_rcl:
+    memoryLocation:  3489732620u
+    length:  DataWidth.SixteenBitLe
+    val1:  27
+    val2:  0
+    units:  "%"
+    factor:  0.0
+psn_rcl_sp:
+    memoryLocation:  3489744372u
+    length:  DataWidth.SixteenBitLe
+    val1:  27
+    val2:  0
+    units:  "%"
+    factor:  0.0
+fac_pow_max_soi_eoi:
+    memoryLocation:  3489735618u
+    length:  DataWidth.SixteenBitLe
+    val1:  20
+    val2:  0
+    units:  "%"
+    factor:  0.0
+n:
+    memoryLocation:  3489733506u
+    length:  DataWidth.SixteenBitLe
+    val1:  1
+    val2:  0
+    units:  "RPM"
+    factor:  0.0
+map:
+    memoryLocation:  3489742494u
+    length:  DataWidth.SixteenBitLe
+    val1:  2
+    val2:  0
+    units:  "hPa"
+    factor:  0.0
+posn_bpa[0]:
+    memoryLocation:  3489733506u
+    length:  2
+    val1:  22
+    val2:  0
+    units:  "%"
+    factor:  0.0
+posn_sp_bpa_ad[0]:
+    memoryLocation:  3489734040u
+    length:  2
+    val1:  22
+    val2:  0
+    units:  "%"
+    factor:  0.0
+posn_sp_bpa_ctl[0]:
+    memoryLocation:  3489734046u
+    length:  2
+    val1:  22
+    val2:  0
+    units:  "%"
+    factor:  0.0
+posn_sp_bpa_rgl[0]:
+    memoryLocation:  3489736910u
+    length:  2
+    val1:  28
+    val2:  0
+    units:  "%"
+    factor:  0.0
+fac_pow_put_ctl_i:
+    memoryLocation:  3489750054u
+    length:  2
+    val1:  29
+    val2:  0
+    units:  "%"
+    factor:  0.0
+fac_pow_put_ctl_i_rgl_stat:
+    memoryLocation:  3489750056u
+    length:  2
+    val1:  29
+    val2:  0
+    units:  "%"
+    factor:  0.0
+fac_pow_put_ctl_i_rgl_step:
+    memoryLocation:  3489750058u
+    length:  2
+    val1:  29
+    val2:  0
+    units:  "%"
+    factor:  0.0
+fac_pow_put_ctl_p_d:
+    memoryLocation:  3489750062u
+    length:  2
+    val1:  29
+    val2:  0
+    units:  "%"
+    factor:  0.0
+fac_pow_put_ctl_p_d_rgl_stat:
+    memoryLocation:  3489750064u
+    length:  2
+    val1:  29
+    val2:  0
+    units:  "%"
+    factor:  0.0
+fac_pow_put_ctl_p_d_rgl_step:
+    memoryLocation:  3489750066u
+    length:  2
+    val1:  29
+    val2:  0
+    units:  "%"
+    factor:  0.0
+put_dif_put_ctl:
+    memoryLocation:  3489734354u
+    length:  2
+    val1:  30
+    val2:  0
+    units:  "hPa"
+    factor:  0.0
+put_inc_mmv:
+    memoryLocation:  3489734358u
+    length:  2
+    val1:  30
+    val2:  0
+    units:  "hPa"
+    factor:  0.0
+vp_bpa:
+    memoryLocation:  3489734108u
+    length:  2
+    val1:  31
+    val2:  0
+    units:  "hPa"
+    factor:  0.0
+tq_gb_prot:
+    memoryLocation:  3489756604u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tq_lih_max:
+    memoryLocation:  3489735660u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tq_lim_gb_prot_max:
+    memoryLocation:  3489726514u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+tq_lim_gb_prot_max_etcu:
+    memoryLocation:  3489726516u
+    length:  2
+    val1:  5
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+adj_State:
+    memoryLocation:  3489783452u
+    length:  2
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+inh_igc:
+    memoryLocation:  3489707046u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+lv_igk:
+    memoryLocation:  3489672318u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+lv_ecu_state_igc_off:
+    memoryLocation:  3489672122u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+inh_iv_cst:
+    memoryLocation:  3489706769u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+inh_iv_stst:
+    memoryLocation:  3489706770u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+inh_iv_mis:
+    memoryLocation:  3489707316u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+lf_inj_inh_inj_mod_seq:
+    memoryLocation:  3489720116u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+inh_iv_pi:
+    memoryLocation:  3489707152u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+D000E735:
+    memoryLocation:  3489720117u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+D000E736:
+    memoryLocation:  3489720118u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+D000E737:
+    memoryLocation:  3489720119u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+D000E6FC:
+    memoryLocation:  3489720060u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+D0001C09:
+    memoryLocation:  3489668105u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+D0001C0A:
+    memoryLocation:  3489668106u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+D0001C0B:
+    memoryLocation:  3489668107u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+D0001C0D:
+    memoryLocation:  3489668109u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+D0001C0E:
+    memoryLocation:  3489668110u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+D0001C0F:
+    memoryLocation:  3489668111u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+D0001C10:
+    memoryLocation:  3489668112u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+D0001C11:
+    memoryLocation:  3489668113u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+D0001C12:
+    memoryLocation:  3489668114u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+D0001C13:
+    memoryLocation:  3489668115u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+D0001C14:
+    memoryLocation:  3489668116u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+D001DF00:
+    memoryLocation:  3489783552u
+    length:  DataWidth.SixteenBitLe
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+D001DF02:
+    memoryLocation:  3489783554u
+    length:  DataWidth.SixteenBitLe
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+n:
+    memoryLocation:  3489733506u
+    length:  DataWidth.SixteenBitLe
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+n_max_vst:
+    memoryLocation:  3489717037u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+lv_n_max_vst:
+    memoryLocation:  3489672156u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+lv_bls:
+    memoryLocation:  3489671001u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+lv_clu_swi:
+    memoryLocation:  3489671067u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+vs_h_res:
+    memoryLocation:  3489736588u
+    length:  DataWidth.SixteenBitLe
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+lv_n_max_req_fcut:
+    memoryLocation:  3489672148u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+pv_av:
+    memoryLocation:  3489736288u
+    length:  DataWidth.SixteenBitLe
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+lv_can_epb1_act:
+    memoryLocation:  3489715495u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+lv_can_pbr_man_swi:
+    memoryLocation:  3489715475u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+lv_mt:
+    memoryLocation:  2952790533u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+lv_at:
+    memoryLocation:  2952790531u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+sel_psn:
+    memoryLocation:  3489710541u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+inh_iv_igc:
+    memoryLocation:  3489707047u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+lf_inj_inh_stat_tmp_8:
+    memoryLocation:  3489668117u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+adj_launch_rpm:
+    memoryLocation:  3489782938u
+    length:  2
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+fuel_cut_type_and_state:
+    memoryLocation:  3489782939u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+lv_launch_active:
+    memoryLocation:  3489782945u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+fuel_cut_n_sp:
+    memoryLocation:  3489782946u
+    length:  DataWidth.SixteenBitLe
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+lv_nls_active:
+    memoryLocation:  3489782948u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+spark_cut_type_and_state:
+    memoryLocation:  3489782949u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+spark_cut_n_sp:
+    memoryLocation:  3489782950u
+    length:  DataWidth.SixteenBitLe
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
+power_Class:
+    memoryLocation:  2952920832u
+    length:  DataWidth.EightBitUnsigned
+    val1:  1
+    val2:  0
+    units:  "Nm"
+    factor:  0.0
