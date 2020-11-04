@@ -15,6 +15,7 @@ from udsoncan.client import Client
 from udsoncan import configs
 from udsoncan import exceptions
 from udsoncan import services
+from dashing import *
 
 #udsoncan.setup_logging()
 
@@ -34,6 +35,76 @@ def send_raw(data):
 
 conn = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
 conn.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
+
+ui = None
+
+def buildUserInterface():
+    global ui
+
+    ui = VSplit(
+                HGauge(title="RPM", label="0", border_color=5),
+                HGauge(title="Boost", label="0", border_color=5),
+                HGauge(title="Lambda", label="0", border_color=5),
+                Log(title='Logging Status', border_color=5, color=1),
+                Log(title='Raw', border_color=5, color=1),
+
+                title='Dashing',
+        )
+
+    ui.items[4].append("Raw CAN data")
+
+def updateUserInterface( rawData = 0, rpm = 0, boost = 0, afr = 0 ):
+    global ui
+    global logging
+    rpmGauge = ui.items[0]
+    boostGauge = ui.items[1]
+    afrGauge = ui.items[2]
+    log = ui.items[3]
+    raw = ui.items[4]
+
+    log.append(str(logging))
+    raw.append(str(rawData))
+
+    rpmPercent = int(rpm / 8000 * 100)
+    rpmGauge.value = rpmPercent
+    rpmGauge.label = str(rpm)
+
+    if rpmPercent < 60:
+        rpmGauge.color = 2
+    elif rpmPercent < 80:
+        rpmGauge.color = 3
+    else:
+        rpmGauge.color = 1
+
+    boostPercent = int(boost / 3000 * 100)
+    boostGauge.value = boostPercent
+    boostGauge.label = str(boost)
+
+    if boostPercent < 40:
+        boostGauge.color = 2
+    elif boostPercent < 75:
+        boostGauge.color = 3
+    else:
+        boostGauge.color = 1
+
+    afrPercent = int(afr * 100 - 70)
+    afrGauge.value = afrPercent
+    afrGauge.label = str(afr)
+
+    if afrPercent < 15:
+        afrGauge.color = 2
+    elif afrPercent < 25:
+        afrGauge.color = 3
+    else:
+        afrGauge.color = 1
+
+    log.append(str(logging))
+    if logging is True:
+        log.color = 3
+    else:
+        log.color = 1
+
+    ui.display()
 
 
 #Gain level 3 security access to the ECU
@@ -65,6 +136,10 @@ def getValuesFromECU(client = None):
     global logging
     logFile = None
 
+    displayRPM = 0
+    displayBoost = 0
+    displayAFR = 0
+
     #Start logging
     while(True):
         results = (send_raw(bytes.fromhex('22F200'))).hex()
@@ -94,13 +169,20 @@ def getValuesFromECU(client = None):
                 row += "," + str(val)
                 results = results[logParams[parameter]['length']*2:]
 
+                if parameter == "Engine speed":
+                    displayRPM = val
+                elif parameter == "Pressure upstream throttle":
+                    displayBoost = val
+                elif parameter == "Lambda value":
+                    displayAFR = val
+
             if logging is True:
                 if logFile is None:
                     logFile = open("Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv", 'a')
                     logFile.write(csvHeader + '\n')
 
                 logFile.write(row + '\n')
-                print(row)
+                #print(row)
 
    
             if logging is False and logFile is not None:
@@ -109,8 +191,12 @@ def getValuesFromECU(client = None):
 
         else:
             print("Logging not active")
-        #sleep to slow things down for testing        
-        #time.sleep(.05)
+
+        updateUserInterface(rawData = results, rpm = displayRPM, boost = displayBoost, afr = displayAFR)
+
+
+        #Slow things down for testing
+        time.sleep(.5)
  
 
 def main(client = None):
@@ -174,9 +260,13 @@ with Client(conn,  request_timeout=2, config=configs.default_client_config) as c
         print("Press enter key to connect to the serial port")
         connect = input()
 
+        buildUserInterface()
+
         client.config['security_algo'] = gainSecurityAccess
         
         main(client)
+
+
     except exceptions.NegativeResponseException as e:
         print('Server refused our request for service %s with code "%s" (0x%02x)' % (e.response.service.get_name(), e.response.code_name, e.response.code))
     except exceptions.InvalidResponseException as e:
