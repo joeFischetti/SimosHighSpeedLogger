@@ -23,6 +23,12 @@ params = {
   'tx_padding': 0x55
 }
 
+def minimum(a, b): 
+    if a <= b: 
+        return a 
+    else: 
+        return b 
+
 def send_raw(data):
     global params
     conn2 = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
@@ -48,12 +54,12 @@ def buildUserInterface():
                 Log(title='Logging Status', border_color=5, color=1),
                 Log(title='Raw', border_color=5, color=1),
 
-                title='Dashing',
+                title='SimosCANLog',
         )
 
     ui.items[4].append("Raw CAN data")
 
-def updateUserInterface( rawData = 0, rpm = 0, boost = 0, afr = 0 ):
+def updateUserInterface( rawData = "Data", rpm = 750, boost = 1010, afr = 1.0 ):
     global ui
     global logging
     rpmGauge = ui.items[0]
@@ -66,7 +72,7 @@ def updateUserInterface( rawData = 0, rpm = 0, boost = 0, afr = 0 ):
     raw.append(str(rawData))
 
     rpmPercent = int(rpm / 8000 * 100)
-    rpmGauge.value = rpmPercent
+    rpmGauge.value = minimum(100,rpmPercent)
     rpmGauge.label = str(rpm)
 
     if rpmPercent < 60:
@@ -77,7 +83,7 @@ def updateUserInterface( rawData = 0, rpm = 0, boost = 0, afr = 0 ):
         rpmGauge.color = 1
 
     boostPercent = int(boost / 3000 * 100)
-    boostGauge.value = boostPercent
+    boostGauge.value = minimum(100,boostPercent)
     boostGauge.label = str(boost)
 
     if boostPercent < 40:
@@ -88,7 +94,7 @@ def updateUserInterface( rawData = 0, rpm = 0, boost = 0, afr = 0 ):
         boostGauge.color = 1
 
     afrPercent = int(afr * 100 - 70)
-    afrGauge.value = afrPercent
+    afrGauge.value = minimum(100,afrPercent)
     afrGauge.label = str(afr)
 
     if afrPercent < 15:
@@ -165,16 +171,16 @@ def getValuesFromECU(client = None):
                 #print("Results: " + results)
                 val = results[:logParams[parameter]['length']*2]
                 #print("Value: " + val)
-                val = int(val,16) * logParams[parameter]['factor']
+                val = round(int.from_bytes(val,'little') / logParams[parameter]['factor'], 2)
                 row += "," + str(val)
                 results = results[logParams[parameter]['length']*2:]
 
                 if parameter == "Engine speed":
-                    displayRPM = val
+                    displayRPM = round(val)
                 elif parameter == "Pressure upstream throttle":
-                    displayBoost = val
+                    displayBoost = round(val)
                 elif parameter == "Lambda value":
-                    displayAFR = val
+                    displayAFR = round(val,2)
 
             if logging is True:
                 if logFile is None:
@@ -192,7 +198,7 @@ def getValuesFromECU(client = None):
         else:
             print("Logging not active")
 
-        updateUserInterface(rawData = results, rpm = displayRPM, boost = displayBoost, afr = displayAFR)
+        updateUserInterface(rawData = str(results), rpm = displayRPM, boost = displayBoost, afr = displayAFR)
 
 
         #Slow things down for testing
@@ -256,11 +262,12 @@ logging = False
 
 with Client(conn,  request_timeout=2, config=configs.default_client_config) as client:
     try:
+        buildUserInterface()
+        updateUserInterface()
         #Make the user hit a key to get started
         print("Press enter key to connect to the serial port")
         connect = input()
 
-        buildUserInterface()
 
         client.config['security_algo'] = gainSecurityAccess
         
