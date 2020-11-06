@@ -1,3 +1,15 @@
+Accelerator pedal:
+    length:  0x02
+    factor:  10.24
+    units:  "%"
+    location: '0xD0012022'
+
+Engine speed:
+    length:  0x02
+    factor:  1.0
+    units:  "RPM"
+    location: '0xD0012400'
+
 fac_2_put_ad:
     length: 2
     factor: 16384
@@ -130,12 +142,6 @@ Lambda value:
 #    units:  "mg/stk"
 #    location: '0xD0013E42'
 #
-Engine speed:
-    length:  0x02
-    factor:  1.0
-    units:  "RPM"
-    location: '0xD0012400'
-
 #Position of boost pressure actuator:
 #    length:  0x02
 #    factor:  22.0
@@ -166,12 +172,6 @@ Pressure before throttle set point:
 #    units:  "hPa"
 #    location: '0xD0011EFC'
 #
-Accelerator pedal:
-    length:  0x02
-    factor:  10.24
-    units:  "%"
-    location: '0xD0012022'
-
 Ambient air temperature:
     length:  0x01
     factor:  10.24

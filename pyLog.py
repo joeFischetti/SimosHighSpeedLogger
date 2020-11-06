@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-#import datetime so we can put something in the CSV
-from datetime import datetime
+#import datetime so we can put something in the CSV, and import timedelta
+# which will help us calculate the time to stop WOT logging
+from datetime import datetime, timedelta
 
 #yaml is used to define the logged parameters, bytes is for byte stuff, and
 #  threading is so we can handle multiple threads (start the reader thread)
@@ -16,6 +17,22 @@ from udsoncan import configs
 from udsoncan import exceptions
 from udsoncan import services
 from dashing import *
+
+import argparse
+
+parser = argparse.ArgumentParser(description='Simos18 High Speed Logger')
+parser.add_argument('--headless', action='store_true')
+
+args = parser.parse_args()
+
+if args.headless is not None:
+    headless = args.headless
+else:
+    headless = False
+
+logging = False
+
+print(str(headless))
 
 #udsoncan.setup_logging()
 
@@ -52,7 +69,7 @@ def buildUserInterface():
                 HGauge(title="Boost", label="0", border_color=5),
                 HGauge(title="Lambda", label="0", border_color=5),
                 Log(title='Logging Status', border_color=5, color=1),
-                Log(title='Raw', border_color=5, color=1),
+                Log(title='Raw', border_color=5, color=2),
 
                 title='SimosCANLog',
         )
@@ -140,7 +157,10 @@ def getValuesFromECU(client = None):
     # and the boolean used for whether or not we should be logging
     global logParams
     global logging
+    global headless
+
     logFile = None
+    stopTime = None
 
     displayRPM = 0
     displayBoost = 0
@@ -148,8 +168,13 @@ def getValuesFromECU(client = None):
 
     #Start logging
     while(True):
+        if stopTime is not None and headless is True:
+            if datetime.now() > stopTime:
+                stopTime = None
+                logging = false
+
         results = (send_raw(bytes.fromhex('22F200'))).hex()
-        print(results)
+        #print(results)
         #Static result for testing purposes
         #results = "F2000000725D"
 
@@ -181,6 +206,17 @@ def getValuesFromECU(client = None):
                     displayBoost = round(val)
                 elif parameter == "Lambda value":
                     displayAFR = round(val,2)
+                elif parameter == "Accelerator pedal":
+                    if headless == true:
+                        if val > 80:
+                            stopTime = None
+                            logging = True
+                        elif val < 80 and logging == True and stopTime is None:
+                            stopTime = datetime.now() + timedelta(seconds = 5)
+
+            if logging is False and logFile is not None:
+                logFile.close()
+                logFile = None
 
             if logging is True:
                 if logFile is None:
@@ -191,18 +227,17 @@ def getValuesFromECU(client = None):
                 #print(row)
 
    
-            if logging is False and logFile is not None:
-                logFile.close()
-                logFile = None
-
         else:
             print("Logging not active")
 
-        updateUserInterface(rawData = str(results), rpm = displayRPM, boost = displayBoost, afr = displayAFR)
+        if headless == False:
+            updateUserInterface(rawData = str(results), rpm = displayRPM, boost = displayBoost, afr = displayAFR)
+        else:
+            print(results)
 
 
         #Slow things down for testing
-        time.sleep(.1)
+        #time.sleep(.1)
  
 
 def main(client = None):
@@ -257,12 +292,12 @@ if logParams is not None:
         defineIdentifier += "0"
         defineIdentifier += str(logParams[param]['length'])
 
-logging = False
-
 
 with Client(conn,  request_timeout=2, config=configs.default_client_config) as client:
     try:
-        buildUserInterface()
+
+        if headless == False:
+            buildUserInterface()
 #        updateUserInterface()
         #Make the user hit a key to get started
         print("Press enter key to connect to the serial port")
