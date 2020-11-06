@@ -202,7 +202,7 @@ def getValuesFromECU(client = None):
 
 
         #Slow things down for testing
-        time.sleep(.5)
+        time.sleep(.1)
  
 
 def main(client = None):

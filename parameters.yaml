@@ -1,12 +1,12 @@
 fac_2_put_ad:
     length: 2
-    factor: 3.99993896484375
+    factor: 16384
     location: '0xd0011e08'
     units: 
 
 fac_1_put_ad:
     length: 2
-    factor: 3.99993896484375
+    factor: 16384
     location: '0xd0011e04'    
     units:
 
