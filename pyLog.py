@@ -171,7 +171,7 @@ def getValuesFromECU(client = None):
                 #print("Results: " + results)
                 val = results[:logParams[parameter]['length']*2]
                 #print("Value: " + val)
-                val = round(int.from_bytes(val,'little') / logParams[parameter]['factor'], 2)
+                val = round(int.from_bytes(bytearray.fromhex(val),'little') / logParams[parameter]['factor'], 2)
                 row += "," + str(val)
                 results = results[logParams[parameter]['length']*2:]
 
@@ -263,7 +263,7 @@ logging = False
 with Client(conn,  request_timeout=2, config=configs.default_client_config) as client:
     try:
         buildUserInterface()
-        updateUserInterface()
+#        updateUserInterface()
         #Make the user hit a key to get started
         print("Press enter key to connect to the serial port")
         connect = input()
