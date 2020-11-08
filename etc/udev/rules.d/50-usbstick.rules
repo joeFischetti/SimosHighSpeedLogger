@@ -1,0 +1,1 @@
+SUBSYSTEM=="block", ACTION=="add", RUN+="cd /home/pi/SimosHighSpeedLogger/logs && /usr/bin/python3 /home/pi/SimosHighSpeedLogger/pyLog.py --headless"
