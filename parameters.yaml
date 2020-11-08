@@ -1,108 +1,140 @@
 Accelerator pedal:
     length:  0x02
+    signed:  False
     factor:  10.24
     units:  "%"
     location: '0xD0012022'
 
 Engine speed:
     length:  0x02
+    signed:  False
     factor:  1.0
     units:  "RPM"
     location: '0xD0012400'
 
 Actual gear:
     length:  0x01
+    Signed:  False
     factor:  1.0
     units:  "Gear"
     location: '0xD000F39A'
 
 Pressure upstream throttle:
     length:  0x02
+    signed:  False
     factor:  12.0601
     units:  "hPa"
     location: '0xD0013FAE'
 
 Pressure before throttle set point:
     length:  0x02
+    signed:  False
     factor:  12.0601
     units:  "hPa"
     location: '0xD0011EEE'
 
 Lambda value:
     length:  0x02
+    signed:  False
     factor:  1024
     units:  "-"
     location: '0xD00120C6'
 
 Lambda setpoint:
     length:  0x02
+    signed:  False
     factor:  1024
     units:  "-"
     location: '0xD00143F6'
 
 lambda controller output:
     length:  0x02
+    signed:  True
     factor:  655.36
     units:  "%"
     location: '0xD001431A'
 
 
-fac_2_put_ad:
-    length: 2
-    factor: 16384
-    location: '0xd0011e08'
-    units: 
-
-fac_1_put_ad:
-    length: 2
-    factor: 16384
-    location: '0xd0011e04'    
-    units:
-
 Ambient pressure:
     length:  0x02
+    signed:  False
     factor:  12.0601
     units:  "hPa"
     location: '0xD0013C76'
 
 Injector pulsewidth MPI:
     length:  0x02
+    signed:  False
     factor:  250
     units:  "ms"
     location: '0xD0013824'
 
 Low pressure rail pressure:
     length:  0x02
+    signed:  False
     factor:  .37688
     units:  "hPa"
     location: '0xD0011B26'
 
 High pressure rail pressure:
     length:  0x02
+    signed:  False
     factor:  0.1884402603974972
     units:  "hPa"
     location: '0xD0013612'
 
 Position of boost pressure actuator:
     length:  0x02
+    signed:  True
     factor:  164
     units:  "%"
     location: '0xD0011D8A'
 
 Position setpoint for boost pressure actuator:
     length:  0x02
+    signed:  True
     factor:  164
     units:  "%"
     location: '0xD0011D96'
 
+Turbine intake flow factor:
+    length: 2
+    signed:  False
+    factor: 16384
+    location: '0xd0011e08'
+    units: 
+
+Turbine exhaust flow factor:
+    length: 2
+    signed:  False
+    factor: 16384
+    location: '0xd0011e04'    
+    units: 'n/a'
+
+fac_pow_put_ctl_opl:
+    length: 2
+    signed:  False
+    factor:  655.36
+    location:  '0xd0015c2c'
+    units: 'n/a'
+
+fac_pow_put_ctl_rgl:
+    length: 2
+    signed:  False
+    factor: 655.36
+    location: '0xd0015c34'
+    units:  'n/a'
+
 Ambient air temperature:
     length:  0x01
+    signed:  False
     factor:  10.24
     units:  "°C"
     location: '0xD000C177'
 
 Injector pulsewidth:
     length:  0x01
+    signed:  False
     factor:  10
     units:  "ms"
     location: '0xD000E683'
@@ -111,30 +143,35 @@ Injector pulsewidth:
 
 #"Adjustable boost: Adjustable top limit":
 #    length:  0x01
+#    signed:  False
 #    factor:  17.0
 #    units:  "hPa"
 #    location: '0xD001DE90'
 #
 #"Adjustable octane: Octane value":
 #    length:  0x01
+#    signed:  False
 #    factor:  1.0
 #    units:  "ron"
 #    location: '0xD001DE8E'
 #
 #"Adjustable octane: high octane basic ignition lookup":
 #    length:  0x01
+#    signed:  False
 #    factor:  8.0
 #    units:  "°CRK"
 #    location: '0xD001DE8A'
 #
 #"Adjustable octane: low octane basic ignition lookup":
 #    length:  0x01
+#    signed:  False
 #    factor:  8.0
 #    units:  "°CRK"
 #    location: '0xD001DE89'
 #
 #"Adjustable octane: octane interpolation factor":
 #    length:  0x01
+#    signed:  False
 #    factor:  18.0
 #    units:  "[-]"
 #    location: '0xD001DE8D'
@@ -142,48 +179,56 @@ Injector pulsewidth:
 
 #Knock retard cylinder 1:
 #    length:  0x01
+#    signed:  False
 #    factor:  10.0
 #    units:  "°CRK"
 #    location: '0xD000EFB1'
 #
 #Knock retard cylinder 2:
 #    length:  0x01
+#    signed:  False
 #    factor:  10.0
 #    units:  "°CRK"
 #    location: '0xD000EFB2'
 #
 #Knock retard cylinder 3:
 #    length:  0x01
+#    signed:  False
 #    factor:  10.0
 #    units:  "°CRK"
 #    location: '0xD000EFB3'
 #
 #Knock retard cylinder 4:
 #    length:  0x01
+#    signed:  False
 #    factor:  10.0
 #    units:  "°CRK"
 #    location: '0xD000EFB4'
 #
 #Ignition timing cylinder 1:
 #    length:  0x01
+#    signed:  False
 #    factor:  8.0
 #    units:  "°CRK"
 #    location: '0xD000E565'
 #
 #Ignition timing cylinder 2:
 #    length:  0x01
+#    signed:  False
 #    factor:  8.0
 #    units:  "°CRK"
 #    location: '0xD000E566'
 #
 #Ignition timing cylinder 3:
 #    length:  0x01
+#    signed:  False
 #    factor:  8.0
 #    units:  "°CRK"
 #    location: '0xD000E567'
 #
 #Ignition timing cylinder 4:
 #    length:  0x01
+#    signed:  False
 #    factor:  8.0
 #    units:  "°CRK"
 #    location: '0xD000E568'
@@ -191,6 +236,7 @@ Injector pulsewidth:
 
 #Air mass:
 #    length:  0x02
+#    signed:  False
 #    factor:  3.0
 #    units:  "mg/stk"
 #    location: '0xD0013E42'
@@ -198,48 +244,56 @@ Injector pulsewidth:
 
 #Top limit of pressure upstream throttle setpoint:
 #    length:  0x02
+#    signed:  False
 #    factor:  2.0
 #    units:  "hPa"
 #    location: '0xD0011EFC'
 #
 #Intake air temperature:
 #    length:  0x01
+#    signed:  False
 #    factor:  23.0
 #    units:  "°C"
 #    location: '0xD000C179'
 #
 #Throttle angle:
 #    length:  0x02
+#    signed:  False
 #    factor:  24.0
 #    units:  "°TPS"
 #    location: '0xD001522E'
 #
 #Actual engine torque:
 #    length:  0x02
+#    signed:  True
 #    factor:  5.0
 #    units:  "Nm"
 #    location: '0xD001515C'
 #
 #Torque limit:
 #    length:  0x02
+#    signed:  False
 #    factor:  5.0
 #    units:  "Nm"
 #    location: '0xD0015444'
 #
 #Low pressure fuel pump speed:
 #    length:  0x02
+#    signed:  False
 #    factor:  27.0
 #    units:  "%"
 #    location: '0xD0013600'
 #
 #Recirculation actuator position:
 #    length:  0x02
+#    signed:  False
 #    factor:  27.0
 #    units:  "%"
 #    location: '0xD0011DB2'
 #
 #Recirculation actuator setpoint:
 #    length:  0x02
+#    signed:  False
 #    factor:  27.0
 #    units:  "%"
 #    location: '0xD0011EC0'

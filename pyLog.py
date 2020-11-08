@@ -171,7 +171,7 @@ def getValuesFromECU(client = None):
         if stopTime is not None and headless is True:
             if datetime.now() > stopTime:
                 stopTime = None
-                logging = false
+                logging = False
 
         results = (send_raw(bytes.fromhex('22F200'))).hex()
         #print(results)
@@ -196,7 +196,7 @@ def getValuesFromECU(client = None):
                 #print("Results: " + results)
                 val = results[:logParams[parameter]['length']*2]
                 #print("Value: " + val)
-                val = round(int.from_bytes(bytearray.fromhex(val),'little') / logParams[parameter]['factor'], 2)
+                val = round(int.from_bytes(bytearray.fromhex(val),'little', signed=logParams[parameter]['signed']) / logParams[parameter]['factor'], 2)
                 row += "," + str(val)
                 results = results[logParams[parameter]['length']*2:]
 
@@ -207,7 +207,7 @@ def getValuesFromECU(client = None):
                 elif parameter == "Lambda value":
                     displayAFR = round(val,2)
                 elif parameter == "Accelerator pedal":
-                    if headless == true:
+                    if headless == True:
                         if val > 80:
                             stopTime = None
                             logging = True
@@ -232,8 +232,8 @@ def getValuesFromECU(client = None):
 
         if headless == False:
             updateUserInterface(rawData = str(results), rpm = displayRPM, boost = displayBoost, afr = displayAFR)
-        else:
-            print(results)
+        #else:
+            #print(results)
 
 
         #Slow things down for testing
