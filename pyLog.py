@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 #yaml is used to define the logged parameters, bytes is for byte stuff, and
 #  threading is so we can handle multiple threads (start the reader thread)
 #  time is used so I could put pauses in various places
-import yaml, threading, time
+import yaml, threading, time, argparse, os, logging, smtplib, ssl, socket
 
 #import the udsoncan stuff
 import udsoncan
@@ -18,7 +18,11 @@ from udsoncan import exceptions
 from udsoncan import services
 from dashing import *
 
-import argparse,os
+#import the necessary smtp related libraries
+from email import encoders
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 #build the argument parser and set up the arguments
 parser = argparse.ArgumentParser(description='Simos18 High Speed Logger')
@@ -32,11 +36,18 @@ headless = args.headless
 
 #Set the global file path
 if args.filepath is not None:
-    filepath = args.filepath
+    filepath = args.filepath 
 else:
     filepath = "./"
 
-logging = False
+datalogging = False
+
+#Set up the activity logging
+logfile = filepath + "activity_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".log"
+logging.basicConfig(filename=logfile, level=logging.DEBUG)
+
+logging.debug("something")
+
 
 #udsoncan.setup_logging()
 
@@ -82,14 +93,14 @@ def buildUserInterface():
 
 def updateUserInterface( rawData = "Data", rpm = 750, boost = 1010, afr = 1.0 ):
     global ui
-    global logging
+    global datalogging
     rpmGauge = ui.items[0]
     boostGauge = ui.items[1]
     afrGauge = ui.items[2]
     log = ui.items[3]
     raw = ui.items[4]
 
-    log.append(str(logging))
+    log.append(str(datalogging))
     raw.append(str(rawData))
 
     rpmPercent = int(rpm / 8000 * 100)
@@ -125,8 +136,8 @@ def updateUserInterface( rawData = "Data", rpm = 750, boost = 1010, afr = 1.0 ):
     else:
         afrGauge.color = 1
 
-    log.append(str(logging))
-    if logging is True:
+    log.append(str(datalogging))
+    if datalogging is True:
         log.color = 3
     else:
         log.color = 1
@@ -137,10 +148,10 @@ def updateUserInterface( rawData = "Data", rpm = 750, boost = 1010, afr = 1.0 ):
 #Gain level 3 security access to the ECU
 def gainSecurityAccess(level, seed, params=None):
     #Print a debug message
-    #print("Level " + level + " security")
+    #logging.debug("Level " + level + " security")
 
     #Print the seed for debugging purposes
-    #print(seed)
+    #logging.debug(seed)
 
     #static resopnse used for testing
     #response = "01 02 1B 57 2C 42"
@@ -160,7 +171,7 @@ def getValuesFromECU(client = None):
     #Define the global variables that we'll use...  They're the logging parameters
     # and the boolean used for whether or not we should be logging
     global logParams
-    global logging
+    global datalogging
     global headless
     global filepath
 
@@ -176,10 +187,10 @@ def getValuesFromECU(client = None):
         if stopTime is not None and headless is True:
             if datetime.now() > stopTime:
                 stopTime = None
-                logging = False
+                datalogging = False
 
         results = (send_raw(bytes.fromhex('22F200'))).hex()
-        #print(results)
+        #logging.debug(results)
         #Static result for testing purposes
         #results = "F2000000725D"
 
@@ -198,9 +209,9 @@ def getValuesFromECU(client = None):
             #  the result
             for parameter in logParams:
                 #Debugging output
-                #print("Results: " + results)
+                #logging.debug("Results: " + results)
                 val = results[:logParams[parameter]['length']*2]
-                #print("Value: " + val)
+                #logging.debug("Value: " + val)
                 val = round(int.from_bytes(bytearray.fromhex(val),'little', signed=logParams[parameter]['signed']) / logParams[parameter]['factor'], 2)
                 row += "," + str(val)
                 results = results[logParams[parameter]['length']*2:]
@@ -215,30 +226,30 @@ def getValuesFromECU(client = None):
                     if headless == True:
                         if val > 80:
                             stopTime = None
-                            logging = True
-                        elif val < 80 and logging == True and stopTime is None:
+                            datalogging = True
+                        elif val < 80 and datalogging == True and stopTime is None:
                             stopTime = datetime.now() + timedelta(seconds = 5)
 
-            if logging is False and logFile is not None:
+            if datalogging is False and logFile is not None:
                 logFile.close()
                 logFile = None
 
-            if logging is True:
+            if datalogging is True:
                 if logFile is None:
                     logFile = open(filepath + "Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv", 'a')
                     logFile.write(csvHeader + '\n')
 
                 logFile.write(row + '\n')
-                #print(row)
+                #logging.debug(row)
 
    
         else:
-            print("Logging not active")
+            logging.debug("Logging not active")
 
         if headless == False:
             updateUserInterface(rawData = str(results), rpm = displayRPM, boost = displayBoost, afr = displayAFR)
         #else:
-            #print(results)
+            #logging.debug(results)
 
 
         #Slow things down for testing
@@ -249,10 +260,10 @@ def main(client = None):
     
     if client is not None:
 
-        print("Opening extended diagnostic session...")
+        logging.debug("Opening extended diagnostic session...")
         client.change_session(0x4F)
 
-        print("Gaining level 3 security access")
+        logging.debug("Gaining level 3 security access")
         client.unlock_security_access(3)
  
         #clear the f200 dynamic id
@@ -266,14 +277,14 @@ def main(client = None):
         readData = threading.Thread(target=getValuesFromECU, args=(client,))
         readData.start()
     except:
-        print("Error starting thread")
+        logging.debug("Error starting thread")
 
     #Start the loop that listens for the enter key
     while(True):
-        global logging
+        global datalogging
         log = input()
-        logging = not logging
-        print("Logging is: " + str(logging))
+        datalogging = not datalogging
+        logging.debug("Logging is: " + str(datalogging))
 
 
 def loadDefaultParams():
@@ -286,19 +297,67 @@ def loadDefaultParams():
             with open('./parameters.yaml', 'r') as parameterFile:
                 logParams = yaml.load(parameterFile)
         except:
-            print("No parameter file found, or can't load file, setting defaults")
+            logging.debug("No parameter file found, or can't load file, setting defaults")
+
+#Helper function that just gets the local IP address of the Pi (so we can email it as a notification for debugging purposes)
+def get_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # doesn't even have to be reachable
+        s.connect(('10.255.255.255', 1))
+        IP = s.getsockname()[0]
+    except Exception:
+        IP = '127.0.0.1'
+    finally:
+        s.close()
+    return IP
+
     
+def notificationEmail(mailsettings, msg, attachment = None):
+    port = mailsettings['smtp_port']
+    smtp_server = mailsettings['smtp_server']
+    sender_email = mailsettings['from']
+    receiver_email = mailsettings['to']
+    message = MIMEMultipart()
+    message["From"] = sender_email
+    message["To"] = receiver_email
+    message["Subject"] = "Simos Logger Notification"
+    message.attach(MIMEText(msg, "plain"))
+
+    # Create a secure SSL context
+    context = ssl.create_default_context()
+
+    text = message.as_string()
+
+    with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+        server.login(mailsettings['from'], mailsettings['password'])
+        server.sendmail(sender_email, receiver_email, text)
+
+
 
 #try to open the parameter file, if we can't, we'll work with a static
 #  list of logged parameters for testing
 if os.path.exists(filepath + 'parameters.yaml') and os.access(filepath + 'parameters.yaml', os.R_OK):
     try:
-        print("Loading parameters from: " + filepath + "parameters.yaml")
+        logging.debug("Loading parameters from: " + filepath + "parameters.yaml")
         with open(filepath + "parameters.yaml", 'r') as parameterFile:
             logParams = yaml.load(parameterFile)
     except:
-        print("No parameter file found, or can't load file, setting defaults")
+        logging.debug("No parameter file found, or can't load file, setting defaults")
         loadDefaultParams()
+
+if os.path.exists(filepath + 'config.yaml') and os.access(filepath + 'config.yaml', os.R_OK):
+    try:
+        logging.debug("Loading configuration file: " + filepath + "config.yaml")
+        with open(filepath + "config.yaml", 'r') as configFile:
+            configuration = yaml.load(configFile)
+        
+        notificationEmail(configuration['notification'], "Starting logger with IP address: " + get_ip())
+    except:
+        logging.debug("No configuration file loaded")
+        configuration = None
+else:
+    configuration = None
 
 
 #Build the dynamicIdentifier request
@@ -329,9 +388,15 @@ with Client(conn,  request_timeout=2, config=configs.default_client_config) as c
 
 
     except exceptions.NegativeResponseException as e:
-        print('Server refused our request for service %s with code "%s" (0x%02x)' % (e.response.service.get_name(), e.response.code_name, e.response.code))
+        logging.debug('Server refused our request for service %s with code "%s" (0x%02x)' % (e.response.service.get_name(), e.response.code_name, e.response.code))
     except exceptions.InvalidResponseException as e:
-        print('Server sent an invalid payload : %s' % e.response.original_payload)
+        logging.debug('Server sent an invalid payload : %s' % e.response.original_payload)
     except exceptions.UnexpectedResponseException as e:
-        print('Server sent an invalid payload : %s' % e.response.original_payload)
+        logging.debug('Server sent an invalid payload : %s' % e.response.original_payload)
+    except exceptions.TimeoutException as e:
+        logging.debug('Timeout waiting for response on can: ' + str(e))
+        if configuration is not None and 'notification' in configuration:
+            with open(logfile) as activityLog:
+                msg = activityLog.read()
+                notificationEmail(configuration['notification'], msg)
         
