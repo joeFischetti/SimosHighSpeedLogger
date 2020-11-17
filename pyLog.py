@@ -18,21 +18,19 @@ from udsoncan import exceptions
 from udsoncan import services
 from dashing import *
 
-import argparse
+import argparse,os
 
+#build the argument parser and set up the arguments
 parser = argparse.ArgumentParser(description='Simos18 High Speed Logger')
 parser.add_argument('--headless', action='store_true')
+parser.add_argument('--params',help="location of a parameter file to use for parameters, specify full path")
 
 args = parser.parse_args()
 
-if args.headless is not None:
-    headless = args.headless
-else:
-    headless = False
+#Set the global headless mode
+headless = args.headless
 
 logging = False
-
-print(str(headless))
 
 #udsoncan.setup_logging()
 
@@ -270,17 +268,35 @@ def main(client = None):
         logging = not logging
         print("Logging is: " + str(logging))
 
+
+def loadDefaultParams():
+    global logParams
+
+    if not os.path.exists("./parameters.yaml"):
+        exit(1)
+    else:
+        try:
+            with open('./parameters.yaml', 'r') as parameterFile:
+                logParams = yaml.load(parameterFile)
+        except:
+            print("No parameter file found, or can't load file, setting defaults")
+    
+
 #try to open the parameter file, if we can't, we'll work with a static
 #  list of logged parameters for testing
-try:
-    with open('./parameters.yaml', 'r') as parameterFile:
-        logParams = yaml.load(parameterFile)
-except:
-    print("No parameter file found, logging default values only")
-    logParams = {'Engine speed':{ 'length':  0x02, 'factor': 1.0, 'units': "RPM", 'location': "0xD0012400"}}
-    logParams["Adjustable boost: Adjustable top limit"] = {'length':  0x01,'factor':  17.0, 'units':  "hPa", 'location': '0xD001DE90'}
-    logParams["Adjustable octane: Octane value"] = {'length':  0x01, 'factor':  1.0, 'units':  "ron", 'location': '0xD001DE8E'}
+if args.params is not None:
+    if os.path.exists(args.params) and os.access(args.params, os.R_OK):
+        try:
+            print("Loading parameters from: " + args.params)
+            with open(args.params, 'r') as parameterFile:
+                logParams = yaml.load(parameterFile)
+        except:
+            print("No parameter file found, or can't load file, setting defaults")
+            loadDefaultParams()
 
+else:
+    print("No parameter file specified")
+    loadDefaultParams()
 
 #Build the dynamicIdentifier request
 if logParams is not None:
@@ -298,12 +314,12 @@ with Client(conn,  request_timeout=2, config=configs.default_client_config) as c
 
         if headless == False:
             buildUserInterface()
-#        updateUserInterface()
-        #Make the user hit a key to get started
-        print("Press enter key to connect to the serial port")
-        connect = input()
+            #updateUserInterface()
+            #Make the user hit a key to get started
+            print("Press enter key to connect to the serial port")
+            connect = input()
 
-
+        #Set up the security algorithm for the uds connection
         client.config['security_algo'] = gainSecurityAccess
         
         main(client)
