@@ -7,6 +7,10 @@ from datetime import datetime, timedelta
 #yaml is used to define the logged parameters, bytes is for byte stuff, and
 #  threading is so we can handle multiple threads (start the reader thread)
 #  time is used so I could put pauses in various places
+#  argparse is used to handle the argument parser
+#  os does various filesystem/path checks
+#  logging is used so we can log to an activity log
+#  smtplib, ssl, and socket are all used in support of sending email
 import yaml, threading, time, argparse, os, logging, smtplib, ssl, socket
 
 #import the udsoncan stuff
@@ -34,33 +38,41 @@ args = parser.parse_args()
 #Set the global headless mode
 headless = args.headless
 
-#Set the global file path
+#Set the global file path to the argument, or local
 if args.filepath is not None:
     filepath = args.filepath 
 else:
     filepath = "./"
 
-datalogging = False
-
 #Set up the activity logging
 logfile = filepath + "activity_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".log"
 logging.basicConfig(filename=logfile, level=logging.DEBUG)
 
-logging.debug("something")
+PARAMFILE = filepath + "parameters.yaml"
+logging.debug("Parameter file: " + PARAMFILE)
 
+CONFIGFILE = filepath + "config.yaml"
+logging.debug("Configuration file: " + CONFIGFILE)
 
-#udsoncan.setup_logging()
+datalogging = False
+ui = None
+conn = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
+conn.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
+
 
 params = {
   'tx_padding': 0x55
 }
 
+#A basic helper function that just returns the minimum of two values
 def minimum(a, b): 
     if a <= b: 
         return a 
     else: 
         return b 
 
+
+#A function used to send raw data (so we can create the dynamic identifier etc), since udsoncan can't do it all
 def send_raw(data):
     global params
     conn2 = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
@@ -71,11 +83,9 @@ def send_raw(data):
     conn2.close()
     return results
 
-conn = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
-conn.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
 
-ui = None
 
+#Build the user interface using dasher
 def buildUserInterface():
     global ui
 
@@ -91,6 +101,8 @@ def buildUserInterface():
 
     ui.items[4].append("Raw CAN data")
 
+
+#Update the user interface with RPM, Boost, and AFR
 def updateUserInterface( rawData = "Data", rpm = 750, boost = 1010, afr = 1.0 ):
     global ui
     global datalogging
@@ -147,15 +159,10 @@ def updateUserInterface( rawData = "Data", rpm = 750, boost = 1010, afr = 1.0 ):
 
 #Gain level 3 security access to the ECU
 def gainSecurityAccess(level, seed, params=None):
-    #Print a debug message
-    #logging.debug("Level " + level + " security")
+    logging.debug("Level " + level + " security")
 
-    #Print the seed for debugging purposes
-    #logging.debug(seed)
+    logging.debug(seed)
 
-    #static resopnse used for testing
-    #response = "01 02 1B 57 2C 42"
-    
     #the private key is used as a sum against the seed (for ED)
     private = "00 00 6D 43"
 
@@ -167,6 +174,8 @@ def gainSecurityAccess(level, seed, params=None):
 
     return theKey.to_bytes(4, 'big')
 
+
+#Read the identifier from the ECU
 def getValuesFromECU(client = None):
     #Define the global variables that we'll use...  They're the logging parameters
     # and the boolean used for whether or not we should be logging
@@ -190,9 +199,6 @@ def getValuesFromECU(client = None):
                 datalogging = False
 
         results = (send_raw(bytes.fromhex('22F200'))).hex()
-        #logging.debug(results)
-        #Static result for testing purposes
-        #results = "F2000000725D"
 
         #Make sure the result starts with an affirmative
         if results.startswith("62f200"):
@@ -208,8 +214,6 @@ def getValuesFromECU(client = None):
             #  front of the result, process it, add it to the CSV row, and then remove it from
             #  the result
             for parameter in logParams:
-                #Debugging output
-                #logging.debug("Results: " + results)
                 val = results[:logParams[parameter]['length']*2]
                 #logging.debug("Value: " + val)
                 val = round(int.from_bytes(bytearray.fromhex(val),'little', signed=logParams[parameter]['signed']) / logParams[parameter]['factor'], 2)
@@ -240,26 +244,25 @@ def getValuesFromECU(client = None):
                     logFile.write(csvHeader + '\n')
 
                 logFile.write(row + '\n')
-                #logging.debug(row)
+        
+        #else:
+        #    logging.debug("Logging not active")
 
-   
-        else:
-            logging.debug("Logging not active")
-
+        #If we're not running headless, update the display
         if headless == False:
             updateUserInterface(rawData = str(results), rpm = displayRPM, boost = displayBoost, afr = displayAFR)
+
+        #If we are running headless, print the results in a debug fashion
         #else:
             #logging.debug(results)
 
 
-        #Slow things down for testing
-        #time.sleep(.1)
  
 
+#Main loop
 def main(client = None):
     
     if client is not None:
-
         logging.debug("Opening extended diagnostic session...")
         client.change_session(0x4F)
 
@@ -287,6 +290,7 @@ def main(client = None):
         logging.debug("Logging is: " + str(datalogging))
 
 
+#Load default parameters, in the event that no parameter file was passed
 def loadDefaultParams():
     global logParams
 
@@ -312,12 +316,17 @@ def get_ip():
         s.close()
     return IP
 
-    
+
+#Function to send notification emails out (i.e. when the logger is started, and when exceptions are thrown) 
 def notificationEmail(mailsettings, msg, attachment = None):
+
+    #Set up all the email sever/credential information (from the configuration file)
     port = mailsettings['smtp_port']
     smtp_server = mailsettings['smtp_server']
     sender_email = mailsettings['from']
     receiver_email = mailsettings['to']
+
+    #Set up the messge (so that attachments can be added)
     message = MIMEMultipart()
     message["From"] = sender_email
     message["To"] = receiver_email
@@ -329,6 +338,7 @@ def notificationEmail(mailsettings, msg, attachment = None):
 
     text = message.as_string()
 
+    #Send the mail message
     with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
         server.login(mailsettings['from'], mailsettings['password'])
         server.sendmail(sender_email, receiver_email, text)
@@ -337,19 +347,19 @@ def notificationEmail(mailsettings, msg, attachment = None):
 
 #try to open the parameter file, if we can't, we'll work with a static
 #  list of logged parameters for testing
-if os.path.exists(filepath + 'parameters.yaml') and os.access(filepath + 'parameters.yaml', os.R_OK):
+if os.path.exists(PARAMFILE) and os.access(PARAMFILE, os.R_OK):
     try:
-        logging.debug("Loading parameters from: " + filepath + "parameters.yaml")
-        with open(filepath + "parameters.yaml", 'r') as parameterFile:
+        logging.debug("Loading parameters from: " + PARAMFILE)
+        with open(PARAMFILE, 'r') as parameterFile:
             logParams = yaml.load(parameterFile)
     except:
         logging.debug("No parameter file found, or can't load file, setting defaults")
         loadDefaultParams()
 
-if os.path.exists(filepath + 'config.yaml') and os.access(filepath + 'config.yaml', os.R_OK):
+if os.path.exists(CONFIGFILE) and os.access(CONFIGFILE, os.R_OK):
     try:
-        logging.debug("Loading configuration file: " + filepath + "config.yaml")
-        with open(filepath + "config.yaml", 'r') as configFile:
+        logging.debug("Loading configuration file: " + CONFIGFILE)
+        with open(CONFIGFILE, 'r') as configFile:
             configuration = yaml.load(configFile)
         
         notificationEmail(configuration['notification'], "Starting logger with IP address: " + get_ip())
@@ -371,7 +381,7 @@ if logParams is not None:
         defineIdentifier += str(logParams[param]['length'])
 
 
-with Client(conn,  request_timeout=2, config=configs.default_client_config) as client:
+with Client(conn,request_timeout=2, config=configs.default_client_config) as client:
     try:
 
         if headless == False:
@@ -389,10 +399,25 @@ with Client(conn,  request_timeout=2, config=configs.default_client_config) as c
 
     except exceptions.NegativeResponseException as e:
         logging.debug('Server refused our request for service %s with code "%s" (0x%02x)' % (e.response.service.get_name(), e.response.code_name, e.response.code))
+        if configuration is not None and 'notification' in configuration:
+            with open(logfile) as activityLog:
+                msg = activityLog.read()
+                notificationEmail(configuration['notification'], msg)
+ 
     except exceptions.InvalidResponseException as e:
         logging.debug('Server sent an invalid payload : %s' % e.response.original_payload)
+        if configuration is not None and 'notification' in configuration:
+            with open(logfile) as activityLog:
+                msg = activityLog.read()
+                notificationEmail(configuration['notification'], msg)
+ 
     except exceptions.UnexpectedResponseException as e:
         logging.debug('Server sent an invalid payload : %s' % e.response.original_payload)
+        if configuration is not None and 'notification' in configuration:
+            with open(logfile) as activityLog:
+                msg = activityLog.read()
+                notificationEmail(configuration['notification'], msg)
+ 
     except exceptions.TimeoutException as e:
         logging.debug('Timeout waiting for response on can: ' + str(e))
         if configuration is not None and 'notification' in configuration:
