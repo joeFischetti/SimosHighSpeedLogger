@@ -103,4 +103,11 @@ optional arguments:
                    full path
 ```
 
+## Notes
+Huge thanks to Brian for helping me out along the way: https://github.com/bri3d/
+UDEV/Systemd stuff adapted from: https://www.andreafortuna.org/2019/06/26/automount-usb-devices-on-linux-using-udev-and-systemd/
 
+
+## TODO
+Stop/Kill the logger when another USB stick is inserted into the pi.
+Graceful shutown

@@ -23,12 +23,18 @@ import argparse,os
 #build the argument parser and set up the arguments
 parser = argparse.ArgumentParser(description='Simos18 High Speed Logger')
 parser.add_argument('--headless', action='store_true')
-parser.add_argument('--params',help="location of a parameter file to use for parameters, specify full path")
+parser.add_argument('--filepath',help="location to be used for the parameter and the log output location")
 
 args = parser.parse_args()
 
 #Set the global headless mode
 headless = args.headless
+
+#Set the global file path
+if args.filepath is not None:
+    filepath = args.filepath
+else:
+    filepath = "./"
 
 logging = False
 
@@ -156,6 +162,7 @@ def getValuesFromECU(client = None):
     global logParams
     global logging
     global headless
+    global filepath
 
     logFile = None
     stopTime = None
@@ -218,7 +225,7 @@ def getValuesFromECU(client = None):
 
             if logging is True:
                 if logFile is None:
-                    logFile = open("Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv", 'a')
+                    logFile = open(filepath + "Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv", 'a')
                     logFile.write(csvHeader + '\n')
 
                 logFile.write(row + '\n')
@@ -284,19 +291,15 @@ def loadDefaultParams():
 
 #try to open the parameter file, if we can't, we'll work with a static
 #  list of logged parameters for testing
-if args.params is not None:
-    if os.path.exists(args.params) and os.access(args.params, os.R_OK):
-        try:
-            print("Loading parameters from: " + args.params)
-            with open(args.params, 'r') as parameterFile:
-                logParams = yaml.load(parameterFile)
-        except:
-            print("No parameter file found, or can't load file, setting defaults")
-            loadDefaultParams()
+if os.path.exists(filepath + 'parameters.yaml') and os.access(filepath + 'parameters.yaml', os.R_OK):
+    try:
+        print("Loading parameters from: " + filepath + "parameters.yaml")
+        with open(filepath + "parameters.yaml", 'r') as parameterFile:
+            logParams = yaml.load(parameterFile)
+    except:
+        print("No parameter file found, or can't load file, setting defaults")
+        loadDefaultParams()
 
-else:
-    print("No parameter file specified")
-    loadDefaultParams()
 
 #Build the dynamicIdentifier request
 if logParams is not None:
@@ -314,7 +317,7 @@ with Client(conn,  request_timeout=2, config=configs.default_client_config) as c
 
         if headless == False:
             buildUserInterface()
-            #updateUserInterface()
+            updateUserInterface()
             #Make the user hit a key to get started
             print("Press enter key to connect to the serial port")
             connect = input()
