@@ -109,5 +109,6 @@ UDEV/Systemd stuff adapted from: https://www.andreafortuna.org/2019/06/26/automo
 
 
 ## TODO
+Do a better job documenting the way the udev rules work (mainly - how to identify the sticks, and how to set them up)
 Stop/Kill the logger when another USB stick is inserted into the pi.
-Graceful shutown
+
