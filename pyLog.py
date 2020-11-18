@@ -216,7 +216,8 @@ def getValuesFromECU(client = None):
             for parameter in logParams:
                 val = results[:logParams[parameter]['length']*2]
                 #logging.debug("Value: " + val)
-                val = round(int.from_bytes(bytearray.fromhex(val),'little', signed=logParams[parameter]['signed']) / logParams[parameter]['factor'], 2)
+                rawval = int.from_bytes(bytearray.fromhex(val),'little', signed=logParams[parameter]['signed'])
+                val = round(eval(logParams[parameter]['function'], {'x':rawval}), 2)
                 row += "," + str(val)
                 results = results[logParams[parameter]['length']*2:]
 
