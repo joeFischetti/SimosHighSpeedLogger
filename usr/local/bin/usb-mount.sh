@@ -45,7 +45,8 @@ do_mount()
         /bin/rmdir ${MOUNT_POINT}
         exit 1
     fi
-
+    
+    sleep 3
 
     for f in $MOUNT_POINT/parameters.yaml; do
 

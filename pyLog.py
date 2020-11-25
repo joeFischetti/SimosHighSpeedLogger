@@ -174,7 +174,7 @@ def updateUserInterface( rawData = "Data", rpm = 750, boost = 1010, afr = 1.0 ):
 
 #Gain level 3 security access to the ECU
 def gainSecurityAccess(level, seed, params=None):
-    logging.info("Level " + level + " security")
+    logging.info("Level " + str(level) + " security")
 
     logging.debug(seed)
 
