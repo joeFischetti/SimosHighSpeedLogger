@@ -32,6 +32,7 @@ from email.mime.text import MIMEText
 parser = argparse.ArgumentParser(description='Simos18 High Speed Logger')
 parser.add_argument('--headless', action='store_true')
 parser.add_argument('--filepath',help="location to be used for the parameter and the log output location")
+parser.add_argument('--level',help="Log level for the activity log, valid levels include: DEBUG, INFO, WARNING, ERROR, CRITICAL")
 
 args = parser.parse_args()
 
@@ -46,23 +47,37 @@ else:
 
 #Set up the activity logging
 logfile = filepath + "activity_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".log"
-logging.basicConfig(filename=logfile, level=logging.DEBUG)
+
+if args.level is not None:
+    loglevels = {
+        'DEBUG': logging.DEBUG,
+        'INFO': logging.INFO,
+        'WARNING': logging.WARNING,
+        'ERROR': logging.ERROR,
+        'CRITICAL': logging.CRITICAL
+    }
+
+    logging.basicConfig(filename=logfile, level=loglevels.get(args.level.upper(), logging.DEBUG))
+
+else:
+    logging.basicConfig(filename=logfile, level=logging.DEBUG)
 
 PARAMFILE = filepath + "parameters.yaml"
-logging.debug("Parameter file: " + PARAMFILE)
+logging.info("Parameter file: " + PARAMFILE)
 
 CONFIGFILE = filepath + "config.yaml"
-logging.debug("Configuration file: " + CONFIGFILE)
+logging.info("Configuration file: " + CONFIGFILE)
 
 datalogging = False
 ui = None
-conn = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
-conn.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
-
 
 params = {
   'tx_padding': 0x55
 }
+
+conn = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
+conn.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
+
 
 #A basic helper function that just returns the minimum of two values
 def minimum(a, b): 
@@ -159,7 +174,7 @@ def updateUserInterface( rawData = "Data", rpm = 750, boost = 1010, afr = 1.0 ):
 
 #Gain level 3 security access to the ECU
 def gainSecurityAccess(level, seed, params=None):
-    logging.debug("Level " + level + " security")
+    logging.info("Level " + level + " security")
 
     logging.debug(seed)
 
@@ -215,8 +230,9 @@ def getValuesFromECU(client = None):
             #  the result
             for parameter in logParams:
                 val = results[:logParams[parameter]['length']*2]
-                #logging.debug("Value: " + val)
-                val = round(int.from_bytes(bytearray.fromhex(val),'little', signed=logParams[parameter]['signed']) / logParams[parameter]['factor'], 2)
+                logging.debug("Value: " + val)
+                rawval = int.from_bytes(bytearray.fromhex(val),'little', signed=logParams[parameter]['signed'])
+                val = round(eval(logParams[parameter]['function'], {'x':rawval}), 2)
                 row += "," + str(val)
                 results = results[logParams[parameter]['length']*2:]
 
@@ -226,12 +242,12 @@ def getValuesFromECU(client = None):
                     displayBoost = round(val)
                 elif parameter == "Lambda value":
                     displayAFR = round(val,2)
-                elif parameter == "Accelerator pedal":
+                elif parameter == "Cruise":
                     if headless == True:
-                        if val > 80:
+                        if val != 0:
                             stopTime = None
                             datalogging = True
-                        elif val < 80 and datalogging == True and stopTime is None:
+                        elif val == 0 and datalogging == True and stopTime is None:
                             stopTime = datetime.now() + timedelta(seconds = 5)
 
             if datalogging is False and logFile is not None:
@@ -252,9 +268,7 @@ def getValuesFromECU(client = None):
         if headless == False:
             updateUserInterface(rawData = str(results), rpm = displayRPM, boost = displayBoost, afr = displayAFR)
 
-        #If we are running headless, print the results in a debug fashion
-        #else:
-            #logging.debug(results)
+        logging.debug(results)
 
 
  
@@ -280,7 +294,7 @@ def main(client = None):
         readData = threading.Thread(target=getValuesFromECU, args=(client,))
         readData.start()
     except:
-        logging.debug("Error starting thread")
+        logging.critical("Error starting thread")
 
     #Start the loop that listens for the enter key
     while(True):
@@ -301,7 +315,7 @@ def loadDefaultParams():
             with open('./parameters.yaml', 'r') as parameterFile:
                 logParams = yaml.load(parameterFile)
         except:
-            logging.debug("No parameter file found, or can't load file, setting defaults")
+            logging.warning("No parameter file found, or can't load file, setting defaults")
 
 #Helper function that just gets the local IP address of the Pi (so we can email it as a notification for debugging purposes)
 def get_ip():
@@ -353,7 +367,7 @@ if os.path.exists(PARAMFILE) and os.access(PARAMFILE, os.R_OK):
         with open(PARAMFILE, 'r') as parameterFile:
             logParams = yaml.load(parameterFile)
     except:
-        logging.debug("No parameter file found, or can't load file, setting defaults")
+        logging.info("No parameter file found, or can't load file, setting defaults")
         loadDefaultParams()
 
 if os.path.exists(CONFIGFILE) and os.access(CONFIGFILE, os.R_OK):
@@ -364,7 +378,7 @@ if os.path.exists(CONFIGFILE) and os.access(CONFIGFILE, os.R_OK):
         
         notificationEmail(configuration['notification'], "Starting logger with IP address: " + get_ip())
     except:
-        logging.debug("No configuration file loaded")
+        logging.info("No configuration file loaded")
         configuration = None
 else:
     configuration = None
@@ -398,28 +412,28 @@ with Client(conn,request_timeout=2, config=configs.default_client_config) as cli
 
 
     except exceptions.NegativeResponseException as e:
-        logging.debug('Server refused our request for service %s with code "%s" (0x%02x)' % (e.response.service.get_name(), e.response.code_name, e.response.code))
+        logging.critical('Server refused our request for service %s with code "%s" (0x%02x)' % (e.response.service.get_name(), e.response.code_name, e.response.code))
         if configuration is not None and 'notification' in configuration:
             with open(logfile) as activityLog:
                 msg = activityLog.read()
                 notificationEmail(configuration['notification'], msg)
  
     except exceptions.InvalidResponseException as e:
-        logging.debug('Server sent an invalid payload : %s' % e.response.original_payload)
+        logging.critical('Server sent an invalid payload : %s' % e.response.original_payload)
         if configuration is not None and 'notification' in configuration:
             with open(logfile) as activityLog:
                 msg = activityLog.read()
                 notificationEmail(configuration['notification'], msg)
  
     except exceptions.UnexpectedResponseException as e:
-        logging.debug('Server sent an invalid payload : %s' % e.response.original_payload)
+        logging.critical('Server sent an invalid payload : %s' % e.response.original_payload)
         if configuration is not None and 'notification' in configuration:
             with open(logfile) as activityLog:
                 msg = activityLog.read()
                 notificationEmail(configuration['notification'], msg)
  
     except exceptions.TimeoutException as e:
-        logging.debug('Timeout waiting for response on can: ' + str(e))
+        logging.critical('Timeout waiting for response on can: ' + str(e))
         if configuration is not None and 'notification' in configuration:
             with open(logfile) as activityLog:
                 msg = activityLog.read()
