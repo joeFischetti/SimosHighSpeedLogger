@@ -242,12 +242,12 @@ def getValuesFromECU(client = None):
                     displayBoost = round(val)
                 elif parameter == "Lambda value":
                     displayAFR = round(val,2)
-                elif parameter == "Accelerator pedal":
+                elif parameter == "Cruise":
                     if headless == True:
-                        if val > 80:
+                        if val != 0:
                             stopTime = None
                             datalogging = True
-                        elif val < 80 and datalogging == True and stopTime is None:
+                        elif val == 0 and datalogging == True and stopTime is None:
                             stopTime = datetime.now() + timedelta(seconds = 5)
 
             if datalogging is False and logFile is not None:

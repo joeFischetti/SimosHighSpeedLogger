@@ -1,3 +1,10 @@
+Cruise:
+    length: 0x01
+    signed: false
+    function: "x/1"
+    units: "-"
+    location: '0xd001b3aa'
+
 Accelerator pedal:
     length:  0x02
     signed:  False
