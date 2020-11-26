@@ -45,8 +45,10 @@ if args.filepath is not None:
 else:
     filepath = "./"
 
+
 #Set up the activity logging
 logfile = filepath + "activity_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".log"
+
 
 if args.level is not None:
     loglevels = {
@@ -61,6 +63,11 @@ if args.level is not None:
 
 else:
     logging.basicConfig(filename=logfile, level=logging.DEBUG)
+
+logging.debug("Current filepath: " + filepath)
+logging.debug("Activity log file: " + logfile)
+logging.debug("Headless mode: " + str(headless))
+
 
 PARAMFILE = filepath + "parameters.yaml"
 logging.info("Parameter file: " + PARAMFILE)
@@ -230,10 +237,13 @@ def getValuesFromECU(client = None):
             #  the result
             for parameter in logParams:
                 val = results[:logParams[parameter]['length']*2]
-                logging.debug("Value: " + val)
+                logging.debug(str(parameter) + " raw from ecu: " + str(val))
                 rawval = int.from_bytes(bytearray.fromhex(val),'little', signed=logParams[parameter]['signed'])
+                logging.debug(str(parameter) + " pre-function: " + str(rawval))
                 val = round(eval(logParams[parameter]['function'], {'x':rawval}), 2)
                 row += "," + str(val)
+                logging.debug(str(parameter) + " scaling applied: " + str(val))
+
                 results = results[logParams[parameter]['length']*2:]
 
                 if parameter == "Engine speed":
@@ -245,18 +255,22 @@ def getValuesFromECU(client = None):
                 elif parameter == "Cruise":
                     if headless == True:
                         if val != 0:
+                            logging.debug("Cruise control enabled, starting log")
                             stopTime = None
                             datalogging = True
                         elif val == 0 and datalogging == True and stopTime is None:
                             stopTime = datetime.now() + timedelta(seconds = 5)
 
             if datalogging is False and logFile is not None:
+                logging.debug("Datalogging stopped, closing file")
                 logFile.close()
                 logFile = None
 
             if datalogging is True:
                 if logFile is None:
-                    logFile = open(filepath + "Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv", 'a')
+                    filename = filepath + "Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
+                    logging.debug("Creating new logfile at: " + filename)
+                    logFile = open(filename, 'a')
                     logFile.write(csvHeader + '\n')
 
                 logFile.write(row + '\n')
@@ -268,10 +282,6 @@ def getValuesFromECU(client = None):
         if headless == False:
             updateUserInterface(rawData = str(results), rpm = displayRPM, boost = displayBoost, afr = displayAFR)
 
-        logging.debug(results)
-
-
- 
 
 #Main loop
 def main(client = None):
@@ -300,6 +310,7 @@ def main(client = None):
     while(True):
         global datalogging
         log = input()
+        logging.debug("Input from user: " + log)
         datalogging = not datalogging
         logging.debug("Logging is: " + str(datalogging))
 
@@ -434,6 +445,12 @@ with Client(conn,request_timeout=2, config=configs.default_client_config) as cli
  
     except exceptions.TimeoutException as e:
         logging.critical('Timeout waiting for response on can: ' + str(e))
+        if configuration is not None and 'notification' in configuration:
+            with open(logfile) as activityLog:
+                msg = activityLog.read()
+                notificationEmail(configuration['notification'], msg)
+    except Exception as e:
+        logging.critical("Unhandled exception: " + str(e))
         if configuration is not None and 'notification' in configuration:
             with open(logfile) as activityLog:
                 msg = activityLog.read()
