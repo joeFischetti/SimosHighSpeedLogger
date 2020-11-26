@@ -401,6 +401,7 @@ if logParams is not None:
     csvHeader = "timestamp"
     for param in logParams:
         csvHeader += "," + param
+        logging.debug("Logging parameter: " + param)
         defineIdentifier += logParams[param]['location'].lstrip("0x")
         defineIdentifier += "0"
         defineIdentifier += str(logParams[param]['length'])
@@ -455,4 +456,5 @@ with Client(conn,request_timeout=2, config=configs.default_client_config) as cli
             with open(logfile) as activityLog:
                 msg = activityLog.read()
                 notificationEmail(configuration['notification'], msg)
+        raise
         
