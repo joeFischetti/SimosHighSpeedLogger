@@ -387,7 +387,9 @@ if os.path.exists(CONFIGFILE) and os.access(CONFIGFILE, os.R_OK):
         with open(CONFIGFILE, 'r') as configFile:
             configuration = yaml.load(configFile)
         
-        notificationEmail(configuration['notification'], "Starting logger with IP address: " + get_ip())
+        if 'notification' in configuration:
+            notificationEmail(configuration['notification'], "Starting logger with IP address: " + get_ip())
+
     except:
         logging.info("No configuration file loaded")
         configuration = None
