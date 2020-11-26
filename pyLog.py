@@ -403,7 +403,7 @@ if logParams is not None:
     csvHeader = "timestamp"
     for param in logParams:
         csvHeader += "," + param
-        logging.debug("Logging parameter: " + param)
+        logging.debug("Logging parameter: " + param + "|" + str(logParams[param]['location']) + "|" + str(logParams[param]['length']))
         defineIdentifier += logParams[param]['location'].lstrip("0x")
         defineIdentifier += "0"
         defineIdentifier += str(logParams[param]['length'])
