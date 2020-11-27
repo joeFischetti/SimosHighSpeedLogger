@@ -19,6 +19,13 @@ Engine speed:
     units:  "RPM"
     location: '0xD0012400'
 
+idx_cmb_mod_cur:
+    length:  0x01
+    signed: False
+    function: "x/1.0"
+    units: "-"
+    location: '0xd000c36e'
+
 Actual gear:
     length:  0x01
     signed:  False

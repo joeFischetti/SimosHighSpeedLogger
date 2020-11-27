@@ -213,6 +213,11 @@ def getValuesFromECU(client = None):
     displayBoost = 0
     displayAFR = 0
 
+
+    if 'notification' in configuration:
+        notificationEmail(configuration['notification'], "Sucessfully connected to ECU, starting logger process.\nValues will be written to a log file when cruise control is active")
+
+
     #Start logging
     while(True):
         if stopTime is not None and headless is True:
