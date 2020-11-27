@@ -21,7 +21,7 @@ Engine speed:
 
 Actual gear:
     length:  0x01
-    Signed:  False
+    signed:  False
     function:  "x/1.0"
     units:  "Gear"
     location: '0xD000F39A'

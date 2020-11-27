@@ -1,0 +1,13 @@
+[Unit]
+Description=Simos High speed logger - %I
+After=multi-user.target
+Conflicts=getty@tty1.service
+
+[Service]
+Type=simple
+User=pi
+ExecStart=/usr/bin/python3 /home/pi/SimosHighSpeedLogger/pyLog.py --headless --filepath %I
+StandardInput=tty-force
+
+[Install]
+WantedBy=multi-user.target

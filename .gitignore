@@ -3,3 +3,4 @@ __pycache__/
 Logging*
 udsoncan.log
 logs
+config.yaml
