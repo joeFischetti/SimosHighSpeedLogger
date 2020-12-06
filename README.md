@@ -200,14 +200,27 @@ And then, set up can-isotp:
 cd can-isotp
 sudo apt install raspberrypi-kernel-headers
 make
+sudo depmod -a
+sudo make modules_install
 sudo insmod ./net/can/can-isotp.ko
 sudo echo "/home/pi/can-isotp/net/can/can-isotp.ko" >> /etc/modules
+```
+
+When updating your kernel, you'll NEED to rebuild the kernel module:
+```bash
+cd ~/can-isotp
+make clean
+git pull
+make
+sudo depmod -a
+sudo make modules_install
 ```
 
 Finally, install some necessary python modules via pip:
 ```bash
 sudo python3 -m pip install pyyaml udsoncan can-isotp
 ```
+
 
 ## TODO
 Do a better job documenting the way the udev rules work (mainly - how to identify the sticks, and how to set them up)
