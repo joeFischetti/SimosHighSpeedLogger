@@ -11,7 +11,8 @@ from datetime import datetime, timedelta
 #  os does various filesystem/path checks
 #  logging is used so we can log to an activity log
 #  smtplib, ssl, and socket are all used in support of sending email
-import yaml, threading, time, argparse, os, logging, smtplib, ssl, socket
+#  struct is used for some of the floating point conversions from the ECU
+import yaml, threading, time, argparse, os, logging, smtplib, ssl, socket, struct
 
 #import the udsoncan stuff
 import udsoncan
@@ -245,7 +246,7 @@ def getValuesFromECU(client = None):
                 logging.debug(str(parameter) + " raw from ecu: " + str(val))
                 rawval = int.from_bytes(bytearray.fromhex(val),'little', signed=logParams[parameter]['signed'])
                 logging.debug(str(parameter) + " pre-function: " + str(rawval))
-                val = round(eval(logParams[parameter]['function'], {'x':rawval}), 2)
+                val = round(eval(logParams[parameter]['function'], {'x':rawval, 'struct': struct}), 2)
                 row += "," + str(val)
                 logging.debug(str(parameter) + " scaling applied: " + str(val))
 

@@ -311,28 +311,28 @@ Recirculation actuator setpoint:
 m_air_cyl_pred:
     length:  0x04
     signed:  False
-    function:  "1000000/x"
+    function:  "struct.unpack('f',int(x).to_bytes(4,'little'))[0] * 1000000"
     units:  "mg/stk"
     location: '0xd00097e4'
     
 m_cyl:
     length:  0x04
     signed:  False
-    function:  "1000000/x"
+    function:  "struct.unpack('f',int(x).to_bytes(4,'little'))[0] * 1000000"
     units:  "mg/stk"
     location: '0xd0009800'
     
-fac_afu_ratio_det:
-    length:  0x01
-    signed:  False
-    function:  "x/128"
-    units:  "[Percent?]"
-    location: '0xd000c1c6'
-
-fac_afu_ratio:
-    length:  0x01
-    signed:  False
-    function:  "x/128"
-    units:  "[Percent?]"
-    location: '0xd000c1c5'
-    
+#fac_afu_ratio_det:
+#    length:  0x01
+#    signed:  False
+#    function:  "x/128"
+#    units:  "[Percent?]"
+#    location: '0xd000c1c6'
+#
+#fac_afu_ratio:
+#    length:  0x01
+#    signed:  False
+#    function:  "x/128"
+#    units:  "[Percent?]"
+#    location: '0xd000c1c5'
+#    
