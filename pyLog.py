@@ -12,7 +12,8 @@ from datetime import datetime, timedelta
 #  logging is used so we can log to an activity log
 #  smtplib, ssl, and socket are all used in support of sending email
 #  struct is used for some of the floating point conversions from the ECU
-import yaml, threading, time, argparse, os, logging, smtplib, ssl, socket, struct
+import yaml, threading, time, argparse, os, logging, smtplib, ssl, socket, struct, random
+import json
 
 #import the udsoncan stuff
 import udsoncan
@@ -33,26 +34,37 @@ from flask import Flask, Response, render_template
 
 application = Flask(__name__)
 
+#dataStream is an object that will be passed to the web GUI
+dataStream = {}
 
 @application.route('/')
 def index():
-    return render_template('webdir/index.html')
+    return render_template('index.html')
 
 @application.route('/stream')
 def stream_data():
-    return render_template('index.html')
-
+    def waitForStreamData():
+        while True:
+            if 'ready' in dataStream and dataStream['ready'] is True:
+                json_data = json.dumps(dataStream)
+                yield f"data:{json_data}\n\n"
+            time.sleep(.5)
+    return Response(waitForStreamData(), mimetype='text/event-stream')
 
 #build the argument parser and set up the arguments
 parser = argparse.ArgumentParser(description='Simos18 High Speed Logger')
 parser.add_argument('--headless', action='store_true')
 parser.add_argument('--filepath',help="location to be used for the parameter and the log output location")
 parser.add_argument('--level',help="Log level for the activity log, valid levels include: DEBUG, INFO, WARNING, ERROR, CRITICAL")
+parser.add_argument('--testing', help="testing mode, for use when not connected to a car", action='store_true')
 
 args = parser.parse_args()
 
 #Set the global headless mode
 headless = args.headless
+
+#set the global testing mode
+testing = args.testing
 
 #Set the global file path to the argument, or local
 if args.filepath is not None:
@@ -220,6 +232,7 @@ def getValuesFromECU(client = None):
     global datalogging
     global headless
     global filepath
+    global dataStream
 
     logFile = None
     stopTime = None
@@ -245,8 +258,13 @@ def getValuesFromECU(client = None):
         #Make sure the result starts with an affirmative
         if results.startswith("62f200"):
 
+            dataStream = {}
+            dataStream['ready'] = False
+
             #Set the datetime for the beginning of the row
             row = str(datetime.now().time())
+            dataStream['timestamp'] = str(datetime.now().time())
+
 
             #Strip off the first 6 characters (F200) so we only have the data
             results = results[6:]
@@ -266,6 +284,8 @@ def getValuesFromECU(client = None):
 
                 results = results[logParams[parameter]['length']*2:]
 
+                dataStream[parameter] = str(val)
+
                 if parameter == "Engine speed":
                     displayRPM = round(val)
                 elif parameter == "Pressure upstream throttle":
@@ -280,6 +300,8 @@ def getValuesFromECU(client = None):
                             datalogging = True
                         elif val == 0 and datalogging == True and stopTime is None:
                             stopTime = datetime.now() + timedelta(seconds = 5)
+ 
+            dataStream['ready'] = True
 
             if datalogging is False and logFile is not None:
                 logging.debug("Datalogging stopped, closing file")
@@ -431,10 +453,25 @@ if logParams is not None:
 
 #Start the polling thread
 try:
-    flaskThread = threading.Thread(target=application.run())
+    flaskThread = threading.Thread(target=application.run(host='0.0.0.0', debug=True))
     flaskThread.start()
 except:
     logging.critical("Error starting flask thread")
+
+if testing is True:
+    while True:
+        dataStream = {}
+        dataStream['ready'] = False
+
+        dataStream['timestamp'] = str(datetime.now().time())
+
+        for parameter in logParams:
+            dataStream[parameter] = str(random.random() * 100)
+
+        dataStream['ready'] = True
+
+        time.sleep(1)
+
 
 
 with Client(conn,request_timeout=2, config=configs.default_client_config) as client:

@@ -75,7 +75,7 @@
 
         const lineChart = new Chart(context, config);
 
-        const source = new EventSource("/chart-data");
+        const source = new EventSource("/stream");
 
         source.onmessage = function (event) {
             const data = JSON.parse(event.data);
