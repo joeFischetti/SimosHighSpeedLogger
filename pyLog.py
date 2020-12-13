@@ -32,6 +32,7 @@ from email.mime.text import MIMEText
 
 from flask import Flask, Response, render_template
 
+
 application = Flask(__name__)
 
 #dataStream is an object that will be passed to the web GUI
@@ -154,14 +155,31 @@ def buildUserInterface():
 def updateUserInterface( rawData = "Data", rpm = 750, boost = 1010, afr = 1.0 ):
     global ui
     global datalogging
+    global dataStream
+
     rpmGauge = ui.items[0]
     boostGauge = ui.items[1]
     afrGauge = ui.items[2]
     log = ui.items[3]
     raw = ui.items[4]
 
+    if 'Engine speed' in dataStream:
+        rpm = round(float(dataStream['Engine speed']))
+    else:
+        rpm = 750
+
+    if 'Pressure upstream throttle' in dataStream:
+        boost = round(float(dataStream['Pressure upstream throttle']))
+    else:
+        boost = 1010
+
+    if 'Lambda value' in dataStream:
+        afr = round(float(dataStream['Lambda value']),2)
+    else:
+        afr = 1.0
+
     log.append(str(datalogging))
-    raw.append(str(rawData))
+    #raw.append()
 
     rpmPercent = int(rpm / 8000 * 100)
     rpmGauge.value = minimum(100,rpmPercent)
@@ -320,7 +338,27 @@ def getValuesFromECU(client = None):
 
         #If we're not running headless, update the display
         if headless == False:
-            updateUserInterface(rawData = str(results), rpm = displayRPM, boost = displayBoost, afr = displayAFR)
+            updateUserInterface()
+
+def getFakeData():
+    global dataStream
+
+    while(True):
+        localDataStream = {}
+
+        localDataStream['timestamp'] = str(datetime.now().time())
+
+        for parameter in logParams:
+            localDataStream[parameter] = str(random.random() * 100)
+        logging.debug("Populating fake data")
+        dataStream = localDataStream
+
+        #If we're not running headless, update the display
+        if headless == False:
+            updateUserInterface()
+
+
+        time.sleep(1)
 
 
 #Main loop
@@ -339,12 +377,23 @@ def main(client = None):
         #Initate the dynamicID with a bunch of memory addresses
         send_raw(bytes.fromhex(defineIdentifier))
 
-    #Start the polling thread
-    try:
-        readData = threading.Thread(target=getValuesFromECU, args=(client,))
-        readData.start()
-    except:
-        logging.critical("Error starting thread")
+        #Start the polling thread
+        try:
+            readData = threading.Thread(target=getValuesFromECU, args=(client,))
+            readData.start()
+        except:
+            logging.critical("Error starting ECU thread")
+
+    else:
+        try:
+            fakeData = threading.Thread(target=getFakeData)
+            fakeData.start()
+        except:
+            logging.critical("Error starting fake data thread")
+
+
+
+    application.run(host='0.0.0.0')
 
     #Start the loop that listens for the enter key
     while(True):
@@ -448,77 +497,58 @@ if logParams is not None:
         defineIdentifier += "0"
         defineIdentifier += str(logParams[param]['length'])
 
+if headless == False:
+    buildUserInterface()
+    updateUserInterface()
+ 
 
-#Start the polling thread
-try:
-    flaskThread = threading.Thread(target=application.run(host='0.0.0.0'))
-    flaskThread.start()
-except:
-    logging.critical("Error starting flask thread")
-
-print("im HERE")
+#If testing is true, we'll run the main thread now without defining the
+#  uds client
 if testing is True:
-    while(True):
-        localDataStream = {}
+    main()
 
-        localDataStream['timestamp'] = str(datetime.now().time())
+else:
+    with Client(conn,request_timeout=2, config=configs.default_client_config) as client:
+        try:
 
-        for parameter in logParams:
-            localDataStream[parameter] = str(random.random() * 100)
-        print("here")
-        dataStream = localDataStream
-        time.sleep(1)
-
-
-
-with Client(conn,request_timeout=2, config=configs.default_client_config) as client:
-    try:
-
-        if headless == False:
-            buildUserInterface()
-            updateUserInterface()
-            #Make the user hit a key to get started
-            print("Press enter key to connect to the serial port")
-            connect = input()
-
-        #Set up the security algorithm for the uds connection
-        client.config['security_algo'] = gainSecurityAccess
-        
-        main(client)
-
-
-    except exceptions.NegativeResponseException as e:
-        logging.critical('Server refused our request for service %s with code "%s" (0x%02x)' % (e.response.service.get_name(), e.response.code_name, e.response.code))
-        if configuration is not None and 'notification' in configuration:
-            with open(logfile) as activityLog:
-                msg = activityLog.read()
-                notificationEmail(configuration['notification'], msg)
- 
-    except exceptions.InvalidResponseException as e:
-        logging.critical('Server sent an invalid payload : %s' % e.response.original_payload)
-        if configuration is not None and 'notification' in configuration:
-            with open(logfile) as activityLog:
-                msg = activityLog.read()
-                notificationEmail(configuration['notification'], msg)
- 
-    except exceptions.UnexpectedResponseException as e:
-        logging.critical('Server sent an invalid payload : %s' % e.response.original_payload)
-        if configuration is not None and 'notification' in configuration:
-            with open(logfile) as activityLog:
-                msg = activityLog.read()
-                notificationEmail(configuration['notification'], msg)
- 
-    except exceptions.TimeoutException as e:
-        logging.critical('Timeout waiting for response on can: ' + str(e))
-        if configuration is not None and 'notification' in configuration:
-            with open(logfile) as activityLog:
-                msg = activityLog.read()
-                notificationEmail(configuration['notification'], msg)
-    except Exception as e:
-        logging.critical("Unhandled exception: " + str(e))
-        if configuration is not None and 'notification' in configuration:
-            with open(logfile) as activityLog:
-                msg = activityLog.read()
-                notificationEmail(configuration['notification'], msg)
-        raise
-        
+            #Set up the security algorithm for the uds connection
+            client.config['security_algo'] = gainSecurityAccess
+            
+            main(client)
+    
+    
+        except exceptions.NegativeResponseException as e:
+            logging.critical('Server refused our request for service %s with code "%s" (0x%02x)' % (e.response.service.get_name(), e.response.code_name, e.response.code))
+            if configuration is not None and 'notification' in configuration:
+                with open(logfile) as activityLog:
+                    msg = activityLog.read()
+                    notificationEmail(configuration['notification'], msg)
+     
+        except exceptions.InvalidResponseException as e:
+            logging.critical('Server sent an invalid payload : %s' % e.response.original_payload)
+            if configuration is not None and 'notification' in configuration:
+                with open(logfile) as activityLog:
+                    msg = activityLog.read()
+                    notificationEmail(configuration['notification'], msg)
+     
+        except exceptions.UnexpectedResponseException as e:
+            logging.critical('Server sent an invalid payload : %s' % e.response.original_payload)
+            if configuration is not None and 'notification' in configuration:
+                with open(logfile) as activityLog:
+                    msg = activityLog.read()
+                    notificationEmail(configuration['notification'], msg)
+     
+        except exceptions.TimeoutException as e:
+            logging.critical('Timeout waiting for response on can: ' + str(e))
+            if configuration is not None and 'notification' in configuration:
+                with open(logfile) as activityLog:
+                    msg = activityLog.read()
+                    notificationEmail(configuration['notification'], msg)
+        except Exception as e:
+            logging.critical("Unhandled exception: " + str(e))
+            if configuration is not None and 'notification' in configuration:
+                with open(logfile) as activityLog:
+                    msg = activityLog.read()
+                    notificationEmail(configuration['notification'], msg)
+            raise
+            
