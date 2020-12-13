@@ -1,93 +1,104 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Creating Real-Time Charts with Flask</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" rel="stylesheet">
-</head>
-<body>
-<div class="container">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <canvas id="canvas"></canvas>
-                </div>
-            </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+
+<nav class="navbar navbar-default navbar-static-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">
+                pyLog UI
+            </a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">            
+            <ul class="nav navbar-nav navbar-right">
+                <!--<li><a href="http://www.sciax2.it/forum/utenti/-kik_226760/" target="_blank">Return back</a></li>-->
+                <li class="dropdown ">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                        Settings
+                        <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li class="dropdown-header">SETTINGS</li>
+                            <li class=""><a href="#">Link</a></li>
+                            <li class=""><a href="#">Other Link</a></li>
+                            <li class=""><a href="#">Other Link</a></li>
+                            <li class="divider"></li>
+                            <li><a href="#">Logout</a></li>
+                        </ul>
+                </li>
+            </ul>
         </div>
     </div>
-</div>
-<!--suppress JSUnresolvedLibraryURL -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
-<!--suppress JSUnresolvedLibraryURL -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
-<!--suppress JSUnresolvedLibraryURL -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+</nav>
+
+    <div class="container-fluid">
+        <div class="col col-md-9">
+            <div class="row">
+                <div class="col col-md-5" id="something">
+                    <h4>Today Stats:</h4>
+                            Visits<span class="pull-right strong">- 15%</span>
+                             <div class="progress">
+                                <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="15"aria-valuemin="0" aria-valuemax="100" style="width:15%">15%</div>
+                            </div>
+                        
+                            20 New Users<span class="pull-right strong">+ 30%</span>
+                             <div class="progress">
+                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="30"aria-valuemin="0" aria-valuemax="100" style="width:30%">30%</div>
+                            </div>
+                        
+                            359 Downloads<span class="pull-right strong">+ 8%</span>
+                             <div class="progress">
+                                <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="8"aria-valuemin="0" aria-valuemax="100" style="width:8%">8%</div>
+                            </div>
+                </div>
+                <div class="col col-md-5">
+                    <h4>This Month Stats:</h4>
+                            Visits<span class="pull-right strong">+ 45%</span>
+                             <div class="progress">
+                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="45"aria-valuemin="0" aria-valuemax="100" style="width:45%">45%</div>
+                            </div>
+                        
+                            395 New Users<span class="pull-right strong">+ 57%</span>
+                             <div class="progress">
+                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="57"aria-valuemin="0" aria-valuemax="100" style="width:57%">57%</div>
+                            </div>
+                        
+                            12.593 Downloads<span class="pull-right strong">+ 25%</span>
+                             <div class="progress">
+                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="25"aria-valuemin="0" aria-valuemax="100" style="width:25%">25%</div>
+                            </div>
+                </div>
+            </div> 
+        </div>
+    </div>
+            </div>
+        </div>
+
 <script>
-    $(document).ready(function () {
-        const config = {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: "Random Dataset",
-                    backgroundColor: 'rgb(255, 99, 132)',
-                    borderColor: 'rgb(255, 99, 132)',
-                    data: [],
-                    fill: false,
-                }],
-            },
-            options: {
-                responsive: true,
-                title: {
-                    display: true,
-                    text: 'Creating Real-Time Charts with Flask'
-                },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
-                },
-                hover: {
-                    mode: 'nearest',
-                    intersect: true
-                },
-                scales: {
-                    xAxes: [{
-                        display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Time'
-                        }
-                    }],
-                    yAxes: [{
-                        display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Value'
-                        }
-                    }]
-                }
-            }
-        };
-
-        const context = document.getElementById('canvas').getContext('2d');
-
-        const lineChart = new Chart(context, config);
 
         const source = new EventSource("/stream");
 
         source.onmessage = function (event) {
             const data = JSON.parse(event.data);
-            if (config.data.labels.length === 20) {
-                config.data.labels.shift();
-                config.data.datasets[0].data.shift();
+            var params = [];
+            var divContainer = document.getElementById("something");
+            for (var i = 0; i < data.length; i++) {
+                console.log("something");
+                for (var key in data[i]) {
+                    if params.indexOf(key) === -1){
+                        params.push(key);
+                        params[key] = document.createElement("div");
+                        divContainer.appendChild(params[key]);
+                    }
+                }
             }
-            config.data.labels.push(data.time);
-            config.data.datasets[0].data.push(data.value);
-            lineChart.update();
+
+
         }
-    });
 </script>
-</body>
-</html>
