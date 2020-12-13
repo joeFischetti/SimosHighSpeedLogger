@@ -302,22 +302,17 @@ def getValuesFromECU(client = None):
 
                 dataStreamBuffer[parameter] = str(val)
 
-                if parameter == "Engine speed":
-                    displayRPM = round(val)
-                elif parameter == "Pressure upstream throttle":
-                    displayBoost = round(val)
-                elif parameter == "Lambda value":
-                    displayAFR = round(val,2)
-                elif parameter == "Cruise":
-                    if headless == True:
-                        if val != 0:
-                            logging.debug("Cruise control enabled, starting log")
-                            stopTime = None
-                            datalogging = True
-                        elif val == 0 and datalogging == True and stopTime is None:
-                            stopTime = datetime.now() + timedelta(seconds = 5)
- 
+
             dataStream = dataStringBuffer
+
+            if 'Cruise' in dataStream:
+                if dataStream['Cruise'] != 0:
+                    logging.debug("Cruise control logging enabled")
+                    stopTime = None
+                    datalogging = True
+                elif val == 0 and datalogging == True and stopTime is None:
+                    stopTime = datetime.now() + timedelta(seconds = 5)
+                
 
             if datalogging is False and logFile is not None:
                 logging.debug("Datalogging stopped, closing file")
