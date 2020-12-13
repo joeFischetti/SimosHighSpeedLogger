@@ -29,6 +29,20 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+from flask import Flask, Response, render_template
+
+application = Flask(__name__)
+
+
+@application.route('/')
+def index():
+    return render_template('webdir/index.html')
+
+@application.route('/stream')
+def stream_data():
+    return render_template('index.html')
+
+
 #build the argument parser and set up the arguments
 parser = argparse.ArgumentParser(description='Simos18 High Speed Logger')
 parser.add_argument('--headless', action='store_true')
@@ -413,6 +427,14 @@ if logParams is not None:
         defineIdentifier += logParams[param]['location'].lstrip("0x")
         defineIdentifier += "0"
         defineIdentifier += str(logParams[param]['length'])
+
+
+#Start the polling thread
+try:
+    flaskThread = threading.Thread(target=application.run())
+    flaskThread.start()
+except:
+    logging.critical("Error starting flask thread")
 
 
 with Client(conn,request_timeout=2, config=configs.default_client_config) as client:
