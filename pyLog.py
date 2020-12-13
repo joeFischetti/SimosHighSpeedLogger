@@ -45,9 +45,8 @@ def index():
 def stream_data():
     def waitForStreamData():
         while True:
-            if 'ready' in dataStream and dataStream['ready'] is True:
-                json_data = json.dumps(dataStream)
-                yield f"data:{json_data}\n\n"
+            json_data = json.dumps(dataStream)
+            yield f"data:{json_data}\n\n"
             time.sleep(.5)
     return Response(waitForStreamData(), mimetype='text/event-stream')
 
@@ -258,12 +257,11 @@ def getValuesFromECU(client = None):
         #Make sure the result starts with an affirmative
         if results.startswith("62f200"):
 
-            dataStream = {}
-            dataStream['ready'] = False
+            dataStreamBuffer = {}
 
             #Set the datetime for the beginning of the row
             row = str(datetime.now().time())
-            dataStream['timestamp'] = str(datetime.now().time())
+            dataStreamBuffer['timestamp'] = str(datetime.now().time())
 
 
             #Strip off the first 6 characters (F200) so we only have the data
@@ -284,7 +282,7 @@ def getValuesFromECU(client = None):
 
                 results = results[logParams[parameter]['length']*2:]
 
-                dataStream[parameter] = str(val)
+                dataStreamBuffer[parameter] = str(val)
 
                 if parameter == "Engine speed":
                     displayRPM = round(val)
@@ -301,7 +299,7 @@ def getValuesFromECU(client = None):
                         elif val == 0 and datalogging == True and stopTime is None:
                             stopTime = datetime.now() + timedelta(seconds = 5)
  
-            dataStream['ready'] = True
+            dataStream = dataStringBuffer
 
             if datalogging is False and logFile is not None:
                 logging.debug("Datalogging stopped, closing file")
@@ -453,23 +451,22 @@ if logParams is not None:
 
 #Start the polling thread
 try:
-    flaskThread = threading.Thread(target=application.run(host='0.0.0.0', debug=True))
+    flaskThread = threading.Thread(target=application.run(host='0.0.0.0'))
     flaskThread.start()
 except:
     logging.critical("Error starting flask thread")
 
+print("im HERE")
 if testing is True:
-    while True:
-        dataStream = {}
-        dataStream['ready'] = False
+    while(True):
+        localDataStream = {}
 
-        dataStream['timestamp'] = str(datetime.now().time())
+        localDataStream['timestamp'] = str(datetime.now().time())
 
         for parameter in logParams:
-            dataStream[parameter] = str(random.random() * 100)
-
-        dataStream['ready'] = True
-
+            localDataStream[parameter] = str(random.random() * 100)
+        print("here")
+        dataStream = localDataStream
         time.sleep(1)
 
 
