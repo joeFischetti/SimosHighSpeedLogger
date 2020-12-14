@@ -474,8 +474,8 @@ if os.path.exists(CONFIGFILE) and os.access(CONFIGFILE, os.R_OK):
         if 'notification' in configuration:
             notificationEmail(configuration['notification'], "Starting logger with IP address: " + get_ip())
 
-    except:
-        logging.info("No configuration file loaded")
+    except Exception as e:
+        logging.info("No configuration file loaded: " + str(e))
         configuration = None
 else:
     configuration = None
