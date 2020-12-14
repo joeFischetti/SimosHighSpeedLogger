@@ -344,7 +344,7 @@ def getFakeData():
         localDataStream['timestamp'] = str(datetime.now().time())
 
         for parameter in logParams:
-            localDataStream[parameter] = str(random.random() * 100)
+            localDataStream[parameter] = str(round(random.random() * 100))
         logging.debug("Populating fake data")
         dataStream = localDataStream
 
@@ -353,7 +353,7 @@ def getFakeData():
             updateUserInterface()
 
 
-        time.sleep(1)
+        time.sleep(.1)
 
 
 #Main loop

@@ -1,8 +1,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
-<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<style>
+.box {
+   border-radius: 4px;
+   padding-bottom: 100%;
+}
 
+.col-xs-2, .col-lg-2, .col-md-3, .col-xs-6{
+    margin-top: 30px !important;
+    margin-left: 15px !important;
+    margin-right:  15px !important;
+}
+</style>
 <nav class="navbar navbar-default navbar-static-top">
     <div class="container-fluid">
         <div class="navbar-header">
@@ -38,42 +49,8 @@
 </nav>
 
     <div class="container-fluid">
-        <div class="col col-md-9">
-            <div class="row">
-                <div class="col col-md-5" id="something">
-                    <h4>Today Stats:</h4>
-                            Visits<span class="pull-right strong">- 15%</span>
-                             <div class="progress">
-                                <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="15"aria-valuemin="0" aria-valuemax="100" style="width:15%">15%</div>
-                            </div>
-                        
-                            20 New Users<span class="pull-right strong">+ 30%</span>
-                             <div class="progress">
-                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="30"aria-valuemin="0" aria-valuemax="100" style="width:30%">30%</div>
-                            </div>
-                        
-                            359 Downloads<span class="pull-right strong">+ 8%</span>
-                             <div class="progress">
-                                <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="8"aria-valuemin="0" aria-valuemax="100" style="width:8%">8%</div>
-                            </div>
-                </div>
-                <div class="col col-md-5">
-                    <h4>This Month Stats:</h4>
-                            Visits<span class="pull-right strong">+ 45%</span>
-                             <div class="progress">
-                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="45"aria-valuemin="0" aria-valuemax="100" style="width:45%">45%</div>
-                            </div>
-                        
-                            395 New Users<span class="pull-right strong">+ 57%</span>
-                             <div class="progress">
-                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="57"aria-valuemin="0" aria-valuemax="100" style="width:57%">57%</div>
-                            </div>
-                        
-                            12.593 Downloads<span class="pull-right strong">+ 25%</span>
-                             <div class="progress">
-                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="25"aria-valuemin="0" aria-valuemax="100" style="width:25%">25%</div>
-                            </div>
-                </div>
+  <div class="row" id="parameterContainer">
+  </div>
             </div> 
         </div>
     </div>
@@ -81,24 +58,35 @@
         </div>
 
 <script>
-
+var divProgressBarContainer = document.getElementById('parameterContainer');
         const source = new EventSource("/stream");
 
         source.onmessage = function (event) {
+            divProgressBarContainer.innerHTML = "";
             const data = JSON.parse(event.data);
-            var params = [];
-            var divContainer = document.getElementById("something");
-            for (var i = 0; i < data.length; i++) {
-                console.log("something");
-                for (var key in data[i]) {
-                    if params.indexOf(key) === -1){
-                        params.push(key);
-                        params[key] = document.createElement("div");
-                        divContainer.appendChild(params[key]);
-                    }
-                }
-            }
+            Object.keys(data).forEach(function (param) {
+                createNewProgressBar(param, data[param]);
+            });
 
 
         }
+
+  function createNewProgressBar(barId, value) {
+    // Create a new progress bar and container
+    var parameterDiv = document.createElement("div"),
+        title = document.createElement("span"),
+        valDisplay = document.createElement("h4");
+
+    // Create a container and progress bar to add to the page
+    title.innerText = barId;
+    valDisplay.innerText = value;
+    parameterDiv.setAttribute("class", "col-xs-2 col-lg-2 col-md-3 bg-secondary text-white");
+    
+    // Append all new elements to the page
+    divProgressBarContainer.appendChild(parameterDiv);
+    parameterDiv.appendChild(title);
+    parameterDiv.appendChild(valDisplay);
+    
+    return(parameterDiv);
+  }
 </script>
