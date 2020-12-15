@@ -428,7 +428,7 @@ def get_ip():
 
 #Function to send notification emails out (i.e. when the logger is started, and when exceptions are thrown) 
 def notificationEmail(mailsettings, msg, attachment = None):
-
+    logging.debug("Sending email")
     #Set up all the email sever/credential information (from the configuration file)
     port = mailsettings['smtp_port']
     smtp_server = mailsettings['smtp_server']
@@ -478,6 +478,7 @@ if os.path.exists(CONFIGFILE) and os.access(CONFIGFILE, os.R_OK):
         logging.info("No configuration file loaded: " + str(e))
         configuration = None
 else:
+    logging.info("No configuration file found")
     configuration = None
 
 

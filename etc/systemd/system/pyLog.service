@@ -11,3 +11,5 @@ StandardInput=tty-force
 
 [Install]
 WantedBy=multi-user.target
+After=network-online.target
+Wants=network-online.target
