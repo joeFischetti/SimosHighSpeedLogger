@@ -280,6 +280,7 @@ def getValuesFromECU(client = None):
             #Set the datetime for the beginning of the row
             row = str(datetime.now().time())
             dataStreamBuffer['timestamp'] = str(datetime.now().time())
+            dataStreamBuffer['datalogging'] = {'value': str(datalogging), 'raw': ""}
 
 
             #Strip off the first 6 characters (F200) so we only have the data
@@ -303,7 +304,7 @@ def getValuesFromECU(client = None):
                 dataStreamBuffer[parameter] = str(val)
 
 
-            dataStream = dataStringBuffer
+            dataStream = dataStreamBuffer
 
             if 'Cruise' in dataStream:
                 if dataStream['Cruise'] != 0:
@@ -342,6 +343,7 @@ def getFakeData():
         localDataStream = {}
 
         localDataStream['timestamp'] = {'value': str(datetime.now().time()), 'raw': ""}
+        localDataStream['datalogging'] = {'value': str(datalogging), 'raw': ""}
 
         for parameter in logParams:
             fakeVal = round(random.random() * 100)
