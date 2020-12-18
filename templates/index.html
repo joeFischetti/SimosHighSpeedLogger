@@ -8,11 +8,12 @@
    padding-bottom: 100%;
 }
 
-.col-xs-2, .col-lg-2, .col-md-3, .col-xs-6{
-    margin-top: 30px !important;
-    margin-left: 15px !important;
-    margin-right:  15px !important;
+.col-6 {
+    margin-top: 10px !important;
 }
+.bg-secondary{
+   margin: 10px !important;
+   padding: 10px !important;
 </style>
 <nav class="navbar navbar-default navbar-static-top">
     <div class="container-fluid">
@@ -67,40 +68,43 @@
 <script>
 var divProgressBarContainer = document.getElementById('parameterContainer');
         var source = new EventSource("/stream");
+        var updateDisplay = true;
 
 	function closeStream() {
-		console.log('stream connection closed');
-		source.close();
+		updateDisplay = false;
 	}
 
 	function openStream() {
-		source = new EventSource("/stream");
-		console.log('stream connection opened: ' + source.readyState);
+		updateDisplay = true;
 	}
 
         source.onmessage = function (event) {
+	    if(updateDisplay){
             divProgressBarContainer.innerHTML = "";
             const data = JSON.parse(event.data);
             Object.keys(data).forEach(function (param) {
                 createNewProgressBar(param, data[param]);
             });
-
+	    }
 
         }
 
   function createNewProgressBar(barId, values) {
     // Create a new progress bar and container
-    var parameterDiv = document.createElement("div"),
-        title = document.createElement("span"),
-        valDisplay = document.createElement("h4");
+    var tileDiv = document.createElement("div"),
+	parameterDiv = document.createElement("div"),
+        title = document.createElement("h6"),
+        valDisplay = document.createElement("h1");
 
     // Create a container and progress bar to add to the page
     title.innerText = barId;
-    valDisplay.innerText = "value: " + values['value'] + "\nraw:" + values['raw'];
-    parameterDiv.setAttribute("class", "col-xs-2 col-lg-2 col-md-3 bg-secondary text-white");
+    valDisplay.innerText = values['value'] + "\n" + values['raw'];
+    tileDiv.setAttribute("class", "col-6 col-md-6 col-lg-2");
+    parameterDiv.setAttribute("class", "bg-secondary text-white");
     
     // Append all new elements to the page
-    divProgressBarContainer.appendChild(parameterDiv);
+    divProgressBarContainer.appendChild(tileDiv)
+    tileDiv.appendChild(parameterDiv);
     parameterDiv.appendChild(title);
     parameterDiv.appendChild(valDisplay);
     

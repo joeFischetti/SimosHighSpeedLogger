@@ -341,7 +341,7 @@ def getFakeData():
     while(True):
         localDataStream = {}
 
-        localDataStream['timestamp'] = str(datetime.now().time())
+        localDataStream['timestamp'] = {'value': str(datetime.now().time()), 'raw': ""}
 
         for parameter in logParams:
             fakeVal = round(random.random() * 100)
