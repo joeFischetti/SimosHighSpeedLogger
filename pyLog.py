@@ -344,7 +344,8 @@ def getFakeData():
         localDataStream['timestamp'] = str(datetime.now().time())
 
         for parameter in logParams:
-            localDataStream[parameter] = str(round(random.random() * 100))
+            fakeVal = round(random.random() * 100)
+            localDataStream[parameter] = {'value': str(fakeVal), 'raw': hex(fakeVal)}
         logging.debug("Populating fake data")
         dataStream = localDataStream
 
@@ -388,7 +389,7 @@ def main(client = None):
 
 
 
-    application.run(host='0.0.0.0')
+    application.run(host='0.0.0.0', debug=True)
 
     #Start the loop that listens for the enter key
     while(True):

@@ -23,6 +23,12 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
+
+ <button type="button" onclick="closeStream()" >Pause</button> 
+
+ <button type="button" onclick="openStream()" >Resume</button> 
+
+
             <a class="navbar-brand" href="#">
                 pyLog UI
             </a>
@@ -56,10 +62,21 @@
     </div>
             </div>
         </div>
-
+</body>
+</html>
 <script>
 var divProgressBarContainer = document.getElementById('parameterContainer');
-        const source = new EventSource("/stream");
+        var source = new EventSource("/stream");
+
+	function closeStream() {
+		console.log('stream connection closed');
+		source.close();
+	}
+
+	function openStream() {
+		source = new EventSource("/stream");
+		console.log('stream connection opened: ' + source.readyState);
+	}
 
         source.onmessage = function (event) {
             divProgressBarContainer.innerHTML = "";
@@ -71,7 +88,7 @@ var divProgressBarContainer = document.getElementById('parameterContainer');
 
         }
 
-  function createNewProgressBar(barId, value) {
+  function createNewProgressBar(barId, values) {
     // Create a new progress bar and container
     var parameterDiv = document.createElement("div"),
         title = document.createElement("span"),
@@ -79,7 +96,7 @@ var divProgressBarContainer = document.getElementById('parameterContainer');
 
     // Create a container and progress bar to add to the page
     title.innerText = barId;
-    valDisplay.innerText = value;
+    valDisplay.innerText = "value: " + values['value'] + "\nraw:" + values['raw'];
     parameterDiv.setAttribute("class", "col-xs-2 col-lg-2 col-md-3 bg-secondary text-white");
     
     // Append all new elements to the page
