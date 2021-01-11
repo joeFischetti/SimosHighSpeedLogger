@@ -30,26 +30,26 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from flask import Flask, Response, render_template
-
-
-application = Flask(__name__)
-
 #dataStream is an object that will be passed to the web GUI
 dataStream = {}
 
-@application.route('/')
-def index():
-    return render_template('index.html')
-
-@application.route('/stream')
 def stream_data():
-    def waitForStreamData():
-        while True:
-            json_data = json.dumps(dataStream)
-            yield f"data:{json_data}\n\n"
-            time.sleep(.5)
-    return Response(waitForStreamData(), mimetype='text/event-stream')
+    HOST = '0.0.0.0'  # Standard loopback interface address (localhost)
+    PORT = 65432        # Port to listen on (non-privileged ports are > 1023)
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.bind((HOST, PORT))
+        s.listen()
+        conn, addr = s.accept()
+        with conn:
+            print('Connected by', addr)
+            while True:
+                json_data = json.dumps(dataStream) + "\n"
+                #json_data = "something\n"
+                conn.sendall(json_data.encode())
+                time.sleep(.5)
+    
 
 #build the argument parser and set up the arguments
 parser = argparse.ArgumentParser(description='Simos18 High Speed Logger')
@@ -105,12 +105,13 @@ logging.info("Configuration file: " + CONFIGFILE)
 datalogging = False
 ui = None
 
-params = {
-  'tx_padding': 0x55
-}
-
-conn = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
-conn.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
+if testing is False:
+    params = {
+      'tx_padding': 0x55
+    }
+    
+    conn = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
+    conn.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
 
 
 #A basic helper function that just returns the minimum of two values
@@ -391,7 +392,9 @@ def main(client = None):
 
 
 
-    application.run(host='0.0.0.0', debug=True)
+    streamData = threading.Thread(target=stream_data)
+    streamData.start()
+    
 
     #Start the loop that listens for the enter key
     while(True):
