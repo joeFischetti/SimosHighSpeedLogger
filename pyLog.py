@@ -108,6 +108,7 @@ logging.info("Configuration file: " + CONFIGFILE)
 datalogging = False
 ui = None
 
+#If we're not in testing mode, start up communication with the ECU
 if TESTING is False:
     params = {
       'tx_padding': 0x55
@@ -116,6 +117,9 @@ if TESTING is False:
     conn = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
     conn.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
 
+#Stream data over a socket connection.  
+#Open the socket, and if it happens to disconnect or fail, open it again
+#This is used for the android app
 def stream_data():
     HOST = '0.0.0.0'  # Standard loopback interface address (localhost)
     PORT = 65432        # Port to listen on (non-privileged ports are > 1023)
@@ -391,7 +395,7 @@ def getParms23():
             logFile = open(filename, 'a')
             logFile.write(csvHeader + '\n')
 
-    logFile.write(row + '\n')
+        logFile.write(row + '\n')
 
 
 #Read the identifier from the ECU
@@ -428,9 +432,6 @@ def getValuesFromECU(client = None):
                 getParams23()
 
         
-        #else:
-        #    logging.debug("Logging not active")
-
         #If we're not running headless, update the display
         if headless == False:
             updateUserInterface()
