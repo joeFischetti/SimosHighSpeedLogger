@@ -33,7 +33,6 @@ from email.mime.text import MIMEText
 #dataStream is an object that will be passed to the web GUI
 dataStream = {}
 
-   
 
 #build the argument parser and set up the arguments
 parser = argparse.ArgumentParser(description='Simos18 High Speed Logger')
@@ -75,6 +74,8 @@ else:
 
 #Set up the activity logging
 logfile = filepath + "activity_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".log"
+logFile = None
+stopTime = None
 
 
 if args.level is not None:
@@ -271,12 +272,14 @@ def gainSecurityAccess(level, seed, params=None):
 
 
 #Read from the ECU using mode 2C
-def getParms2C():
+def getParams2C():
     global logParams
     global datalogging
     global headless
     global filepath
     global dataStream
+    global logFile
+    global stopTime
 
 
     results = (send_raw(bytes.fromhex('22F200'))).hex()
@@ -339,12 +342,14 @@ def getParms2C():
             logFile.write(row + '\n')
 
 #Read from the ECU using mode 23
-def getParms23():
+def getParams23():
     global logParams
     global datalogging
     global headless
     global filepath
     global dataStream
+    global logFile
+    global stopTime
 
     dataStreamBuffer = {}
     #Set the datetime for the beginning of the row
@@ -354,8 +359,13 @@ def getParms23():
  
 
     for parameter in logParams:
-        results = (send_raw(bytes.fromhex('22' + logParams[parameter]['location'] + logParams[parameter]['length']))).hex()
-        if results.starswith("63"):
+        if TESTING is True:
+            logging.debug("Param String: " + '23' + logParams[parameter]['location'].lstrip("0x") + "0" + str(logParams[parameter]['length']))
+            results = "63" + logParams[param]['location'].lstrip("0x") + "00"
+        else:
+            results = (send_raw(bytes.fromhex('23' + logParams[parameter]['location'].lstrip("0x") + "0" + str(logParams[parameter]['length'])))).hex()
+
+        if results.startswith("63"):
         
             #Strip off the first 6 characters (F200) so we only have the data
             results = results[10:]
@@ -407,9 +417,8 @@ def getValuesFromECU(client = None):
     global headless
     global filepath
     global dataStream
-
-    logFile = None
-    stopTime = None
+    global logFile
+    global stopTime
 
     displayRPM = 0
     displayBoost = 0
@@ -438,6 +447,8 @@ def getValuesFromECU(client = None):
 
 def getFakeData():
     global dataStream
+
+    getParams23()
 
     while(True):
         localDataStream = {}
