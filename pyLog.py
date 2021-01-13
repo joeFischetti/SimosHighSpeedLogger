@@ -460,7 +460,7 @@ def getFakeData():
         for parameter in logParams:
             fakeVal = round(random.random() * 100)
             localDataStream[parameter] = {'value': str(fakeVal), 'raw': hex(fakeVal)}
-        logging.debug("Populating fake data")
+        #logging.debug("Populating fake data")
         dataStream = localDataStream
 
         #If we're not running headless, update the display
