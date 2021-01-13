@@ -43,8 +43,7 @@ parser.add_argument('--level',help="Log level for the activity log, valid levels
 parser.add_argument('--testing', help="testing mode, for use when not connected to a car", action='store_true')
 parser.add_argument('--runserver', help="run an app server, used with the android app", action='store_true')
 parser.add_argument('--interactive', help="run in interactive mode, start/stop logging with the enter key", action='store_true')
-
-
+parser.add_argument('--mode', help="set the connection mode: 2C, 23")
 
 
 args = parser.parse_args()
@@ -60,6 +59,12 @@ RUNSERVER = args.runserver
 
 #set the global for interactive mode
 INTERACTIVE = args.interactive
+
+#set the global for the connection mode
+if args.mode is not None:
+    MODE = args.mode.upper()
+else:
+    MODE = "23"
 
 #Set the global file path to the argument, or local
 if args.filepath is not None:
@@ -90,6 +95,9 @@ logging.debug("Current filepath: " + filepath)
 logging.debug("Activity log file: " + logfile)
 logging.debug("Headless mode: " + str(headless))
 
+logging.info("Connection type:  " + MODE)
+logging.info("App server: " + str(RUNSERVER))
+logging.info("Interactive mode: " + str(INTERACTIVE))
 
 PARAMFILE = filepath + "parameters.yaml"
 logging.info("Parameter file: " + PARAMFILE)
@@ -126,7 +134,7 @@ def stream_data():
                         json_data = json.dumps(dataStream) + "\n"
                         #json_data = "something\n"
                         conn.sendall(json_data.encode())
-                        time.sleep(.5)
+                        time.sleep(.1)
         except:
             logging.info("socket closed due to error or client disconnect")
      
@@ -258,6 +266,134 @@ def gainSecurityAccess(level, seed, params=None):
     return theKey.to_bytes(4, 'big')
 
 
+#Read from the ECU using mode 2C
+def getParms2C():
+    global logParams
+    global datalogging
+    global headless
+    global filepath
+    global dataStream
+
+
+    results = (send_raw(bytes.fromhex('22F200'))).hex()
+ 
+    #Make sure the result starts with an affirmative
+    if results.startswith("62f200"):
+ 
+        dataStreamBuffer = {}
+ 
+        #Set the datetime for the beginning of the row
+        row = str(datetime.now().time())
+        dataStreamBuffer['timestamp'] = str(datetime.now().time())
+        dataStreamBuffer['datalogging'] = {'value': str(datalogging), 'raw': ""}
+ 
+ 
+        #Strip off the first 6 characters (F200) so we only have the data
+        results = results[6:]
+ 
+        #The data comes back as raw data, so we need the size of each variable and its
+        #  factor so that we can actually parse it.  In here, we'll pull X bytes off the 
+        #  front of the result, process it, add it to the CSV row, and then remove it from
+        #  the result
+        for parameter in logParams:
+            val = results[:logParams[parameter]['length']*2]
+            logging.debug(str(parameter) + " raw from ecu: " + str(val))
+            rawval = int.from_bytes(bytearray.fromhex(val),'little', signed=logParams[parameter]['signed'])
+            logging.debug(str(parameter) + " pre-function: " + str(rawval))
+            val = round(eval(logParams[parameter]['function'], {'x':rawval, 'struct': struct}), 2)
+            row += "," + str(val)
+            logging.debug(str(parameter) + " scaling applied: " + str(val))
+ 
+            results = results[logParams[parameter]['length']*2:]
+ 
+            dataStreamBuffer[parameter] = str(val)
+ 
+ 
+        dataStream = dataStreamBuffer
+ 
+        if 'Cruise' in dataStream:
+            if dataStream['Cruise'] != 0:
+                logging.debug("Cruise control logging enabled")
+                stopTime = None
+                datalogging = True
+            elif val == 0 and datalogging == True and stopTime is None:
+                stopTime = datetime.now() + timedelta(seconds = 5)
+            
+ 
+        if datalogging is False and logFile is not None:
+            logging.debug("Datalogging stopped, closing file")
+            logFile.close()
+            logFile = None
+ 
+        if datalogging is True:
+            if logFile is None:
+                filename = filepath + "Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
+                logging.debug("Creating new logfile at: " + filename)
+                logFile = open(filename, 'a')
+                logFile.write(csvHeader + '\n')
+ 
+            logFile.write(row + '\n')
+
+#Read from the ECU using mode 23
+def getParms23():
+    global logParams
+    global datalogging
+    global headless
+    global filepath
+    global dataStream
+
+    dataStreamBuffer = {}
+    #Set the datetime for the beginning of the row
+    row = str(datetime.now().time())
+    dataStreamBuffer['timestamp'] = str(datetime.now().time())
+    dataStreamBuffer['datalogging'] = {'value': str(datalogging), 'raw': ""}
+ 
+
+    for parameter in logParams:
+        results = (send_raw(bytes.fromhex('22' + logParams[parameter]['location'] + logParams[parameter]['length']))).hex()
+        if results.starswith("63"):
+        
+            #Strip off the first 6 characters (F200) so we only have the data
+            results = results[10:]
+ 
+            val = results
+            logging.debug(str(parameter) + " raw from ecu: " + str(val))
+            rawval = int.from_bytes(bytearray.fromhex(val),'little', signed=logParams[parameter]['signed'])
+            logging.debug(str(parameter) + " pre-function: " + str(rawval))
+            val = round(eval(logParams[parameter]['function'], {'x':rawval, 'struct': struct}), 2)
+            row += "," + str(val)
+            logging.debug(str(parameter) + " scaling applied: " + str(val))
+ 
+ 
+            dataStreamBuffer[parameter] = str(val)
+ 
+ 
+    dataStream = dataStreamBuffer
+ 
+    if 'Cruise' in dataStream:
+        if dataStream['Cruise'] != 0:
+            logging.debug("Cruise control logging enabled")
+            stopTime = None
+            datalogging = True
+        elif val == 0 and datalogging == True and stopTime is None:
+            stopTime = datetime.now() + timedelta(seconds = 5)
+        
+
+    if datalogging is False and logFile is not None:
+        logging.debug("Datalogging stopped, closing file")
+        logFile.close()
+        logFile = None
+
+    if datalogging is True:
+        if logFile is None:
+            filename = filepath + "Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
+            logging.debug("Creating new logfile at: " + filename)
+            logFile = open(filename, 'a')
+            logFile.write(csvHeader + '\n')
+
+    logFile.write(row + '\n')
+
+
 #Read the identifier from the ECU
 def getValuesFromECU(client = None):
     #Define the global variables that we'll use...  They're the logging parameters
@@ -286,65 +422,11 @@ def getValuesFromECU(client = None):
             if datetime.now() > stopTime:
                 stopTime = None
                 datalogging = False
+            if MODE == "2C":
+                getParams2C()
+            else:
+                getParams23()
 
-        results = (send_raw(bytes.fromhex('22F200'))).hex()
-
-        #Make sure the result starts with an affirmative
-        if results.startswith("62f200"):
-
-            dataStreamBuffer = {}
-
-            #Set the datetime for the beginning of the row
-            row = str(datetime.now().time())
-            dataStreamBuffer['timestamp'] = str(datetime.now().time())
-            dataStreamBuffer['datalogging'] = {'value': str(datalogging), 'raw': ""}
-
-
-            #Strip off the first 6 characters (F200) so we only have the data
-            results = results[6:]
-
-            #The data comes back as raw data, so we need the size of each variable and its
-            #  factor so that we can actually parse it.  In here, we'll pull X bytes off the 
-            #  front of the result, process it, add it to the CSV row, and then remove it from
-            #  the result
-            for parameter in logParams:
-                val = results[:logParams[parameter]['length']*2]
-                logging.debug(str(parameter) + " raw from ecu: " + str(val))
-                rawval = int.from_bytes(bytearray.fromhex(val),'little', signed=logParams[parameter]['signed'])
-                logging.debug(str(parameter) + " pre-function: " + str(rawval))
-                val = round(eval(logParams[parameter]['function'], {'x':rawval, 'struct': struct}), 2)
-                row += "," + str(val)
-                logging.debug(str(parameter) + " scaling applied: " + str(val))
-
-                results = results[logParams[parameter]['length']*2:]
-
-                dataStreamBuffer[parameter] = str(val)
-
-
-            dataStream = dataStreamBuffer
-
-            if 'Cruise' in dataStream:
-                if dataStream['Cruise'] != 0:
-                    logging.debug("Cruise control logging enabled")
-                    stopTime = None
-                    datalogging = True
-                elif val == 0 and datalogging == True and stopTime is None:
-                    stopTime = datetime.now() + timedelta(seconds = 5)
-                
-
-            if datalogging is False and logFile is not None:
-                logging.debug("Datalogging stopped, closing file")
-                logFile.close()
-                logFile = None
-
-            if datalogging is True:
-                if logFile is None:
-                    filename = filepath + "Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
-                    logging.debug("Creating new logfile at: " + filename)
-                    logFile = open(filename, 'a')
-                    logFile.write(csvHeader + '\n')
-
-                logFile.write(row + '\n')
         
         #else:
         #    logging.debug("Logging not active")
@@ -386,11 +468,12 @@ def main(client = None):
         logging.debug("Gaining level 3 security access")
         client.unlock_security_access(3)
  
-        #clear the f200 dynamic id
-        send_raw(bytes.fromhex('2C03f200'))
+        if MODE == "2C":
+            #clear the f200 dynamic id
+            send_raw(bytes.fromhex('2C03f200'))
 
-        #Initate the dynamicID with a bunch of memory addresses
-        send_raw(bytes.fromhex(defineIdentifier))
+            #Initate the dynamicID with a bunch of memory addresses
+            send_raw(bytes.fromhex(defineIdentifier))
 
         #Start the polling thread
         try:
