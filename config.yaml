@@ -1,4 +1,4 @@
-notification:
+snotification:
     smtp_port: 465
     smtp_server: smtp.gmail.com
     from: fromaddress@gmail.com

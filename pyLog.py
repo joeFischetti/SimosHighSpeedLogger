@@ -33,23 +33,7 @@ from email.mime.text import MIMEText
 #dataStream is an object that will be passed to the web GUI
 dataStream = {}
 
-def stream_data():
-    HOST = '0.0.0.0'  # Standard loopback interface address (localhost)
-    PORT = 65432        # Port to listen on (non-privileged ports are > 1023)
-
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind((HOST, PORT))
-        s.listen()
-        conn, addr = s.accept()
-        with conn:
-            print('Connected by', addr)
-            while True:
-                json_data = json.dumps(dataStream) + "\n"
-                #json_data = "something\n"
-                conn.sendall(json_data.encode())
-                time.sleep(.5)
-    
+   
 
 #build the argument parser and set up the arguments
 parser = argparse.ArgumentParser(description='Simos18 High Speed Logger')
@@ -113,7 +97,28 @@ if testing is False:
     conn = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
     conn.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
 
+def stream_data():
+    HOST = '0.0.0.0'  # Standard loopback interface address (localhost)
+    PORT = 65432        # Port to listen on (non-privileged ports are > 1023)
 
+    while 1:
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                s.bind((HOST, PORT))
+                s.listen()
+                conn, addr = s.accept()
+                logging.info("Listening on " + str(HOST) + ":" + str(PORT))
+                with conn:
+                    print('Connected by', addr)
+                    while True:
+                        json_data = json.dumps(dataStream) + "\n"
+                        #json_data = "something\n"
+                        conn.sendall(json_data.encode())
+                        time.sleep(.5)
+        except:
+            logging.info("socket closed due to error or client disconnect")
+     
 #A basic helper function that just returns the minimum of two values
 def minimum(a, b): 
     if a <= b: 
@@ -391,9 +396,12 @@ def main(client = None):
             logging.critical("Error starting fake data thread")
 
 
-
-    streamData = threading.Thread(target=stream_data)
-    streamData.start()
+    try:
+        streamData = threading.Thread(target=stream_data)
+        streamData.start()
+        logging.info("Started data streaming thread")
+    except:
+        logging.critical("Error starting data streamer")
     
 
     #Start the loop that listens for the enter key
@@ -507,6 +515,7 @@ if headless == False:
 #If testing is true, we'll run the main thread now without defining the
 #  uds client
 if testing is True:
+    logging.debug("Starting main thread in testing mode")
     main()
 
 else:
