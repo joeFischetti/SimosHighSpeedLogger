@@ -41,6 +41,11 @@ parser.add_argument('--headless', action='store_true')
 parser.add_argument('--filepath',help="location to be used for the parameter and the log output location")
 parser.add_argument('--level',help="Log level for the activity log, valid levels include: DEBUG, INFO, WARNING, ERROR, CRITICAL")
 parser.add_argument('--testing', help="testing mode, for use when not connected to a car", action='store_true')
+parser.add_argument('--runserver', help="run an app server, used with the android app", action='store_true')
+parser.add_argument('--interactive', help="run in interactive mode, start/stop logging with the enter key", action='store_true')
+
+
+
 
 args = parser.parse_args()
 
@@ -49,6 +54,12 @@ headless = args.headless
 
 #set the global testing mode
 testing = args.testing
+
+#set the global for runserver
+RUNSERVER = args.runserver
+
+#set the global for interactive mode
+INTERACTIVE = args.interactive
 
 #Set the global file path to the argument, or local
 if args.filepath is not None:
@@ -395,22 +406,22 @@ def main(client = None):
         except:
             logging.critical("Error starting fake data thread")
 
-
-    try:
-        streamData = threading.Thread(target=stream_data)
-        streamData.start()
-        logging.info("Started data streaming thread")
-    except:
-        logging.critical("Error starting data streamer")
+    if RUNSERVER is True:
+        try:
+            streamData = threading.Thread(target=stream_data)
+            streamData.start()
+            logging.info("Started data streaming thread")
+        except:
+            logging.critical("Error starting data streamer")
     
-
-    #Start the loop that listens for the enter key
-    while(True):
-        global datalogging
-        log = input()
-        logging.debug("Input from user: " + log)
-        datalogging = not datalogging
-        logging.debug("Logging is: " + str(datalogging))
+    if INTERACTIVE is True:
+        #Start the loop that listens for the enter key
+        while(True):
+            global datalogging
+            log = input()
+            logging.debug("Input from user: " + log)
+            datalogging = not datalogging
+            logging.debug("Logging is: " + str(datalogging))
 
 
 #Load default parameters, in the event that no parameter file was passed
