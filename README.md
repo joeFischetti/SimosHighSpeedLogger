@@ -10,9 +10,6 @@ Installation is relatively straightforward.  Assuming you have a working pi with
 clone the repository into the home directory of your pi user
 
 ```bash
-pi@raspberrypi:~/SimosHighSpeedLogger $ whoami
-pi
-pi@raspberrypi:~/SimosHighSpeedLogger $ cd
 pi@raspberrypi:~ $ whoami
 pi
 pi@raspberrypi:~ $ pwd
@@ -131,31 +128,58 @@ Huge thanks to Brian for helping me out along the way: https://github.com/bri3d/
 
 UDEV/Systemd stuff adapted from: https://www.andreafortuna.org/2019/06/26/automount-usb-devices-on-linux-using-udev-and-systemd/
 
+# more DETAILED setup instructions
+
 ## General Raspnberry pi setup
 
+Creating an SD card for the raspberry pi needs to be done from a computer with an SD card reader
+Insert the card into the machine and follow the directions on this page:
+https://www.raspberrypi.org/documentation/installation/installing-images/
+
+
 From a fresh SDCard (still in the machine that you created it on)
-Create an empty file to enable ssh.  On mac/linux you could:
+Create an empty file to enable ssh.  
+
+On mac/linux you could:
 ```
 touch /boot/ssh
 ```
 
+On Windows:
+```
+Open the SD card (boot) from windows explorer
+right click -> new file -> ssh (with no extension)
+```
+
 Create a file (/boot/wpa_supplicant.txt) with wifi info if applicable
+
 
 Once you boot up the Pi for the first time, SSH in and:
 
 ```bash
-update
-upgrade
-apt install python3-pip can-utils vim git
+sudo update
+sudo upgrade
+sudo apt install python3-pip can-utils vim git
 ```
 
 At the end of /boot/config.txt, add the following text:
+If you've never used 'vim' before, you would type:
+```bash 
+sudo vim /boot/config.txt
+```
+
+Notes on vim - there's 'view' mode and 'edit' mode.
+To enter "edit" mode, press 'i'.  To exit edit mode press 'escape'
+To save the file, from view mode press `:` and then "w" (for write) and "q" (for quit)
+
 
 ```bash
 dtparam=spi=on
 dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=25
 dtoverlay=spi-bcm2835-overlay
 ```
+
+
 
 Create a systemd unit file to auto start your can interface on boot
 
