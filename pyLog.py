@@ -186,6 +186,9 @@ def updateUserInterface( rawData = "Data", rpm = 750, boost = 1010, afr = 1.0 ):
     global ui
     global datalogging
     global dataStream
+    global logging
+
+    logging.debug("Updating TUI")
 
     rpmGauge = ui.items[0]
     boostGauge = ui.items[1]
@@ -193,24 +196,25 @@ def updateUserInterface( rawData = "Data", rpm = 750, boost = 1010, afr = 1.0 ):
     log = ui.items[3]
     raw = ui.items[4]
 
+
     if 'Engine speed' in dataStream:
-        rpm = round(float(dataStream['Engine speed']))
+        rpm = round(float(dataStream['Engine speed']['value']))
     else:
         rpm = 750
 
     if 'Pressure upstream throttle' in dataStream:
-        boost = round(float(dataStream['Pressure upstream throttle']))
+        boost = round(float(dataStream['Pressure upstream throttle']['value']))
     else:
         boost = 1010
 
     if 'Lambda value' in dataStream:
-        afr = round(float(dataStream['Lambda value']),2)
+        afr = round(float(dataStream['Lambda value']['value']),2)
     else:
         afr = 1.0
 
     log.append(str(datalogging))
     #raw.append()
-
+    logging.debug("Received values from datastream")
     rpmPercent = int(rpm / 8000 * 100)
     rpmGauge.value = minimum(100,rpmPercent)
     rpmGauge.label = str(rpm)
@@ -251,6 +255,7 @@ def updateUserInterface( rawData = "Data", rpm = 750, boost = 1010, afr = 1.0 ):
         log.color = 1
 
     ui.display()
+    logging.debug("Done updating TUI")
 
 
 #Gain level 3 security access to the ECU
