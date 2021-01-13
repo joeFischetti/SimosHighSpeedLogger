@@ -53,7 +53,7 @@ args = parser.parse_args()
 headless = args.headless
 
 #set the global testing mode
-testing = args.testing
+TESTING = args.testing
 
 #set the global for runserver
 RUNSERVER = args.runserver
@@ -100,7 +100,7 @@ logging.info("Configuration file: " + CONFIGFILE)
 datalogging = False
 ui = None
 
-if testing is False:
+if TESTING is False:
     params = {
       'tx_padding': 0x55
     }
@@ -525,7 +525,7 @@ if headless == False:
 
 #If testing is true, we'll run the main thread now without defining the
 #  uds client
-if testing is True:
+if TESTING is True:
     logging.debug("Starting main thread in testing mode")
     main()
 
