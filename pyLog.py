@@ -448,6 +448,7 @@ def getValuesFromECU(client = None):
 def getFakeData():
     global dataStream
 
+    #call this once, just to print out some somewhat useful info for what the requests would look like
     getParams23()
 
     while(True):
