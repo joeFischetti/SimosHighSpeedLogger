@@ -1,6 +1,6 @@
 # SimosHighSpeedLogger
 
-This is a series of scripts used for making a UDS connection to a Simos19 ECU (assuming it has a compatible ASW).
+This is a series of scripts used for making a UDS connection to a Simos18 ECU (assuming it has a compatible ASW).
 This was developed around the Eurodyne Maestro ECU in the MQB chassis VW/Audi
 
 ## Installation
