@@ -63,7 +63,7 @@ INTERACTIVE = args.interactive
 if args.mode is not None:
     MODE = args.mode.upper()
 else:
-    MODE = "23"
+    MODE = "2C"
 
 #Set the global file path to the argument, or local
 if args.filepath is not None:
@@ -318,17 +318,17 @@ def getParams2C():
  
             results = results[logParams[parameter]['length']*2:]
  
-            dataStreamBuffer[parameter] = str(val)
+            dataStreamBuffer[parameter] = {'value': str(val), 'raw': str(rawval)}
  
  
         dataStream = dataStreamBuffer
  
         if 'Cruise' in dataStream:
-            if dataStream['Cruise'] != 0:
+            if dataStream['Cruise']['value'] != 0:
                 logging.debug("Cruise control logging enabled")
                 stopTime = None
                 datalogging = True
-            elif val == 0 and datalogging == True and stopTime is None:
+            elif dataStream['Cruise']['value'] == 0 and datalogging == True and stopTime is None:
                 stopTime = datetime.now() + timedelta(seconds = 5)
             
  
@@ -359,7 +359,7 @@ def getParams23():
     dataStreamBuffer = {}
     #Set the datetime for the beginning of the row
     row = str(datetime.now().time())
-    dataStreamBuffer['timestamp'] = str(datetime.now().time())
+    dataStreamBuffer['timestamp'] = {'value': str(datetime.now().time()), 'raw': ""}
     dataStreamBuffer['datalogging'] = {'value': str(datalogging), 'raw': ""}
  
 
@@ -384,17 +384,17 @@ def getParams23():
             logging.debug(str(parameter) + " scaling applied: " + str(val))
  
  
-            dataStreamBuffer[parameter] = str(val)
+            dataStreamBuffer[parameter] = {'value': str(val), 'raw': str(rawval)}
  
  
     dataStream = dataStreamBuffer
  
     if 'Cruise' in dataStream:
-        if dataStream['Cruise'] != 0:
+        if dataStream['Cruise']['value'] != 0:
             logging.debug("Cruise control logging enabled")
             stopTime = None
             datalogging = True
-        elif val == 0 and datalogging == True and stopTime is None:
+        elif dataStream['Cruise']['value'] == 0 and datalogging == True and stopTime is None:
             stopTime = datetime.now() + timedelta(seconds = 5)
         
 
