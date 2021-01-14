@@ -137,7 +137,7 @@ def stream_data():
                     print('Connected by', addr)
                     while True:
                         json_data = json.dumps(dataStream) + "\n"
-                        #json_data = "something\n"
+                        logging.debug("Sending json to app: " + json_data)
                         conn.sendall(json_data.encode())
                         time.sleep(.1)
         except:
@@ -304,7 +304,7 @@ def getParams2C():
  
         #Set the datetime for the beginning of the row
         row = str(datetime.now().time())
-        dataStreamBuffer['timestamp'] = str(datetime.now().time())
+        dataStreamBuffer['timestamp'] = {'value': str(datetime.now().time()), 'raw': ""}
         dataStreamBuffer['datalogging'] = {'value': str(datalogging), 'raw': ""}
  
  
@@ -375,8 +375,9 @@ def getParams23():
 
     for parameter in logParams:
         if TESTING is True:
+            fakeVal = round(random.random() * 100)
             logging.debug("Param String: " + '23' + logParams[parameter]['location'].lstrip("0x") + "0" + str(logParams[parameter]['length']))
-            results = "63" + logParams[param]['location'].lstrip("0x") + "00"
+            results = "63" + logParams[param]['location'].lstrip("0x") + str(hex(fakeVal)).lstrip('0x') + str(hex(fakeVal)).lstrip('0x')
         else:
             results = (send_raw(bytes.fromhex('23' + logParams[parameter]['location'].lstrip("0x") + "0" + str(logParams[parameter]['length'])))).hex()
 
