@@ -188,7 +188,7 @@ def updateUserInterface( rawData = "Data", rpm = 750, boost = 1010, afr = 1.0 ):
     global dataStream
     global logging
 
-    logging.debug("Updating TUI")
+    #logging.debug("Updating TUI")
 
     rpmGauge = ui.items[0]
     boostGauge = ui.items[1]
@@ -214,7 +214,7 @@ def updateUserInterface( rawData = "Data", rpm = 750, boost = 1010, afr = 1.0 ):
 
     log.append(str(datalogging))
     #raw.append()
-    logging.debug("Received values from datastream")
+    #logging.debug("Received values from datastream")
     rpmPercent = int(rpm / 8000 * 100)
     rpmGauge.value = minimum(100,rpmPercent)
     rpmGauge.label = str(rpm)
@@ -255,7 +255,7 @@ def updateUserInterface( rawData = "Data", rpm = 750, boost = 1010, afr = 1.0 ):
         log.color = 1
 
     ui.display()
-    logging.debug("Done updating TUI")
+    #logging.debug("Done updating TUI")
 
 
 #Gain level 3 security access to the ECU
@@ -286,8 +286,17 @@ def getParams2C():
     global logFile
     global stopTime
 
+    logging.debug("Getting values via 0x2C")
 
-    results = (send_raw(bytes.fromhex('22F200'))).hex()
+    if TESTING is True:
+        logging.debug("Param String: " + '23' + logParams[parameter]['location'].lstrip("0x") + "0" + str(logParams[parameter]['length']))
+        results = "62f200"
+        for parameter in logParams:
+            fakeVal = round(random.random() * 100)
+            results = results + str(hex(fakeVal))
+        logging.debug("Populated fake data: " + str(results))
+    else:
+        results = (send_raw(bytes.fromhex('22F200'))).hex()
  
     #Make sure the result starts with an affirmative
     if results.startswith("62f200"):
@@ -355,6 +364,8 @@ def getParams23():
     global dataStream
     global logFile
     global stopTime
+
+    logging.debug("Getting values via 0x23")
 
     dataStreamBuffer = {}
     #Set the datetime for the beginning of the row
@@ -425,14 +436,13 @@ def getValuesFromECU(client = None):
     global logFile
     global stopTime
 
-    displayRPM = 0
-    displayBoost = 0
-    displayAFR = 0
-
+    logFile = None
+    stopTime = None
 
     if 'notification' in configuration:
         notificationEmail(configuration['notification'], "Sucessfully connected to ECU, starting logger process.\nValues will be written to a log file when cruise control is active")
 
+    logging.info("Starting the ECU poller")
 
     #Start logging
     while(True):
@@ -440,10 +450,11 @@ def getValuesFromECU(client = None):
             if datetime.now() > stopTime:
                 stopTime = None
                 datalogging = False
-            if MODE == "2C":
-                getParams2C()
-            else:
-                getParams23()
+
+        if MODE == "2C":
+            getParams2C()
+        else:
+            getParams23()
 
         
         #If we're not running headless, update the display
@@ -493,19 +504,26 @@ def main(client = None):
             #Initate the dynamicID with a bunch of memory addresses
             send_raw(bytes.fromhex(defineIdentifier))
 
-        #Start the polling thread
-        try:
-            readData = threading.Thread(target=getValuesFromECU, args=(client,))
-            readData.start()
-        except:
-            logging.critical("Error starting ECU thread")
+#        #Start the polling thread
+#        try:
+#            readData = threading.Thread(target=getValuesFromECU, args=(client,))
+#            readData.start()
+#        except:
+#            logging.critical("Error starting ECU thread")
+#
+#    else:
+#        try:
+#            fakeData = threading.Thread(target=getFakeData)
+#            fakeData.start()
+#        except:
+#            logging.critical("Error starting fake data thread")
 
-    else:
-        try:
-            fakeData = threading.Thread(target=getFakeData)
-            fakeData.start()
-        except:
-            logging.critical("Error starting fake data thread")
+    try:
+        readData = threading.Thread(target=getValuesFromECU)
+        readData.start()
+    except:
+        logging.critical("Error starting the data reading thread")
+
 
     if RUNSERVER is True:
         try:
