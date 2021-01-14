@@ -289,11 +289,10 @@ def getParams2C():
     logging.debug("Getting values via 0x2C")
 
     if TESTING is True:
-        logging.debug("Param String: " + '23' + logParams[parameter]['location'].lstrip("0x") + "0" + str(logParams[parameter]['length']))
         results = "62f200"
         for parameter in logParams:
             fakeVal = round(random.random() * 100)
-            results = results + str(hex(fakeVal))
+            results = results + str(hex(fakeVal)).lstrip('0x') + str(hex(fakeVal)).lstrip('0x')
         logging.debug("Populated fake data: " + str(results))
     else:
         results = (send_raw(bytes.fromhex('22F200'))).hex()
