@@ -87,10 +87,10 @@ if args.level is not None:
         'CRITICAL': logging.CRITICAL
     }
 
-    logging.basicConfig(filename=logfile, level=loglevels.get(args.level.upper(), logging.DEBUG))
+    logging.basicConfig(filename=logfile, level=loglevels.get(args.level.upper(), logging.INFO))
 
 else:
-    logging.basicConfig(filename=logfile, level=logging.DEBUG)
+    logging.basicConfig(filename=logfile, level=logging.INFO)
 
 logging.debug("Current filepath: " + filepath)
 logging.debug("Activity log file: " + logfile)
