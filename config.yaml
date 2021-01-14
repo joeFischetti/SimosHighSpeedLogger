@@ -4,3 +4,5 @@ snotification:
     from: fromaddress@gmail.com
     to: toaddress@gmail.com
     password: somepassword
+
+logprefix:  "Example"

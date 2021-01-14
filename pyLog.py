@@ -347,7 +347,10 @@ def getParams2C():
  
         if datalogging is True:
             if logFile is None:
-                filename = filepath + "Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
+                if 'logprefix' in configuration:
+                    filename = filepath + configuration['logprefix'] + "_Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
+                else:
+                    filename = filepath + "Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
                 logging.debug("Creating new logfile at: " + filename)
                 logFile = open(filename, 'a')
                 logFile.write(csvHeader + '\n')
@@ -416,7 +419,11 @@ def getParams23():
 
     if datalogging is True:
         if logFile is None:
-            filename = filepath + "Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
+            if 'logprefix' in configuration:
+                filename = filepath + configuration['logprefix'] + "_Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
+            else:
+                filename = filepath + "Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
+
             logging.debug("Creating new logfile at: " + filename)
             logFile = open(filename, 'a')
             logFile.write(csvHeader + '\n')
