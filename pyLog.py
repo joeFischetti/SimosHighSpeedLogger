@@ -442,10 +442,10 @@ def getValuesFromECU(client = None):
     global dataStream
     global logFile
     global stopTime
-
+    logging.debug("In the ECU Polling thread")
     logFile = None
     stopTime = None
-
+    logging.debug("Sending notification email")
     if 'notification' in configuration:
         notificationEmail(configuration['notification'], "Sucessfully connected to ECU, starting logger process.\nValues will be written to a log file when cruise control is active")
 
@@ -526,6 +526,7 @@ def main(client = None):
 #            logging.critical("Error starting fake data thread")
 
     try:
+        logging.info("Starting the data polling thread")
         readData = threading.Thread(target=getValuesFromECU)
         readData.start()
     except:
