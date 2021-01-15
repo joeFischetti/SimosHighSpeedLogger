@@ -507,9 +507,10 @@ def main(client = None):
         if MODE == "2C":
             #clear the f200 dynamic id
             send_raw(bytes.fromhex('2C03f200'))
-
+            logging.debug("Cleared dynamic identifier F200")
             #Initate the dynamicID with a bunch of memory addresses
             send_raw(bytes.fromhex(defineIdentifier))
+            logging.debug("Creted new dynamic identifier F200")
 
 #        #Start the polling thread
 #        try:
