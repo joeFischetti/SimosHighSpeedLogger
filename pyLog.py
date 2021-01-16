@@ -154,12 +154,14 @@ def minimum(a, b):
 #A function used to send raw data (so we can create the dynamic identifier etc), since udsoncan can't do it all
 def send_raw(data):
     global params
-    conn2 = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
-    conn2.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
-    conn2.open()
-    conn2.send(data)
-    results = conn2.wait_frame()
-    conn2.close()
+    results = None
+    while results == None:
+        conn2 = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
+        conn2.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
+        conn2.open()
+        conn2.send(data)
+        results = conn2.wait_frame()
+        conn2.close()
     return results
 
 
