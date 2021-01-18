@@ -334,11 +334,11 @@ def getParams2C():
         dataStream = dataStreamBuffer
  
         if 'Cruise' in dataStream:
-            if dataStream['Cruise']['value'] != 0:
+            if dataStream['Cruise']['value'] != "0.0":
                 logging.debug("Cruise control logging enabled")
                 stopTime = None
                 datalogging = True
-            elif dataStream['Cruise']['value'] == 0 and datalogging == True and stopTime is None:
+            elif dataStream['Cruise']['value'] == "0.0" and datalogging == True and stopTime is None:
                 stopTime = datetime.now() + timedelta(seconds = 5)
             
  
@@ -406,11 +406,11 @@ def getParams23():
     dataStream = dataStreamBuffer
  
     if 'Cruise' in dataStream:
-        if dataStream['Cruise']['value'] != 0:
+        if dataStream['Cruise']['value'] != "0.0":
             logging.debug("Cruise control logging enabled")
             stopTime = None
             datalogging = True
-        elif dataStream['Cruise']['value'] == 0 and datalogging == True and stopTime is None:
+        elif dataStream['Cruise']['value'] == "0.0" and datalogging == True and stopTime is None:
             stopTime = datetime.now() + timedelta(seconds = 5)
         
 
