@@ -393,7 +393,8 @@ def getParams22():
  
             val = results[:logParams[parameter]['length']*2]
             logging.debug(str(parameter) + " raw from ecu: " + str(val))
-            rawval = int.from_bytes(bytearray.fromhex(val),'little', signed=logParams[parameter]['signed'])
+            #rawval = int.from_bytes(bytearray.fromhex(val),'little', signed=logParams[parameter]['signed'])
+            rawval = int(val,16)
             logging.debug(str(parameter) + " pre-function: " + str(rawval))
             val = round(eval(logParams[parameter]['function'], {'x':rawval, 'struct': struct}), 2)
             row += "," + str(val)
