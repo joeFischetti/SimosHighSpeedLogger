@@ -430,7 +430,7 @@ def getParams22():
             logging.debug("Creating new logfile at: " + filename)
             logFile = open(filename, 'a')
             logFile.write(csvHeader + '\n')
-
+        logging.debug(row)
         logFile.write(row + '\n')
 
 
