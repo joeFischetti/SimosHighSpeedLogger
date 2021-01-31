@@ -359,6 +359,82 @@ def getParams2C():
  
             logFile.write(row + '\n')
 
+#Read from the ECU using mode 22
+def getParams22():
+    global logParams
+    global datalogging
+    global headless
+    global filepath
+    global dataStream
+    global logFile
+    global stopTime
+
+    logging.debug("Getting values via 0x22")
+
+    dataStreamBuffer = {}
+    #Set the datetime for the beginning of the row
+    row = str(datetime.now().time())
+    dataStreamBuffer['timestamp'] = {'value': str(datetime.now().time()), 'raw': ""}
+    dataStreamBuffer['datalogging'] = {'value': str(datalogging), 'raw': ""}
+ 
+
+    for parameter in logParams:
+        if TESTING is True:
+            fakeVal = round(random.random() * 100)
+            logging.debug("Param String: " + '22' + logParams[parameter]['location'].lstrip("0x"))
+            results = "62" + logParams[param]['location'].lstrip("0x") + str(hex(fakeVal)).lstrip('0x')
+        else:
+            results = (send_raw(bytes.fromhex('22' + logParams[parameter]['location'].lstrip("0x")))).hex()
+
+        if results.startswith("62"):
+        
+            #Strip off the first 6 characters (63MEMORYLOCATION) so we only have the data
+            results = results[6:]
+ 
+            val = results
+            logging.debug(str(parameter) + " raw from ecu: " + str(val))
+            rawval = int.from_bytes(bytearray.fromhex(val),'little', signed=logParams[parameter]['signed'])
+            logging.debug(str(parameter) + " pre-function: " + str(rawval))
+            val = round(eval(logParams[parameter]['function'], {'x':rawval, 'struct': struct}), 2)
+            row += "," + str(val)
+            logging.debug(str(parameter) + " scaling applied: " + str(val))
+ 
+ 
+            dataStreamBuffer[parameter] = {'value': str(val), 'raw': str(rawval)}
+ 
+ 
+    dataStream = dataStreamBuffer
+ 
+    if 'Cruise' in dataStream:
+        if dataStream['Cruise']['value'] != "0.0":
+            logging.debug("Cruise control logging enabled")
+            stopTime = None
+            datalogging = True
+        elif dataStream['Cruise']['value'] == "0.0" and datalogging == True and stopTime is None:
+            stopTime = datetime.now() + timedelta(seconds = 5)
+        
+
+    if datalogging is False and logFile is not None:
+        logging.debug("Datalogging stopped, closing file")
+        logFile.close()
+        logFile = None
+
+    if datalogging is True:
+        if logFile is None:
+            if 'logprefix' in configuration:
+                filename = filepath + configuration['logprefix'] + "_Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
+            else:
+                filename = filepath + "Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
+
+            logging.debug("Creating new logfile at: " + filename)
+            logFile = open(filename, 'a')
+            logFile.write(csvHeader + '\n')
+
+        logFile.write(row + '\n')
+
+
+
+
 #Read from the ECU using mode 23
 def getParams23():
     global logParams
@@ -462,8 +538,10 @@ def getValuesFromECU(client = None):
 
         if MODE == "2C":
             getParams2C()
-        else:
+        elif MODE == "23":
             getParams23()
+        else:
+            getParams22()
 
         
         #If we're not running headless, update the display
