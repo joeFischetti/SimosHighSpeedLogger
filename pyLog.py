@@ -178,7 +178,9 @@ def send_raw_2(data_bytes):
     except can.CanError:
         print("Message NOT sent")
 
-    return bus.recv()
+    message = bus.recv()
+    print(str(message))
+    return message
 
 #Build the user interface using dasher
 def buildUserInterface():
