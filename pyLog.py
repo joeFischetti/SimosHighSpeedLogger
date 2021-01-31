@@ -727,6 +727,8 @@ if logParams is not None:
         defineIdentifier += "0"
         defineIdentifier += str(logParams[param]['length'])
 
+logging.info("CSV Header for log files will be: " + csvHeader)
+
 if headless == False:
     buildUserInterface()
     updateUserInterface()
