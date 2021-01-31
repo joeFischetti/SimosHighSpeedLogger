@@ -164,7 +164,17 @@ def send_raw(data):
         conn2.close()
     return results
 
+def send_raw_2(data_bytes):
+    bus = can.interface.Bus(bustype='socketcan', channel='vcan0', bitrate=250000)
+    msg = can.Message(arbitration_id=0x7E8,
+                      data=data_bytes,
+                      is_extended_id=True)
 
+    try:
+        bus.send(msg)
+        print("Message sent on {}".format(bus.channel_info))
+    except can.CanError:
+        print("Message NOT sent")
 
 #Build the user interface using dasher
 def buildUserInterface():
@@ -384,9 +394,9 @@ def getParams22():
             logging.debug("Param String: " + '22' + logParams[parameter]['location'].lstrip("0x"))
             results = "62" + logParams[param]['location'].lstrip("0x") + str(hex(fakeVal)).lstrip('0x')
         else:
-            results = (send_raw(bytes.fromhex('22' + logParams[parameter]['location'].lstrip("0x")))).hex()
+            results = (send_raw_2(bytes.fromhex('0322' + logParams[parameter]['location'].lstrip("0x")))).hex()
 
-        if results.startswith("62"):
+        if results.startswith("0562"):
         
             #Strip off the first 6 characters (63MEMORYLOCATION) so we only have the data
             results = results[6:]
