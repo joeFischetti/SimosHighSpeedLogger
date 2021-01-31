@@ -391,7 +391,7 @@ def getParams22():
             #Strip off the first 6 characters (63MEMORYLOCATION) so we only have the data
             results = results[6:]
  
-            val = results
+            val = results[:logParams[parameter]['length']*2]
             logging.debug(str(parameter) + " raw from ecu: " + str(val))
             rawval = int.from_bytes(bytearray.fromhex(val),'little', signed=logParams[parameter]['signed'])
             logging.debug(str(parameter) + " pre-function: " + str(rawval))
