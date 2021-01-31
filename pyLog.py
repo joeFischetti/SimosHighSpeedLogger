@@ -4,6 +4,8 @@
 # which will help us calculate the time to stop WOT logging
 from datetime import datetime, timedelta
 
+import can
+
 #yaml is used to define the logged parameters, bytes is for byte stuff, and
 #  threading is so we can handle multiple threads (start the reader thread)
 #  time is used so I could put pauses in various places
