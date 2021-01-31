@@ -433,6 +433,7 @@ def getParams22():
             logFile.write(csvHeader + '\n')
         logging.debug(row)
         logFile.write(row + '\n')
+        print(row)
 
 
 
