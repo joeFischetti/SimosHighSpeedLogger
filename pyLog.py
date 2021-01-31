@@ -381,14 +381,14 @@ def getParams23():
     for parameter in logParams:
         if TESTING is True:
             fakeVal = round(random.random() * 100)
-            logging.debug("Param String: " + '23' + logParams[parameter]['location'].lstrip("0x") + "0" + str(logParams[parameter]['length']))
+            logging.debug("Param String: " + '2314' + logParams[parameter]['location'].lstrip("0x") + "0" + str(logParams[parameter]['length']))
             results = "63" + logParams[param]['location'].lstrip("0x") + str(hex(fakeVal)).lstrip('0x') + str(hex(fakeVal)).lstrip('0x')
         else:
-            results = (send_raw(bytes.fromhex('23' + logParams[parameter]['location'].lstrip("0x") + "0" + str(logParams[parameter]['length'])))).hex()
+            results = (send_raw(bytes.fromhex('2314' + logParams[parameter]['location'].lstrip("0x") + "0" + str(logParams[parameter]['length'])))).hex()
 
         if results.startswith("63"):
         
-            #Strip off the first 6 characters (F200) so we only have the data
+            #Strip off the first 6 characters (63MEMORYLOCATION) so we only have the data
             results = results[10:]
  
             val = results
