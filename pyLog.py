@@ -428,6 +428,7 @@ def getParams22():
                 filename = filepath + "Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
 
             logging.debug("Creating new logfile at: " + filename)
+            logging.debug("Header for CSV file: " + csvHeader)
             logFile = open(filename, 'a')
             logFile.write(csvHeader + '\n')
         logging.debug(row)
