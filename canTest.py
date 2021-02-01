@@ -19,7 +19,7 @@ def send_raw(data):
     conn2.send(data)
     results = conn2.wait_frame()
     conn2.close()
-    print(str(results))
+    #print(str(results))
     return results
 
 def send_raw_2(data_bytes):
@@ -31,12 +31,12 @@ def send_raw_2(data_bytes):
 
     try:
         bus.send(msg)
-        print("Message sent on {}".format(bus.channel_info))
+        #print("Message sent on {}".format(bus.channel_info))
     except can.CanError:
         print("Message NOT sent")
 
     message = bus.recv()
-    print(str(message))
+    #print(str(message))
     return message
 
 #build the argument parser and set up the arguments
@@ -47,7 +47,7 @@ parser.add_argument('--testmode',help="whether you want to test python-can or ud
 args = parser.parse_args()
 
 if args.testmode == "udsoncan":
-    for i in range(0,30):
+    for i in range(0,100):
         send_raw(b'2210c0')
 elif args.testmode == "python-can":
     for i in range(0,100):
