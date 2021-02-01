@@ -51,5 +51,5 @@ if args.testmode == "udsoncan":
         send_raw(b'2210c0')
 elif args.testmode == "python-can":
     for i in range(0,30):
-        send_raw_2(b'\x03\x22\x10\xc0')
+        send_raw_2(b'\x03\x22\x10\xc0\x00\x00\x00\x00')
 
