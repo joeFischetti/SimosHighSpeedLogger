@@ -25,7 +25,7 @@ def send_raw(data):
 def send_raw_2(data_bytes):
     bus = can.interface.Bus(bustype='socketcan', channel='can0', bitrate=250000)
     msg = can.Message(arbitration_id=0x7E8,
-                      data=data_bytes,
+                      data=list(data_bytes),
                       is_extended_id=False)
     message = None
 
@@ -51,5 +51,5 @@ if args.testmode == "udsoncan":
         send_raw(b'2210c0')
 elif args.testmode == "python-can":
     for i in range(0,30):
-        send_raw_2(b'2210c0')
+        send_raw_2(b'\x03\x22\x10\xc0')
 
