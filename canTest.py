@@ -24,7 +24,7 @@ def send_raw(data):
 
 def send_raw_2(data_bytes):
     bus = can.interface.Bus(bustype='socketcan', channel='can0', bitrate=250000)
-    msg = can.Message(arbitration_id=0x7E8,
+    msg = can.Message(arbitration_id=0x7E0,
                       data=list(data_bytes),
                       is_extended_id=False)
     message = None
