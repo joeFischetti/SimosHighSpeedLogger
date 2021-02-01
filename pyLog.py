@@ -403,13 +403,13 @@ def getParams22():
             logging.debug("Param String: " + '22' + logParams[parameter]['location'].lstrip("0x"))
             results = "62" + logParams[param]['location'].lstrip("0x") + str(hex(fakeVal)).lstrip('0x')
         else:
-            results = (send_raw_2(bytes.fromhex('0322' + logParams[parameter]['location'].lstrip("0x")))).hex()
+            results = (send_raw_2(bytes.fromhex('0322' + logParams[parameter]['location'].lstrip("0x")))).hex().rstrip('a')
             print(str(results))
 
         if results.startswith("0562"):
         
             #Strip off the first 6 characters (63MEMORYLOCATION) so we only have the data
-            results = results[6:]
+            results = results[8:]
  
             val = results[:logParams[parameter]['length']*2]
             logging.debug(str(parameter) + " raw from ecu: " + str(val))
