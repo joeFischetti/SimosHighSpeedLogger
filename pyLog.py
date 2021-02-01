@@ -181,7 +181,7 @@ def send_raw_2(data_bytes):
 
     message = bus.recv()
     #print(str(message))
-    return message
+    return message.data
 
 
 
