@@ -38,7 +38,7 @@ def send_raw_2(data_bytes):
     message = bus.recv()
     #print(str(message))
     for key in message:
-        print(key " is " message[key])
+        print(key +  " is " + message[key])
     return message
 
 #build the argument parser and set up the arguments
