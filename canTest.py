@@ -47,9 +47,9 @@ parser.add_argument('--testmode',help="whether you want to test python-can or ud
 args = parser.parse_args()
 
 if args.testmode == "udsoncan":
-    for i in range(0,20):
+    for i in range(0,30):
         send_raw(b'2210c0')
 elif args.testmode == "python-can":
-    for i in range(0,20):
+    for i in range(0,30):
         send_raw_2(b'032210c0')
 
