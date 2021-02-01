@@ -404,7 +404,7 @@ def getParams22():
             results = "62" + logParams[param]['location'].lstrip("0x") + str(hex(fakeVal)).lstrip('0x')
         else:
             results = (send_raw_2(bytes.fromhex('0322' + logParams[parameter]['location'].lstrip("0x") + "00000000"))).hex().rstrip('a')
-            print(str(results))
+            #print(str(results))
 
         if results.startswith("0562"):
         
