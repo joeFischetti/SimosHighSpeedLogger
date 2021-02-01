@@ -168,19 +168,22 @@ def send_raw(data):
 
 def send_raw_2(data_bytes):
     bus = can.interface.Bus(bustype='socketcan', channel='can0', bitrate=250000)
-    msg = can.Message(arbitration_id=0x7E8,
-                      data=data_bytes,
-                      is_extended_id=True)
+    msg = can.Message(arbitration_id=0x7E0,
+                      data=list(data_bytes),
+                      is_extended_id=False)
+    message = None
 
     try:
         bus.send(msg)
-        print("Message sent on {}".format(bus.channel_info))
+        #print("Message sent on {}".format(bus.channel_info))
     except can.CanError:
         print("Message NOT sent")
 
     message = bus.recv()
-    print(str(message))
+    #print(str(message))
     return message
+
+
 
 #Build the user interface using dasher
 def buildUserInterface():

@@ -37,6 +37,8 @@ def send_raw_2(data_bytes):
 
     message = bus.recv()
     #print(str(message))
+    for key in message:
+        print(key " is " message[key])
     return message
 
 #build the argument parser and set up the arguments
@@ -47,9 +49,9 @@ parser.add_argument('--testmode',help="whether you want to test python-can or ud
 args = parser.parse_args()
 
 if args.testmode == "udsoncan":
-    for i in range(0,100):
+    for i in range(0,5):
         send_raw(b'2210c0')
 elif args.testmode == "python-can":
-    for i in range(0,100):
+    for i in range(0,5):
         send_raw_2(b'\x03\x22\x10\xc0\x00\x00\x00\x00')
 
