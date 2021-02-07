@@ -46,24 +46,12 @@ filepath = './'
 logFile = None
 stopTime = None
 configuration = {}
-
-#build the argument parser and set up the arguments
-parser = argparse.ArgumentParser(description='Simos18 High Speed Logger')
-parser.add_argument('--headless', action='store_true')
-parser.add_argument('--filepath',help="location to be used for the parameter and the log output location")
-parser.add_argument('--level',help="Log level for the activity log, valid levels include: DEBUG, INFO, WARNING, ERROR, CRITICAL")
-parser.add_argument('--testing', help="testing mode, for use when not connected to a car", action='store_true')
-parser.add_argument('--runserver', help="run an app server, used with the android app", action='store_true')
-parser.add_argument('--interactive', help="run in interactive mode, start/stop logging with the enter key", action='store_true')
-parser.add_argument('--mode', help="set the connection mode: 2C, 23")
-
-
-args = parser.parse_args()
+callback = None
 
 #Stream data over a socket connection.  
 #Open the socket, and if it happens to disconnect or fail, open it again
 #This is used for the android app
-def stream_data():
+def stream_data(callback = None):
     HOST = '0.0.0.0'  # Standard loopback interface address (localhost)
     PORT = 65432        # Port to listen on (non-privileged ports are > 1023)
 
@@ -84,7 +72,12 @@ def stream_data():
                         time.sleep(.1)
         except:
             logging.info("socket closed due to error or client disconnect")
-     
+    
+def callback_data(callback):
+    while 1:
+        callback(dataStream)
+        time.sleep(.5) 
+
 #A basic helper function that just returns the minimum of two values
 def minimum(a, b): 
     if a <= b: 
@@ -538,7 +531,7 @@ def getFakeData():
 
 
 #Main loop
-def main(client = None):
+def main(client = None, callback = None):
     
     if client is not None:
         logging.debug("Opening extended diagnostic session...")
@@ -561,6 +554,14 @@ def main(client = None):
         readData.start()
     except:
         logging.critical("Error starting the data reading thread")
+
+    if callback:
+        try:
+            callbackData = threading.Thread(target=callback_data, args=(callback,))
+            callbackData.start()
+            logging.info("Started callback data thead")
+        except:
+            logging.critical("Error starting callback thread")
 
 
     if RUNSERVER is True:
@@ -635,7 +636,7 @@ def notificationEmail(mailsettings, msg, attachment = None):
         server.sendmail(sender_email, receiver_email, text)
 
 
-def run_logger(headless = False, testing = False, runserver = False, interactive = False, mode = "2C", level = None, path = './'):
+def run_logger(headless = False, testing = False, runserver = False, interactive = False, mode = "2C", level = None, path = './', callback_function = None):
     global HEADLESS
     global TESTING
     global RUNSERVER
@@ -648,6 +649,9 @@ def run_logger(headless = False, testing = False, runserver = False, interactive
     global logFile
     global stopTime 
     global csvHeader
+    global callback
+
+    callback = callback_function
 
  
     HEADLESS = headless
@@ -677,7 +681,7 @@ def run_logger(headless = False, testing = False, runserver = False, interactive
     else:
         logging.basicConfig(filename=logfile, level=logging.INFO)
     
-
+    logging.debug("Current path arg: " + path)
     logging.debug("Current filepath: " + filepath)
     logging.debug("Activity log file: " + logfile)
     logging.debug("Headless mode: " + str(HEADLESS))
@@ -755,7 +759,7 @@ def run_logger(headless = False, testing = False, runserver = False, interactive
     #  uds client
     if TESTING is True:
         logging.debug("Starting main thread in testing mode")
-        main()
+        main(callback = callback)
     
     else:
         with Client(conn,request_timeout=2, config=configs.default_client_config) as client:
@@ -764,7 +768,7 @@ def run_logger(headless = False, testing = False, runserver = False, interactive
                 #Set up the security algorithm for the uds connection
                 client.config['security_algo'] = gainSecurityAccess
                 
-                main(client)
+                main(client = client, callback = callback)
         
         
             except exceptions.NegativeResponseException as e:
