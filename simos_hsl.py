@@ -32,6 +32,8 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+activityLogger = logging.getLogger("SimosHSL")
+
 #dataStream is an object that will be passed to the web GUI
 dataStream = {}
 datalogging = None
@@ -62,16 +64,16 @@ def stream_data(callback = None):
                 s.bind((HOST, PORT))
                 s.listen()
                 conn, addr = s.accept()
-                logging.info("Listening on " + str(HOST) + ":" + str(PORT))
+                activityLogger.info("Listening on " + str(HOST) + ":" + str(PORT))
                 with conn:
                     print('Connected by', addr)
                     while True:
                         json_data = json.dumps(dataStream) + "\n"
-                        logging.debug("Sending json to app: " + json_data)
+                        activityLogger.debug("Sending json to app: " + json_data)
                         conn.sendall(json_data.encode())
                         time.sleep(.1)
         except:
-            logging.info("socket closed due to error or client disconnect")
+            activityLogger.info("socket closed due to error or client disconnect")
     
 def callback_data(callback):
     while 1:
@@ -140,9 +142,9 @@ def updateUserInterface( rawData = "Data", rpm = 750, boost = 1010, afr = 1.0 ):
     global ui
     global datalogging
     global dataStream
-    global logging
+    global activityLogger
 
-    #logging.debug("Updating TUI")
+    #activityLogger.debug("Updating TUI")
 
     rpmGauge = ui.items[0]
     boostGauge = ui.items[1]
@@ -168,7 +170,7 @@ def updateUserInterface( rawData = "Data", rpm = 750, boost = 1010, afr = 1.0 ):
 
     log.append(str(datalogging))
     #raw.append()
-    #logging.debug("Received values from datastream")
+    #activityLogger.debug("Received values from datastream")
     rpmPercent = int(rpm / 8000 * 100)
     rpmGauge.value = minimum(100,rpmPercent)
     rpmGauge.label = str(rpm)
@@ -209,14 +211,14 @@ def updateUserInterface( rawData = "Data", rpm = 750, boost = 1010, afr = 1.0 ):
         log.color = 1
 
     ui.display()
-    #logging.debug("Done updating TUI")
+    #activityLogger.debug("Done updating TUI")
 
 
 #Gain level 3 security access to the ECU
 def gainSecurityAccess(level, seed, params=None):
-    logging.info("Level " + str(level) + " security")
+    activityLogger.info("Level " + str(level) + " security")
 
-    logging.debug(seed)
+    activityLogger.debug(seed)
 
     #the private key is used as a sum against the seed (for ED)
     private = "00 00 6D 43"
@@ -240,14 +242,14 @@ def getParams2C():
     global logFile
     global stopTime
 
-    logging.debug("Getting values via 0x2C")
+    activityLogger.debug("Getting values via 0x2C")
 
     if TESTING is True:
         results = "62f200"
         for parameter in logParams:
             fakeVal = round(random.random() * 100)
             results = results + str(hex(fakeVal)).lstrip('0x') + str(hex(fakeVal)).lstrip('0x')
-        logging.debug("Populated fake data: " + str(results))
+        activityLogger.debug("Populated fake data: " + str(results))
     else:
         results = (send_raw(bytes.fromhex('22F200'))).hex()
  
@@ -271,12 +273,12 @@ def getParams2C():
         #  the result
         for parameter in logParams:
             val = results[:logParams[parameter]['length']*2]
-            logging.debug(str(parameter) + " raw from ecu: " + str(val))
+            activityLogger.debug(str(parameter) + " raw from ecu: " + str(val))
             rawval = int.from_bytes(bytearray.fromhex(val),'little', signed=logParams[parameter]['signed'])
-            logging.debug(str(parameter) + " pre-function: " + str(rawval))
+            activityLogger.debug(str(parameter) + " pre-function: " + str(rawval))
             val = round(eval(logParams[parameter]['function'], {'x':rawval, 'struct': struct}), 2)
             row += "," + str(val)
-            logging.debug(str(parameter) + " scaling applied: " + str(val))
+            activityLogger.debug(str(parameter) + " scaling applied: " + str(val))
  
             results = results[logParams[parameter]['length']*2:]
  
@@ -287,7 +289,7 @@ def getParams2C():
  
         if 'Cruise' in dataStream:
             if dataStream['Cruise']['value'] != "0.0":
-                logging.debug("Cruise control logging enabled")
+                activityLogger.debug("Cruise control logging enabled")
                 stopTime = None
                 datalogging = True
             elif dataStream['Cruise']['value'] == "0.0" and datalogging == True and stopTime is None:
@@ -295,7 +297,7 @@ def getParams2C():
             
  
         if datalogging is False and logFile is not None:
-            logging.debug("Datalogging stopped, closing file")
+            activityLogger.debug("Datalogging stopped, closing file")
             logFile.close()
             logFile = None
  
@@ -305,7 +307,7 @@ def getParams2C():
                     filename = filepath + configuration['logprefix'] + "_Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
                 else:
                     filename = filepath + "Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
-                logging.debug("Creating new logfile at: " + filename)
+                activityLogger.debug("Creating new logfile at: " + filename)
                 logFile = open(filename, 'a')
                 logFile.write(csvHeader + '\n')
  
@@ -321,7 +323,7 @@ def getParams22():
     global logFile
     global stopTime
 
-    logging.debug("Getting values via 0x22")
+    activityLogger.debug("Getting values via 0x22")
 
     dataStreamBuffer = {}
     #Set the datetime for the beginning of the row
@@ -333,7 +335,7 @@ def getParams22():
     for parameter in logParams:
         if TESTING is True:
             fakeVal = round(random.random() * 100)
-            logging.debug("Param String: " + '22' + logParams[parameter]['location'].lstrip("0x"))
+            activityLogger.debug("Param String: " + '22' + logParams[parameter]['location'].lstrip("0x"))
             results = "62" + logParams[param]['location'].lstrip("0x") + str(hex(fakeVal)).lstrip('0x')
         else:
             results = (send_raw_2(bytes.fromhex('0322' + logParams[parameter]['location'].lstrip("0x") + "00000000"))).hex().rstrip('a')
@@ -345,13 +347,13 @@ def getParams22():
             results = results[8:]
  
             val = results[:logParams[parameter]['length']*2]
-            logging.debug(str(parameter) + " raw from ecu: " + str(val))
+            activityLogger.debug(str(parameter) + " raw from ecu: " + str(val))
             #rawval = int.from_bytes(bytearray.fromhex(val),'little', signed=logParams[parameter]['signed'])
             rawval = int(val,16)
-            logging.debug(str(parameter) + " pre-function: " + str(rawval))
+            activityLogger.debug(str(parameter) + " pre-function: " + str(rawval))
             val = round(eval(logParams[parameter]['function'], {'x':rawval, 'struct': struct}), 2)
             row += "," + str(val)
-            logging.debug(str(parameter) + " scaling applied: " + str(val))
+            activityLogger.debug(str(parameter) + " scaling applied: " + str(val))
  
  
             dataStreamBuffer[parameter] = {'value': str(val), 'raw': str(rawval)}
@@ -361,7 +363,7 @@ def getParams22():
  
     if 'Cruise' in dataStream:
         if dataStream['Cruise']['value'] != "0.0":
-            logging.debug("Cruise control logging enabled")
+            activityLogger.debug("Cruise control logging enabled")
             stopTime = None
             datalogging = True
         elif dataStream['Cruise']['value'] == "0.0" and datalogging == True and stopTime is None:
@@ -369,7 +371,7 @@ def getParams22():
         
 
     if datalogging is False and logFile is not None:
-        logging.debug("Datalogging stopped, closing file")
+        activityLogger.debug("Datalogging stopped, closing file")
         logFile.close()
         logFile = None
 
@@ -380,11 +382,11 @@ def getParams22():
             else:
                 filename = filepath + "Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
 
-            logging.debug("Creating new logfile at: " + filename)
-            logging.debug("Header for CSV file: " + csvHeader)
+            activityLogger.debug("Creating new logfile at: " + filename)
+            activityLogger.debug("Header for CSV file: " + csvHeader)
             logFile = open(filename, 'a')
             logFile.write(csvHeader + '\n')
-        logging.debug(row)
+        activityLogger.debug(row)
         logFile.write(row + '\n')
         logFile.flush()
 
@@ -401,7 +403,7 @@ def getParams23():
     global logFile
     global stopTime
 
-    logging.debug("Getting values via 0x23")
+    activityLogger.debug("Getting values via 0x23")
 
     dataStreamBuffer = {}
     #Set the datetime for the beginning of the row
@@ -413,7 +415,7 @@ def getParams23():
     for parameter in logParams:
         if TESTING is True:
             fakeVal = round(random.random() * 100)
-            logging.debug("Param String: " + '2314' + logParams[parameter]['location'].lstrip("0x") + "0" + str(logParams[parameter]['length']))
+            activityLogger.debug("Param String: " + '2314' + logParams[parameter]['location'].lstrip("0x") + "0" + str(logParams[parameter]['length']))
             results = "63" + logParams[param]['location'].lstrip("0x") + str(hex(fakeVal)).lstrip('0x') + str(hex(fakeVal)).lstrip('0x')
         else:
             results = (send_raw(bytes.fromhex('2314' + logParams[parameter]['location'].lstrip("0x") + "0" + str(logParams[parameter]['length'])))).hex()
@@ -424,12 +426,12 @@ def getParams23():
             results = results[10:]
  
             val = results
-            logging.debug(str(parameter) + " raw from ecu: " + str(val))
+            activityLogger.debug(str(parameter) + " raw from ecu: " + str(val))
             rawval = int.from_bytes(bytearray.fromhex(val),'little', signed=logParams[parameter]['signed'])
-            logging.debug(str(parameter) + " pre-function: " + str(rawval))
+            activityLogger.debug(str(parameter) + " pre-function: " + str(rawval))
             val = round(eval(logParams[parameter]['function'], {'x':rawval, 'struct': struct}), 2)
             row += "," + str(val)
-            logging.debug(str(parameter) + " scaling applied: " + str(val))
+            activityLogger.debug(str(parameter) + " scaling applied: " + str(val))
  
  
             dataStreamBuffer[parameter] = {'value': str(val), 'raw': str(rawval)}
@@ -439,7 +441,7 @@ def getParams23():
  
     if 'Cruise' in dataStream:
         if dataStream['Cruise']['value'] != "0.0":
-            logging.debug("Cruise control logging enabled")
+            activityLogger.debug("Cruise control logging enabled")
             stopTime = None
             datalogging = True
         elif dataStream['Cruise']['value'] == "0.0" and datalogging == True and stopTime is None:
@@ -447,7 +449,7 @@ def getParams23():
         
 
     if datalogging is False and logFile is not None:
-        logging.debug("Datalogging stopped, closing file")
+        activityLogger.debug("Datalogging stopped, closing file")
         logFile.close()
         logFile = None
 
@@ -458,7 +460,7 @@ def getParams23():
             else:
                 filename = filepath + "Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
 
-            logging.debug("Creating new logfile at: " + filename)
+            activityLogger.debug("Creating new logfile at: " + filename)
             logFile = open(filename, 'a')
             logFile.write(csvHeader + '\n')
 
@@ -476,14 +478,14 @@ def getValuesFromECU(client = None):
     global dataStream
     global logFile
     global stopTime
-    logging.debug("In the ECU Polling thread")
+    activityLogger.debug("In the ECU Polling thread")
     logFile = None
     stopTime = None
-    logging.debug("Sending notification email")
+    activityLogger.debug("Sending notification email")
     if 'notification' in configuration:
         notificationEmail(configuration['notification'], "Sucessfully connected to ECU, starting logger process.\nValues will be written to a log file when cruise control is active")
 
-    logging.info("Starting the ECU poller")
+    activityLogger.info("Starting the ECU poller")
 
     #Start logging
     while(True):
@@ -519,7 +521,7 @@ def getFakeData():
         for parameter in logParams:
             fakeVal = round(random.random() * 100)
             localDataStream[parameter] = {'value': str(fakeVal), 'raw': hex(fakeVal)}
-        #logging.debug("Populating fake data")
+        #activityLogger.debug("Populating fake data")
         dataStream = localDataStream
 
         #If we're not running HEADLESS, update the display
@@ -534,52 +536,52 @@ def getFakeData():
 def main(client = None, callback = None):
     
     if client is not None:
-        logging.debug("Opening extended diagnostic session...")
+        activityLogger.debug("Opening extended diagnostic session...")
         client.change_session(0x4F)
 
-        logging.debug("Gaining level 3 security access")
+        activityLogger.debug("Gaining level 3 security access")
         client.unlock_security_access(3)
  
         if MODE == "2C":
             #clear the f200 dynamic id
             send_raw(bytes.fromhex('2C03f200'))
-            logging.debug("Cleared dynamic identifier F200")
+            activityLogger.debug("Cleared dynamic identifier F200")
             #Initate the dynamicID with a bunch of memory addresses
             send_raw(bytes.fromhex(defineIdentifier))
-            logging.debug("Creted new dynamic identifier F200")
+            activityLogger.debug("Creted new dynamic identifier F200")
 
     try:
-        logging.info("Starting the data polling thread")
+        activityLogger.info("Starting the data polling thread")
         readData = threading.Thread(target=getValuesFromECU)
         readData.start()
     except:
-        logging.critical("Error starting the data reading thread")
+        activityLogger.critical("Error starting the data reading thread")
 
     if callback:
         try:
             callbackData = threading.Thread(target=callback_data, args=(callback,))
             callbackData.start()
-            logging.info("Started callback data thead")
+            activityLogger.info("Started callback data thead")
         except:
-            logging.critical("Error starting callback thread")
+            activityLogger.critical("Error starting callback thread")
 
 
     if RUNSERVER is True:
         try:
             streamData = threading.Thread(target=stream_data)
             streamData.start()
-            logging.info("Started data streaming thread")
+            activityLogger.info("Started data streaming thread")
         except:
-            logging.critical("Error starting data streamer")
+            activityLogger.critical("Error starting data streamer")
     
     if INTERACTIVE is True:
         #Start the loop that listens for the enter key
         while(True):
             global datalogging
             log = input()
-            logging.debug("Input from user: " + log)
+            activityLogger.debug("Input from user: " + log)
             datalogging = not datalogging
-            logging.debug("Logging is: " + str(datalogging))
+            activityLogger.debug("Logging is: " + str(datalogging))
 
 
 #Load default parameters, in the event that no parameter file was passed
@@ -593,7 +595,7 @@ def loadDefaultParams():
             with open('./parameters.yaml', 'r') as parameterFile:
                 logParams = yaml.load(parameterFile)
         except:
-            logging.warning("No parameter file found, or can't load file, setting defaults")
+            activityLogger.warning("No parameter file found, or can't load file, setting defaults")
 
 #Helper function that just gets the local IP address of the Pi (so we can email it as a notification for debugging purposes)
 def get_ip():
@@ -611,7 +613,7 @@ def get_ip():
 
 #Function to send notification emails out (i.e. when the logger is started, and when exceptions are thrown) 
 def notificationEmail(mailsettings, msg, attachment = None):
-    logging.debug("Sending email")
+    activityLogger.debug("Sending email")
     #Set up all the email sever/credential information (from the configuration file)
     port = mailsettings['smtp_port']
     smtp_server = mailsettings['smtp_server']
@@ -650,6 +652,7 @@ def run_logger(headless = False, testing = False, runserver = False, interactive
     global stopTime 
     global csvHeader
     global callback
+    global activityLogger
 
     callback = callback_function
 
@@ -663,10 +666,10 @@ def run_logger(headless = False, testing = False, runserver = False, interactive
 
     #Set up the activity logging
     logfile = filepath + "activity_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".log"
-    logFile = None
     stopTime = None
-    
-    
+
+    f_handler = logging.FileHandler(logfile)
+
     if level is not None:
         loglevels = {
             'DEBUG': logging.DEBUG,
@@ -676,25 +679,29 @@ def run_logger(headless = False, testing = False, runserver = False, interactive
             'CRITICAL': logging.CRITICAL
         }
     
-        logging.basicConfig(filename=logfile, level=loglevels.get(args.level.upper(), logging.INFO))
+        f_handler.setLevel(level)
     
     else:
-        logging.basicConfig(filename=logfile, level=logging.INFO)
+        f_handler.setLevel(logging.DEBUG)
+   
+    f_handler.setLevel(logging.DEBUG) 
+    activityLogger.addHandler(f_handler)
+
+
+    activityLogger.debug("Current path arg: " + path)
+    activityLogger.debug("Current filepath: " + filepath)
+    activityLogger.debug("Activity log file: " + logfile)
+    activityLogger.debug("Headless mode: " + str(HEADLESS))
     
-    logging.debug("Current path arg: " + path)
-    logging.debug("Current filepath: " + filepath)
-    logging.debug("Activity log file: " + logfile)
-    logging.debug("Headless mode: " + str(HEADLESS))
-    
-    logging.info("Connection type:  " + MODE)
-    logging.info("App server: " + str(RUNSERVER))
-    logging.info("Interactive mode: " + str(INTERACTIVE))
+    activityLogger.info("Connection type:  " + MODE)
+    activityLogger.info("App server: " + str(RUNSERVER))
+    activityLogger.info("Interactive mode: " + str(INTERACTIVE))
     
     PARAMFILE = filepath + "parameters.yaml"
-    logging.info("Parameter file: " + PARAMFILE)
+    activityLogger.info("Parameter file: " + PARAMFILE)
     
     CONFIGFILE = filepath + "config.yaml"
-    logging.info("Configuration file: " + CONFIGFILE)
+    activityLogger.info("Configuration file: " + CONFIGFILE)
     
     ui = None
     
@@ -713,16 +720,16 @@ def run_logger(headless = False, testing = False, runserver = False, interactive
     #  list of logged parameters for testing
     if os.path.exists(PARAMFILE) and os.access(PARAMFILE, os.R_OK):
         try:
-            logging.debug("Loading parameters from: " + PARAMFILE)
+            activityLogger.debug("Loading parameters from: " + PARAMFILE)
             with open(PARAMFILE, 'r') as parameterFile:
                 logParams = yaml.load(parameterFile)
         except:
-            logging.info("No parameter file found, or can't load file, setting defaults")
+            activityLogger.info("No parameter file found, or can't load file, setting defaults")
             loadDefaultParams()
     
     if os.path.exists(CONFIGFILE) and os.access(CONFIGFILE, os.R_OK):
         try:
-            logging.debug("Loading configuration file: " + CONFIGFILE)
+            activityLogger.debug("Loading configuration file: " + CONFIGFILE)
             with open(CONFIGFILE, 'r') as configFile:
                 configuration = yaml.load(configFile)
             
@@ -730,10 +737,10 @@ def run_logger(headless = False, testing = False, runserver = False, interactive
                 notificationEmail(configuration['notification'], "Starting logger with IP address: " + get_ip())
     
         except Exception as e:
-            logging.info("No configuration file loaded: " + str(e))
+            activityLogger.info("No configuration file loaded: " + str(e))
             configuration = None
     else:
-        logging.info("No configuration file found")
+        activityLogger.info("No configuration file found")
         configuration = None
     
     
@@ -743,12 +750,12 @@ def run_logger(headless = False, testing = False, runserver = False, interactive
         csvHeader = "timestamp"
         for param in logParams:
             csvHeader += "," + param
-            logging.debug("Logging parameter: " + param + "|" + str(logParams[param]['location']) + "|" + str(logParams[param]['length']))
+            activityLogger.debug("Logging parameter: " + param + "|" + str(logParams[param]['location']) + "|" + str(logParams[param]['length']))
             defineIdentifier += logParams[param]['location'].lstrip("0x")
             defineIdentifier += "0"
             defineIdentifier += str(logParams[param]['length'])
     
-    logging.info("CSV Header for log files will be: " + csvHeader)
+    activityLogger.info("CSV Header for log files will be: " + csvHeader)
     
     if HEADLESS == False:
         buildUserInterface()
@@ -758,7 +765,7 @@ def run_logger(headless = False, testing = False, runserver = False, interactive
     #If testing is true, we'll run the main thread now without defining the
     #  uds client
     if TESTING is True:
-        logging.debug("Starting main thread in testing mode")
+        activityLogger.debug("Starting main thread in testing mode")
         main(callback = callback)
     
     else:
@@ -772,34 +779,34 @@ def run_logger(headless = False, testing = False, runserver = False, interactive
         
         
             except exceptions.NegativeResponseException as e:
-                logging.critical('Server refused our request for service %s with code "%s" (0x%02x)' % (e.response.service.get_name(), e.response.code_name, e.response.code))
+                activityLogger.critical('Server refused our request for service %s with code "%s" (0x%02x)' % (e.response.service.get_name(), e.response.code_name, e.response.code))
                 if configuration is not None and 'notification' in configuration:
                     with open(logfile) as activityLog:
                         msg = activityLog.read()
                         notificationEmail(configuration['notification'], msg)
          
             except exceptions.InvalidResponseException as e:
-                logging.critical('Server sent an invalid payload : %s' % e.response.original_payload)
+                activityLogger.critical('Server sent an invalid payload : %s' % e.response.original_payload)
                 if configuration is not None and 'notification' in configuration:
                     with open(logfile) as activityLog:
                         msg = activityLog.read()
                         notificationEmail(configuration['notification'], msg)
          
             except exceptions.UnexpectedResponseException as e:
-                logging.critical('Server sent an invalid payload : %s' % e.response.original_payload)
+                activityLogger.critical('Server sent an invalid payload : %s' % e.response.original_payload)
                 if configuration is not None and 'notification' in configuration:
                     with open(logfile) as activityLog:
                         msg = activityLog.read()
                         notificationEmail(configuration['notification'], msg)
          
             except exceptions.TimeoutException as e:
-                logging.critical('Timeout waiting for response on can: ' + str(e))
+                activityLogger.critical('Timeout waiting for response on can: ' + str(e))
                 if configuration is not None and 'notification' in configuration:
                     with open(logfile) as activityLog:
                         msg = activityLog.read()
                         notificationEmail(configuration['notification'], msg)
             except Exception as e:
-                logging.critical("Unhandled exception: " + str(e))
+                activityLogger.critical("Unhandled exception: " + str(e))
                 if configuration is not None and 'notification' in configuration:
                     with open(logfile) as activityLog:
                         msg = activityLog.read()
