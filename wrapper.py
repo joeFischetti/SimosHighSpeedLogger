@@ -15,4 +15,13 @@ parser.add_argument('--mode', help="set the connection mode: 2C, 23")
 
 args = parser.parse_args()
 
-simos_hsl.run_logger(testing = args.testing, headless = args.headless, runserver = args.runserver)
+#simos_hsl.run_logger(testing = args.testing, headless = args.headless, runserver = args.runserver)
+
+def logger_callback(logdata):
+    print(str(logdata))
+
+simos_hsl.run_logger(testing = True,
+            runserver = False,
+            headless = True,
+            path = "/home/pi/virtualusb/",
+            callback_function = logger_callback)

@@ -553,24 +553,21 @@ def main(client = None, callback = None):
     try:
         activityLogger.info("Starting the data polling thread")
         readData = threading.Thread(target=getValuesFromECU)
+        readData.daemon = True
         readData.start()
+    except (KeyboardInterrupt, SystemExit):
+        sys.exit()
     except:
         activityLogger.critical("Error starting the data reading thread")
-
-    if callback:
-        try:
-            callbackData = threading.Thread(target=callback_data, args=(callback,))
-            callbackData.start()
-            activityLogger.info("Started callback data thead")
-        except:
-            activityLogger.critical("Error starting callback thread")
-
 
     if RUNSERVER is True:
         try:
             streamData = threading.Thread(target=stream_data)
+            streamData.daemon = True
             streamData.start()
             activityLogger.info("Started data streaming thread")
+        except (KeyboardInterrupt, SystemExit):
+            sys.exit()
         except:
             activityLogger.critical("Error starting data streamer")
     
@@ -583,7 +580,13 @@ def main(client = None, callback = None):
             datalogging = not datalogging
             activityLogger.debug("Logging is: " + str(datalogging))
 
+    while 1:
+        if callback:
+            callback(dataStream)
+        time.sleep(.5) 
 
+
+        
 #Load default parameters, in the event that no parameter file was passed
 def loadDefaultParams():
     global logParams
@@ -655,7 +658,7 @@ def run_logger(headless = False, testing = False, runserver = False, interactive
     global activityLogger
 
     callback = callback_function
-
+    callback("Callback from run_logger")
  
     HEADLESS = headless
     TESTING = testing
