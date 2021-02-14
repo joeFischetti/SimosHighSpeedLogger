@@ -21,7 +21,7 @@ def logger_callback(logdata):
     print(str(logdata))
 
 simos_hsl.run_logger(testing = True,
-            runserver = False,
+            runserver = True,
             headless = True,
             path = "/home/pi/virtualusb/",
             callback_function = logger_callback)
