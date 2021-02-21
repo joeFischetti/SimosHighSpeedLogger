@@ -4,7 +4,10 @@
 # which will help us calculate the time to stop WOT logging
 from datetime import datetime, timedelta
 
-import can
+try:
+    import can
+except Exception as e:
+    print(e)
 
 #yaml is used to define the logged parameters, bytes is for byte stuff, and
 #  threading is so we can handle multiple threads (start the reader thread)
@@ -641,7 +644,7 @@ def notificationEmail(mailsettings, msg, attachment = None):
         server.sendmail(sender_email, receiver_email, text)
 
 
-def run_logger(headless = False, testing = False, runserver = False, interactive = False, mode = "2C", level = None, path = './', callback_function = None):
+def run_logger(headless = False, testing = False, runserver = False, interactive = False, mode = "2C", level = None, path = './', callback_function = None, interface = None):
     global HEADLESS
     global TESTING
     global RUNSERVER
