@@ -8,11 +8,13 @@ import functools
 import time
 
 try:
-    from udsoncan.j2534 import J2534
-    from udsoncan.j2534 import Protocol_ID
+    from .j2534 import J2534
+    from .j2534 import Protocol_ID
     _import_j2534_err = None
+
 except Exception as e:
     _import_j2534_err = e
+    print(e)
 
 
 

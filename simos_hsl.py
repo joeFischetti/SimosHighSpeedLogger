@@ -4,6 +4,8 @@
 # which will help us calculate the time to stop WOT logging
 from datetime import datetime, timedelta
 
+from lib.connections import J2534Connection
+
 try:
     import can
 except Exception as e:
@@ -52,6 +54,7 @@ logFile = None
 stopTime = None
 configuration = {}
 callback = None
+conn = None
 
 #Stream data over a socket connection.  
 #Open the socket, and if it happens to disconnect or fail, open it again
@@ -93,15 +96,19 @@ def minimum(a, b):
 
 #A function used to send raw data (so we can create the dynamic identifier etc), since udsoncan can't do it all
 def send_raw(data):
+    global conn
     global params
+
     results = None
     while results == None:
-        conn2 = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
-        conn2.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
-        conn2.open()
-        conn2.send(data)
-        results = conn2.wait_frame()
-        conn2.close()
+        conn.send(data)
+        results = conn.wait_frame()
+        #conn2 = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
+        #conn2.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
+        #conn2.open()
+        #conn2.send(data)
+        #results = conn2.wait_frame()
+        #conn2.close()
     return results
 
 def send_raw_2(data_bytes):
@@ -659,6 +666,7 @@ def run_logger(headless = False, testing = False, runserver = False, interactive
     global csvHeader
     global callback
     global activityLogger
+    global conn
 
     callback = callback_function
     callback("Callback from run_logger")
@@ -689,6 +697,7 @@ def run_logger(headless = False, testing = False, runserver = False, interactive
     
     else:
         f_handler.setLevel(logging.DEBUG)
+        print("Logging with DEBUG")
    
     f_handler.setLevel(logging.DEBUG) 
     activityLogger.addHandler(f_handler)
@@ -713,12 +722,16 @@ def run_logger(headless = False, testing = False, runserver = False, interactive
     
     #If we're not in testing mode, start up communication with the ECU
     if TESTING is False:
-        params = {
-          'tx_padding': 0x55
-        }
-        
-        conn = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
-        conn.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
+        if interface == "J2534":
+            conn = J2534Connection(interface = '', rxid=0x7E8, txid=0x7E0)
+
+        else:
+            params = {
+              'tx_padding': 0x55
+            }
+            
+            conn = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
+            conn.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
     
 
 
