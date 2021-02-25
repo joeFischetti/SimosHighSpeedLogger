@@ -122,7 +122,7 @@ class hsl_logger():
                     self.logParams = yaml.load(parameterFile)
             except:
                 self.activityLogger.info("No parameter file found, or can't load file, setting defaults")
-                loadDefaultParams()
+                exit()
     
         if os.path.exists(self.CONFIGFILE) and os.access(self.CONFIGFILE, os.R_OK):
             try:
@@ -413,6 +413,8 @@ class hsl_logger():
         return theKey.to_bytes(4, 'big')
 
 
+
+
 #Stream data over a socket connection.  
 #Open the socket, and if it happens to disconnect or fail, open it again
 #This is used for the android app
@@ -438,11 +440,6 @@ def stream_data(callback = None):
         except:
             activityLogger.info("socket closed due to error or client disconnect")
     
-def callback_data(callback):
-    while 1:
-        callback(dataStream)
-        time.sleep(.5) 
-
 
 
 #Read from the ECU using mode 22
@@ -595,45 +592,6 @@ def getParams23():
 
         logFile.write(row + '\n')
 
-
-def getFakeData():
-    global dataStream
-
-    #call this once, just to print out some somewhat useful info for what the requests would look like
-    getParams23()
-
-    while(True):
-        localDataStream = {}
-
-        localDataStream['timestamp'] = {'value': str(datetime.now().time()), 'raw': ""}
-        localDataStream['datalogging'] = {'value': str(datalogging), 'raw': ""}
-
-        for parameter in logParams:
-            fakeVal = round(random.random() * 100)
-            localDataStream[parameter] = {'value': str(fakeVal), 'raw': hex(fakeVal)}
-        #activityLogger.debug("Populating fake data")
-        dataStream = localDataStream
-
-        #If we're not running HEADLESS, update the display
-        if HEADLESS == False:
-            updateUserInterface()
-
-
-        time.sleep(.1)
-
-        
-#Load default parameters, in the event that no parameter file was passed
-def loadDefaultParams():
-    global logParams
-
-    if not os.path.exists("./parameters.yaml"):
-        exit(1)
-    else:
-        try:
-            with open('./parameters.yaml', 'r') as parameterFile:
-                logParams = yaml.load(parameterFile)
-        except:
-            activityLogger.warning("No parameter file found, or can't load file, setting defaults")
 
 #Helper function that just gets the local IP address of the Pi (so we can email it as a notification for debugging purposes)
 def get_ip():
