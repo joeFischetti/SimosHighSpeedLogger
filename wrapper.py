@@ -24,5 +24,5 @@ simos_hsl.run_logger(testing = args.testing,
             runserver = args.runserver,
             headless = args.headless,
             path = args.filepath or "./",
-            callback_function = logger_callback,
+            callback_function = None,
             interface = args.interface or None)

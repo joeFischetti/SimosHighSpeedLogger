@@ -4,7 +4,7 @@
 # which will help us calculate the time to stop WOT logging
 from datetime import datetime, timedelta
 
-from lib.connections import J2534Connection
+from python_j2534.connections import J2534Connection
 
 try:
     import can
@@ -55,6 +55,7 @@ stopTime = None
 configuration = {}
 callback = None
 conn = None
+defineIdentifier = None
 
 #Stream data over a socket connection.  
 #Open the socket, and if it happens to disconnect or fail, open it again
@@ -544,6 +545,7 @@ def getFakeData():
 
 #Main loop
 def main(client = None, callback = None):
+    global defineIdentifier
     
     if client is not None:
         activityLogger.debug("Opening extended diagnostic session...")
@@ -667,9 +669,11 @@ def run_logger(headless = False, testing = False, runserver = False, interactive
     global callback
     global activityLogger
     global conn
+    global defineIdentifier
 
     callback = callback_function
-    callback("Callback from run_logger")
+    if callback:
+        callback("Callback from run_logger")
  
     HEADLESS = headless
     TESTING = testing
@@ -693,14 +697,14 @@ def run_logger(headless = False, testing = False, runserver = False, interactive
             'CRITICAL': logging.CRITICAL
         }
     
-        f_handler.setLevel(level)
+        activityLogger.setLevel(level)
     
     else:
-        f_handler.setLevel(logging.DEBUG)
-        print("Logging with DEBUG")
+        activityLogger.setLevel(logging.DEBUG)
    
     f_handler.setLevel(logging.DEBUG) 
     activityLogger.addHandler(f_handler)
+    print(activityLogger.getEffectiveLevel())
 
 
     activityLogger.debug("Current path arg: " + path)
@@ -723,7 +727,8 @@ def run_logger(headless = False, testing = False, runserver = False, interactive
     #If we're not in testing mode, start up communication with the ECU
     if TESTING is False:
         if interface == "J2534":
-            conn = J2534Connection(interface = '', rxid=0x7E8, txid=0x7E0)
+            conn = J2534Connection(windll = 'C:/Program Files (x86)/OpenECU/OpenPort 2.0/drivers/openport 2.0/op20pt32.dll', rxid=0x7E8, txid=0x7E0)
+            conn.open()
 
         else:
             params = {
@@ -732,6 +737,7 @@ def run_logger(headless = False, testing = False, runserver = False, interactive
             
             conn = IsoTPSocketConnection('can0', rxid=0x7E8, txid=0x7E0, params=params)
             conn.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
+            conn.open()
     
 
 
