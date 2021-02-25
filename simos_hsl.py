@@ -703,8 +703,9 @@ def run_logger(headless = False, testing = False, runserver = False, interactive
         activityLogger.setLevel(logging.DEBUG)
    
     f_handler.setLevel(logging.DEBUG) 
+    c_handler = logging.StreamHandler()
     activityLogger.addHandler(f_handler)
-    print(activityLogger.getEffectiveLevel())
+    activityLogger.addHandler(c_handler)
 
 
     activityLogger.debug("Current path arg: " + path)

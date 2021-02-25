@@ -22,7 +22,7 @@ def logger_callback(logdata):
 
 simos_hsl.run_logger(testing = args.testing,
             runserver = args.runserver,
-            headless = args.headless,
+            headless = True,
             path = args.filepath or "./",
             callback_function = None,
             interface = args.interface or None)
