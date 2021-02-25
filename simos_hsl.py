@@ -4,7 +4,10 @@
 # which will help us calculate the time to stop WOT logging
 from datetime import datetime, timedelta
 
-from python_j2534.connections import J2534Connection
+try:
+    from python_j2534.connections import J2534Connection
+except Exception as e:
+    print(e)
 
 try:
     import can
