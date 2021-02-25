@@ -20,11 +20,11 @@ args = parser.parse_args()
 def logger_callback(logdata):
     print(str(logdata))
 
-hsl_logger = simos_hsl.hsl_logger(testing = True,
+hsl_logger = simos_hsl.hsl_logger(testing = args.testing,
             runserver = args.runserver,
             path = args.filepath or "./",
             callback_function = None,
-            interface = args.interface or None)
+            interface = args.interface)
 
 
 hsl_logger.start_logger()

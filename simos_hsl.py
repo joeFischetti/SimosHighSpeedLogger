@@ -166,7 +166,7 @@ class hsl_logger():
                     try:
     
                         #Set up the security algorithm for the uds connection
-                        client.config['security_algo'] = gainSecurityAccess
+                        client.config['security_algo'] = self.gainSecurityAccess
                 
                         self.main(client = client)
         
@@ -180,27 +180,27 @@ class hsl_logger():
          
                     except exceptions.InvalidResponseException as e:
                         self.activityLogger.critical('Server sent an invalid payload : %s' % e.response.original_payload)
-                        if configuration is not None and 'notification' in configuration:
+                        if self.configuration is not None and 'notification' in self.configuration:
                             with open(logfile) as activityLog:
                                 msg = activityLog.read()
                                 notificationEmail(configuration['notification'], msg)
          
                     except exceptions.UnexpectedResponseException as e:
                         self.activityLogger.critical('Server sent an invalid payload : %s' % e.response.original_payload)
-                        if configuration is not None and 'notification' in configuration:
+                        if self.configuration is not None and 'notification' in self.configuration:
                             with open(logfile) as activityLog:
                                 msg = activityLog.read()
                                 notificationEmail(configuration['notification'], msg)
          
                     except exceptions.TimeoutException as e:
                         self.activityLogger.critical('Timeout waiting for response on can: ' + str(e))
-                        if configuration is not None and 'notification' in configuration:
+                        if self.configuration is not None and 'notification' in self.configuration:
                             with open(logfile) as activityLog:
                                 msg = activityLog.read()
                                 notificationEmail(configuration['notification'], msg)
                     except Exception as e:
                         self.activityLogger.critical("Unhandled exception: " + str(e))
-                        if configuration is not None and 'notification' in configuration:
+                        if self.configuration is not None and 'notification' in self.configuration:
                             with open(logfile) as activityLog:
                                 msg = activityLog.read()
                                 notificationEmail(configuration['notification'], msg)
