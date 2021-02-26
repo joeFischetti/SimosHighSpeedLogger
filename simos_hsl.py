@@ -376,7 +376,7 @@ class hsl_logger():
                     self.activityLogger.debug("Opening logfile at: " + self.filename)
                     self.logFile = open(self.filename, 'a')
                     if self.SINGLECSV:
-                        self.logfile.write(self.logdivider + '\n')
+                        self.logFile.write(self.csvDivider + '\n')
                     else:
                         self.logFile.write(self.csvHeader + '\n')
  
