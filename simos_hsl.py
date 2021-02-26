@@ -152,7 +152,7 @@ class hsl_logger():
         #Build the dynamicIdentifier request
         if self.logParams is not None:
             self.defineIdentifier = "2C02F20014"
-            self.csvHeader = "timestamp"
+            self.csvHeader = "Time"
             for param in self.logParams:
                 self.csvHeader += "," + param
                 self.activityLogger.debug("Logging parameter: " + param + "|" + str(self.logParams[param]['location']) + "|" + str(self.logParams[param]['length']))
@@ -316,7 +316,7 @@ class hsl_logger():
  
             #Set the datetime for the beginning of the row
             row = str(datetime.now().time())
-            self.dataStreamBuffer['timestamp'] = {'value': str(datetime.now().time()), 'raw': ""}
+            self.dataStreamBuffer['Time'] = {'value': str(datetime.now().time()), 'raw': ""}
             self.dataStreamBuffer['datalogging'] = {'value': str(self.datalogging), 'raw': ""}
  
  
@@ -478,7 +478,7 @@ def getParams22():
     dataStreamBuffer = {}
     #Set the datetime for the beginning of the row
     row = str(datetime.now().time())
-    dataStreamBuffer['timestamp'] = {'value': str(datetime.now().time()), 'raw': ""}
+    dataStreamBuffer['Time'] = {'value': str(datetime.now().time()), 'raw': ""}
     dataStreamBuffer['datalogging'] = {'value': str(datalogging), 'raw': ""}
  
 
@@ -555,7 +555,7 @@ def getParams23():
     dataStreamBuffer = {}
     #Set the datetime for the beginning of the row
     row = str(datetime.now().time())
-    dataStreamBuffer['timestamp'] = {'value': str(datetime.now().time()), 'raw': ""}
+    dataStreamBuffer['Time'] = {'value': str(datetime.now().time()), 'raw': ""}
     dataStreamBuffer['datalogging'] = {'value': str(datalogging), 'raw': ""}
  
 
