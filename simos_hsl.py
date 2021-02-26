@@ -186,27 +186,27 @@ class hsl_logger():
                         if self.configuration is not None and 'notification' in self.configuration:
                             with open(self.logfile) as activityLog:
                                 msg = activityLog.read()
-                                self.notificationEmail(configuration['notification'], msg)
+                                self.notificationEmail(self.configuration['notification'], msg)
          
                     except exceptions.UnexpectedResponseException as e:
                         self.activityLogger.critical('Server sent an invalid payload : %s' % e.response.original_payload)
                         if self.configuration is not None and 'notification' in self.configuration:
                             with open(self.logfile) as activityLog:
                                 msg = activityLog.read()
-                                self.notificationEmail(configuration['notification'], msg)
+                                self.notificationEmail(self.configuration['notification'], msg)
          
                     except exceptions.TimeoutException as e:
                         self.activityLogger.critical('Timeout waiting for response on can: ' + str(e))
                         if self.configuration is not None and 'notification' in self.configuration:
                             with open(self.logfile) as activityLog:
                                 msg = activityLog.read()
-                                self.notificationEmail(configuration['notification'], msg)
+                                self.notificationEmail(self.configuration['notification'], msg)
                     except Exception as e:
                         self.activityLogger.critical("Unhandled exception: " + str(e))
                         if self.configuration is not None and 'notification' in self.configuration:
                             with open(self.logfile) as activityLog:
                                 msg = activityLog.read()
-                                self.notificationEmail(configuration['notification'], msg)
+                                self.notificationEmail(self.configuration['notification'], msg)
                         raise
  
     def main(self, client = None, callback = None, defineidentifier = None):
