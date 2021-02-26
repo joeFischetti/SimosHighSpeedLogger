@@ -134,7 +134,7 @@ class hsl_logger():
                     self.configuration = yaml.load(configFile)
             
                 if 'notification' in self.configuration:
-                    self.notificationEmail(configuration['notification'], "Starting logger with IP address: " + self.get_ip())
+                    self.notificationEmail(self.configuration['notification'], "Starting logger with IP address: " + self.get_ip())
     
             except Exception as e:
                 self.activityLogger.info("No configuration file loaded: " + str(e))
