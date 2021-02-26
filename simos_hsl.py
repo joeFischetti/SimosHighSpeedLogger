@@ -68,6 +68,7 @@ class hsl_logger():
         #Set up the activity logging
         self.logfile = self.FILEPATH + "activity_" + self.CURRENTTIME + ".log"
 
+
         f_handler = logging.FileHandler(self.logfile)
 
         if level is not None:
@@ -165,6 +166,15 @@ class hsl_logger():
                 self.defineIdentifier += str(self.logParams[param]['length'])
     
         self.activityLogger.info("CSV Header for log files will be: " + self.csvHeader)
+
+        #If we're only going to be writing to a single CSV file, create that file and put the header in it
+        if self.SINGLECSV:
+            self.filename = self.FILEPATH + self.configuration['logprefix'] + "_Logging_" + self.CURRENTTIME + ".csv"
+        
+            self.activityLogger.debug("Opening logfile at: " + self.filename)
+            self.logFile = open(self.filename, 'a')
+            self.logFile.write(self.csvHeader + '\n')
+            self.logFile.close()
 
     def start_logger(self):
             #If testing is true, we'll run the main thread now without defining the
