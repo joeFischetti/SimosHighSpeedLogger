@@ -220,10 +220,10 @@ class hsl_logger():
  
             if self.MODE == "2C":
                 #clear the f200 dynamic id
-                send_raw(bytes.fromhex('2C03f200'))
+                self.send_raw(bytes.fromhex('2C03f200'))
                 self.activityLogger.debug("Cleared dynamic identifier F200")
                 #Initate the dynamicID with a bunch of memory addresses
-                send_raw(bytes.fromhex(self.defineIdentifier))
+                self.send_raw(bytes.fromhex(self.defineIdentifier))
                 self.activityLogger.debug("Creted new dynamic identifier F200")
 
         try:
