@@ -12,6 +12,7 @@ parser.add_argument('--runserver', help="run an app server, used with the androi
 parser.add_argument('--interactive', help="run in interactive mode, start/stop logging with the enter key", action='store_true')
 parser.add_argument('--mode', help="set the connection mode: 2C, 23")
 parser.add_argument('--interface', help="Optionally use a J2534 interface if running on windows", choices = ["J2534", "CAN", "TEST"], default="J2534" )
+parser.add_argument('--singlecsv', help="Set the logger so that it writes all csv data to the same file instead of new files, separated with a row of 0's", action="store_true")
 
 
 args = parser.parse_args()
@@ -24,7 +25,8 @@ hsl_logger = simos_hsl.hsl_logger(testing = args.testing,
             runserver = args.runserver,
             path = args.filepath or "./",
             callback_function = None,
-            interface = args.interface)
+            interface = args.interface,
+            singlecsv = args.singlecsv)
 
 
 hsl_logger.start_logger()

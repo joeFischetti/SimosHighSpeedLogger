@@ -46,7 +46,7 @@ from email.mime.text import MIMEText
 class hsl_logger():
     def __init__(self, testing = False, runserver = False, 
         interactive = False, mode = "2C", level = None, path = './', 
-        callback_function = None, interface = "J2534"):
+        callback_function = None, interface = "J2534", singlecsv = False):
         
         self.activityLogger = logging.getLogger("SimosHSL")
 
@@ -62,9 +62,11 @@ class hsl_logger():
         self.stopTime = None
         self.configuration = {}
         self.defineIdentifier = None
+        self.SINGLECSV = singlecsv
+        self.CURRENTTIME = datetime.now().strftime("%Y%m%d-%H%M%S")
 
         #Set up the activity logging
-        self.logfile = self.FILEPATH + "activity_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".log"
+        self.logfile = self.FILEPATH + "activity_" + self.CURRENTTIME + ".log"
 
         f_handler = logging.FileHandler(self.logfile)
 
@@ -153,8 +155,10 @@ class hsl_logger():
         if self.logParams is not None:
             self.defineIdentifier = "2C02F20014"
             self.csvHeader = "Time"
+            self.csvDivider = "0"
             for param in self.logParams:
                 self.csvHeader += "," + param
+                self.csvDivider += ",0"
                 self.activityLogger.debug("Logging parameter: " + param + "|" + str(self.logParams[param]['location']) + "|" + str(self.logParams[param]['length']))
                 self.defineIdentifier += self.logParams[param]['location'].lstrip("0x")
                 self.defineIdentifier += "0"
@@ -360,12 +364,21 @@ class hsl_logger():
             if self.datalogging is True:
                 if self.logFile is None:
                     if 'logprefix' in self.configuration:
-                        self.filename = self.FILEPATH + self.configuration['logprefix'] + "_Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
+                        if self.SINGLECSV:
+                            self.filename = self.FILEPATH + self.configuration['logprefix'] + "_Logging_" + self.CURRENTTIME + ".csv"
+                        else:
+                            self.filename = self.FILEPATH + self.configuration['logprefix'] + "_Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
                     else:
-                        self.filename = self.FILEPATH + "Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
-                    self.activityLogger.debug("Creating new logfile at: " + self.filename)
+                        if self.SINGLECSV:
+                            self.filename = self.FILEPATH + "Logging_" + self.CURRENTTIME + ".csv"
+                        else:
+                            self.filename = self.FILEPATH + "Logging_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
+                    self.activityLogger.debug("Opening logfile at: " + self.filename)
                     self.logFile = open(self.filename, 'a')
-                    self.logFile.write(self.csvHeader + '\n')
+                    if self.SINGLECSV:
+                        self.logfile.write(self.logdivider + '\n')
+                    else:
+                        self.logFile.write(self.csvHeader + '\n')
  
                 self.logFile.write(row + '\n')
 
