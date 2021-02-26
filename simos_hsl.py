@@ -416,7 +416,7 @@ class hsl_logger():
         return theKey.to_bytes(4, 'big')
 
     #Helper function that just gets the local IP address of the Pi (so we can email it as a notification for debugging purposes)
-    def get_ip():
+    def get_ip(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
             # doesn't even have to be reachable
