@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 
 try:
     from python_j2534.connections import J2534Connection
+    from python_j2534.connections import FakeConnection
 except Exception as e:
     print(e)
 
@@ -103,7 +104,11 @@ class hsl_logger():
 
             #If we're not in testing mode, start up communication with the ECU
         if self.TESTING is False:
-            if self.INTERFACE == "J2534":
+            if self.INTERFACE == "TEST":
+                self.conn = FakeConnection()
+                self.conn.open()
+
+            elif self.INTERFACE == "J2534":
                 self.conn = J2534Connection(windll = 'C:/Program Files (x86)/OpenECU/OpenPort 2.0/drivers/openport 2.0/op20pt32.dll', rxid=0x7E8, txid=0x7E0)
                 self.conn.open()
 
@@ -291,7 +296,7 @@ class hsl_logger():
 
     def getParams2C(self):
     
-        self.activityLogger.debug("Getting values via 0x2C")
+        #self.activityLogger.debug("Getting values via 0x2C")
 
         if self.TESTING is True:
             results = "62f200"
@@ -390,13 +395,12 @@ class hsl_logger():
 
     #A function used to send raw data (so we can create the dynamic identifier etc), since udsoncan can't do it all
     def send_raw(self,data):
-        global conn
-        global params
+
 
         results = None
         while results == None:
-            conn.send(data)
-            results = conn.wait_frame()
+            self.conn.send(data)
+            results = self.conn.wait_frame()
         return results
 
     def gainSecurityAccess(self, level, seed, params=None):

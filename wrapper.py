@@ -11,7 +11,7 @@ parser.add_argument('--testing', help="testing mode, for use when not connected 
 parser.add_argument('--runserver', help="run an app server, used with the android app", action='store_true')
 parser.add_argument('--interactive', help="run in interactive mode, start/stop logging with the enter key", action='store_true')
 parser.add_argument('--mode', help="set the connection mode: 2C, 23")
-parser.add_argument('--interface', help="Optionally use a J2534 interface if running on windows", choices = ["J2534", "CAN"], default="J2534" )
+parser.add_argument('--interface', help="Optionally use a J2534 interface if running on windows", choices = ["J2534", "CAN", "TEST"], default="J2534" )
 
 
 args = parser.parse_args()
