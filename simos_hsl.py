@@ -80,7 +80,7 @@ class hsl_logger():
             self.activityLogger.setLevel(level)
     
         else:
-            self.activityLogger.setLevel(logging.DEBUG)
+            self.activityLogger.setLevel(logging.INFO)
    
             f_handler.setLevel(logging.DEBUG) 
             c_handler = logging.StreamHandler()
@@ -214,7 +214,7 @@ class hsl_logger():
                                 self.notificationEmail(self.configuration['notification'], msg)
                         raise
  
-    def main(self, client = None, callback = None, defineidentifier = None):
+    def main(self, client = None, callback = None):
         
         if client is not None:
             self.activityLogger.debug("Opening extended diagnostic session...")
@@ -225,11 +225,12 @@ class hsl_logger():
  
             if self.MODE == "2C":
                 #clear the f200 dynamic id
-                self.send_raw(bytes.fromhex('2C03f200'))
-                self.activityLogger.debug("Cleared dynamic identifier F200")
+                results = self.send_raw(bytes.fromhex('2C03f200'))
+                self.activityLogger.debug("Cleared dynamic identifier F200: " + str(results.hex()))
+                self.activityLogger.debug("Creating a new dynamic identifier F200: " + str(self.defineIdentifier))
                 #Initate the dynamicID with a bunch of memory addresses
-                self.send_raw(bytes.fromhex(self.defineIdentifier))
-                self.activityLogger.debug("Creted new dynamic identifier F200")
+                results = self.send_raw(bytes.fromhex(self.defineIdentifier))
+                self.activityLogger.debug("Created new dynamic identifier F200: " + str(results.hex()))
 
         try:
             self.activityLogger.info("Starting the data polling thread")
@@ -306,6 +307,7 @@ class hsl_logger():
             self.activityLogger.debug("Populated fake data: " + str(results))
         else:
             results = (self.send_raw(bytes.fromhex('22F200'))).hex()
+            self.activityLogger.debug(str(results))
  
         #Make sure the result starts with an affirmative
         if results.startswith("62f200"):
@@ -396,11 +398,10 @@ class hsl_logger():
     #A function used to send raw data (so we can create the dynamic identifier etc), since udsoncan can't do it all
     def send_raw(self,data):
 
-
         results = None
-        while results == None:
-            self.conn.send(data)
-            results = self.conn.wait_frame()
+
+        self.conn.send(data)
+        results = self.conn.wait_frame(timeout = 4)
         return results
 
     def gainSecurityAccess(self, level, seed, params=None):
