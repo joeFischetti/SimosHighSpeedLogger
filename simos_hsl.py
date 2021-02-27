@@ -320,7 +320,9 @@ class hsl_logger():
                 results = results + str(hex(fakeVal)).lstrip('0x') + str(hex(fakeVal)).lstrip('0x')
             self.activityLogger.debug("Populated fake data: " + str(results))
         else:
-            results = (self.send_raw(bytes.fromhex('22F200'))).hex()
+            results = self.send_raw(bytes.fromhex('22F200'))
+            if results is not None:
+                results = (self.send_raw(bytes.fromhex('22F200'))).hex()
             self.activityLogger.debug(str(results))
  
         #Make sure the result starts with an affirmative
