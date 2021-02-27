@@ -85,10 +85,10 @@ class hsl_logger():
         else:
             self.activityLogger.setLevel(logging.DEBUG)
    
-            f_handler.setLevel(logging.DEBUG) 
-            c_handler = logging.StreamHandler()
-            self.activityLogger.addHandler(f_handler)
-            self.activityLogger.addHandler(c_handler)
+        f_handler.setLevel(logging.DEBUG) 
+        c_handler = logging.StreamHandler()
+        self.activityLogger.addHandler(f_handler)
+        self.activityLogger.addHandler(c_handler)
 
 
         self.activityLogger.debug("Current path arg: " + path)
@@ -291,7 +291,7 @@ class hsl_logger():
         self.activityLogger.debug("Sending notification email")
 
         if 'notification' in self.configuration:
-            notificationEmail(self.configuration['notification'], "Sucessfully connected to ECU, starting logger process.\nValues will be written to a log file when cruise control is active")
+            self.notificationEmail(self.configuration['notification'], "Sucessfully connected to ECU, starting logger process.\nValues will be written to a log file when cruise control is active")
 
         self.activityLogger.info("Starting the ECU poller")
 
@@ -368,9 +368,8 @@ class hsl_logger():
  
             if self.datalogging is False and self.logFile is not None:
                 self.activityLogger.debug("Datalogging stopped, closing file")
-                if self.SINGLECSV is False:
-                    self.logFile.close()
-                    self.logFile = None
+                self.logFile.close()
+                self.logFile = None
  
             if self.datalogging is True:
                 if self.logFile is None:
