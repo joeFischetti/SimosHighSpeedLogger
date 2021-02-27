@@ -322,7 +322,7 @@ class hsl_logger():
         else:
             results = self.send_raw(bytes.fromhex('22F200'))
             if results is not None:
-                results = (self.send_raw(bytes.fromhex('22F200'))).hex()
+                results = results.hex()
             else:
                 results = "No Response from ECU"
             self.activityLogger.debug(str(results))
