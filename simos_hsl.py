@@ -368,8 +368,9 @@ class hsl_logger():
  
             if self.datalogging is False and self.logFile is not None:
                 self.activityLogger.debug("Datalogging stopped, closing file")
-                self.logFile.close()
-                self.logFile = None
+                if self.SINGLECSV is False:
+                    self.logFile.close()
+                    self.logFile = None
  
             if self.datalogging is True:
                 if self.logFile is None:
