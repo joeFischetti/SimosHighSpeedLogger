@@ -83,7 +83,7 @@ class hsl_logger():
             self.activityLogger.setLevel(level)
     
         else:
-            self.activityLogger.setLevel(logging.DEBUG)
+            self.activityLogger.setLevel(logging.INFO)
    
         f_handler.setLevel(logging.DEBUG) 
         c_handler = logging.StreamHandler()
