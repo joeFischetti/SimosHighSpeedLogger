@@ -309,6 +309,8 @@ class hsl_logger():
             else:
                 self.getParams22()
 
+            time.sleep(.05)
+
     def getParams2C(self):
     
         #self.activityLogger.debug("Getting values via 0x2C")
