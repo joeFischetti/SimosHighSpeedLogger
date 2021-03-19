@@ -338,7 +338,10 @@ class hsl_logger:
                     )
                     self.activityLogger.debug("sending 3E request to set up logging: ")
                     self.activityLogger.debug(fullRequest)
-                    self.send_raw(bytes.fromhex(fullRequest))
+                    results = self.send_raw(bytes.fromhex(fullRequest))
+                    self.activityLogger.debug(
+                        "Created 3E identifier: " + str(results.hex())
+                    )
 
             elif self.MODE == "2C":
                 self.activityLogger.debug("Opening extended diagnostic session...")
