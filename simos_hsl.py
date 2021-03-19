@@ -436,129 +436,134 @@ class hsl_logger:
             if address % 256 == 0:
                 self.activityLogger.debug("Sending request for: " + str(hex(address)))
 
-                print("3e33" + str(hex(address)).lstrip("0x"))
-                exit()
-
                 results = self.send_raw(
                     bytes.fromhex("3e33" + str(hex(address)).lstrip("0x"))
                 )
+
                 if results is not None:
                     results = results.hex()
                 else:
                     results = "No Response from ECU"
                 self.activityLogger.debug(str(results))
 
-        # Make sure the result starts with an affirmative
-        if results.startswith("62f200"):
+                # Make sure the result starts with an affirmative
+                if results:
 
-            self.dataStreamBuffer = {}
+                    self.dataStreamBuffer = {}
 
-            # Set the datetime for the beginning of the row
-            row = str(datetime.now().time())
-            self.dataStreamBuffer["Time"] = {
-                "value": str(datetime.now().time()),
-                "raw": "",
-            }
-            self.dataStreamBuffer["datalogging"] = {
-                "value": str(self.datalogging),
-                "raw": "",
-            }
+                    # Set the datetime for the beginning of the row
+                    row = str(datetime.now().time())
+                    self.dataStreamBuffer["Time"] = {
+                        "value": str(datetime.now().time()),
+                        "raw": "",
+                    }
+                    self.dataStreamBuffer["datalogging"] = {
+                        "value": str(self.datalogging),
+                        "raw": "",
+                    }
 
-            # Strip off the first 6 characters (F200) so we only have the data
-            results = results[6:]
+                    # Strip off the first 6 characters (F200) so we only have the data
+                    results = results[4:]
 
-            # The data comes back as raw data, so we need the size of each variable and its
-            #  factor so that we can actually parse it.  In here, we'll pull X bytes off the
-            #  front of the result, process it, add it to the CSV row, and then remove it from
-            #  the result
-            for parameter in self.logParams:
-                val = results[: self.logParams[parameter]["length"] * 2]
-                self.activityLogger.debug(str(parameter) + " raw from ecu: " + str(val))
-                rawval = int.from_bytes(
-                    bytearray.fromhex(val),
-                    "little",
-                    signed=self.logParams[parameter]["signed"],
-                )
-                self.activityLogger.debug(
-                    str(parameter) + " pre-function: " + str(rawval)
-                )
-                val = round(
-                    eval(
-                        self.logParams[parameter]["function"],
-                        {"x": rawval, "struct": struct},
-                    ),
-                    2,
-                )
-                row += "," + str(val)
-                self.activityLogger.debug(
-                    str(parameter) + " scaling applied: " + str(val)
-                )
+                    # The data comes back as raw data, so we need the size of each variable and its
+                    #  factor so that we can actually parse it.  In here, we'll pull X bytes off the
+                    #  front of the result, process it, add it to the CSV row, and then remove it from
+                    #  the result
+                    for parameter in self.logParams:
+                        val = results[: self.logParams[parameter]["length"] * 2]
+                        self.activityLogger.debug(
+                            str(parameter) + " raw from ecu: " + str(val)
+                        )
+                        rawval = int.from_bytes(
+                            bytearray.fromhex(val),
+                            "little",
+                            signed=self.logParams[parameter]["signed"],
+                        )
+                        self.activityLogger.debug(
+                            str(parameter) + " pre-function: " + str(rawval)
+                        )
+                        val = round(
+                            eval(
+                                self.logParams[parameter]["function"],
+                                {"x": rawval, "struct": struct},
+                            ),
+                            2,
+                        )
+                        row += "," + str(val)
+                        self.activityLogger.debug(
+                            str(parameter) + " scaling applied: " + str(val)
+                        )
 
-                results = results[self.logParams[parameter]["length"] * 2 :]
+                        results = results[self.logParams[parameter]["length"] * 2 :]
 
-                self.dataStreamBuffer[parameter] = {
-                    "value": str(val),
-                    "raw": str(rawval),
-                }
+                        self.dataStreamBuffer[parameter] = {
+                            "value": str(val),
+                            "raw": str(rawval),
+                        }
 
-            self.dataStream = self.dataStreamBuffer
+                    self.dataStream = self.dataStreamBuffer
 
-            if "Cruise" in self.dataStream:
-                if self.dataStream["Cruise"]["value"] != "0.0":
-                    self.activityLogger.debug("Cruise control logging enabled")
-                    self.stopTime = None
-                    self.datalogging = True
-                elif (
-                    self.dataStream["Cruise"]["value"] == "0.0"
-                    and self.datalogging == True
-                    and self.stopTime is None
-                ):
-                    self.stopTime = datetime.now() + timedelta(seconds=5)
+                    if "Cruise" in self.dataStream:
+                        if self.dataStream["Cruise"]["value"] != "0.0":
+                            self.activityLogger.debug("Cruise control logging enabled")
+                            self.stopTime = None
+                            self.datalogging = True
+                        elif (
+                            self.dataStream["Cruise"]["value"] == "0.0"
+                            and self.datalogging == True
+                            and self.stopTime is None
+                        ):
+                            self.stopTime = datetime.now() + timedelta(seconds=5)
 
-            if self.datalogging is False and self.logFile is not None:
-                self.activityLogger.debug("Datalogging stopped, closing file")
-                self.logFile.close()
-                self.logFile = None
+                    if self.datalogging is False and self.logFile is not None:
+                        self.activityLogger.debug("Datalogging stopped, closing file")
+                        self.logFile.close()
+                        self.logFile = None
 
-            if self.datalogging is True:
-                if self.logFile is None:
-                    if "logprefix" in self.configuration:
-                        if self.SINGLECSV:
-                            self.filename = (
-                                self.FILEPATH
-                                + self.configuration["logprefix"]
-                                + "_Logging_"
-                                + self.CURRENTTIME
-                                + ".csv"
+                    if self.datalogging is True:
+                        if self.logFile is None:
+                            if "logprefix" in self.configuration:
+                                if self.SINGLECSV:
+                                    self.filename = (
+                                        self.FILEPATH
+                                        + self.configuration["logprefix"]
+                                        + "_Logging_"
+                                        + self.CURRENTTIME
+                                        + ".csv"
+                                    )
+                                else:
+                                    self.filename = (
+                                        self.FILEPATH
+                                        + self.configuration["logprefix"]
+                                        + "_Logging_"
+                                        + datetime.now().strftime("%Y%m%d-%H%M%S")
+                                        + ".csv"
+                                    )
+                            else:
+                                if self.SINGLECSV:
+                                    self.filename = (
+                                        self.FILEPATH
+                                        + "Logging_"
+                                        + self.CURRENTTIME
+                                        + ".csv"
+                                    )
+                                else:
+                                    self.filename = (
+                                        self.FILEPATH
+                                        + "Logging_"
+                                        + datetime.now().strftime("%Y%m%d-%H%M%S")
+                                        + ".csv"
+                                    )
+                            self.activityLogger.debug(
+                                "Opening logfile at: " + self.filename
                             )
-                        else:
-                            self.filename = (
-                                self.FILEPATH
-                                + self.configuration["logprefix"]
-                                + "_Logging_"
-                                + datetime.now().strftime("%Y%m%d-%H%M%S")
-                                + ".csv"
-                            )
-                    else:
-                        if self.SINGLECSV:
-                            self.filename = (
-                                self.FILEPATH + "Logging_" + self.CURRENTTIME + ".csv"
-                            )
-                        else:
-                            self.filename = (
-                                self.FILEPATH
-                                + "Logging_"
-                                + datetime.now().strftime("%Y%m%d-%H%M%S")
-                                + ".csv"
-                            )
-                    self.activityLogger.debug("Opening logfile at: " + self.filename)
-                    self.logFile = open(self.filename, "a")
-                    if self.SINGLECSV:
-                        self.logFile.write(self.csvDivider + "\n")
-                    else:
-                        self.logFile.write(self.csvHeader + "\n")
+                            self.logFile = open(self.filename, "a")
+                            if self.SINGLECSV:
+                                self.logFile.write(self.csvDivider + "\n")
+                            else:
+                                self.logFile.write(self.csvHeader + "\n")
 
-                self.logFile.write(row + "\n")
+                        self.logFile.write(row + "\n")
 
     def getParams2C(self):
 
