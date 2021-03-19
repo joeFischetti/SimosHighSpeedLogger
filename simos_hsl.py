@@ -452,7 +452,6 @@ class hsl_logger:
 
                 # Make sure the result starts with an affirmative
                 if results:
-                    self.activityLogger.debug("Result from ecu: " + str(results))
                     self.dataStreamBuffer = {}
 
                     # Set the datetime for the beginning of the row
@@ -467,7 +466,7 @@ class hsl_logger:
                     }
 
                     # Strip off the first 6 characters (F200) so we only have the data
-                    results = results[4:]
+                    results = results[2:]
 
                     # The data comes back as raw data, so we need the size of each variable and its
                     #  factor so that we can actually parse it.  In here, we'll pull X bytes off the
