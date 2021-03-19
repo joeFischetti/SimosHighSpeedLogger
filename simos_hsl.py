@@ -452,7 +452,7 @@ class hsl_logger:
 
                 # Make sure the result starts with an affirmative
                 if results:
-
+                    self.activityLogger.debug("Result from ecu: " + str(results))
                     self.dataStreamBuffer = {}
 
                     # Set the datetime for the beginning of the row
