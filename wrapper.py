@@ -62,7 +62,7 @@ hsl_logger = simos_hsl.hsl_logger(
     interface=args.interface,
     singlecsv=args.singlecsv,
     mode=args.mode,
-    level="DEBUG",
+    level=args.level or "DEBUG",
 )
 
 

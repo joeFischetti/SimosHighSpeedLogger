@@ -104,6 +104,7 @@ class hsl_logger:
         self.activityLogger.debug("Current path arg: " + path)
         self.activityLogger.debug("Current filepath: " + self.FILEPATH)
         self.activityLogger.debug("Activity log file: " + self.logfile)
+        self.activityLogger.info("Activity log level: " + str(level))
 
         self.activityLogger.info("Connection type:  " + self.MODE)
         self.activityLogger.info("App server: " + str(self.RUNSERVER))
@@ -733,8 +734,9 @@ class hsl_logger:
 
         results = None
 
-        self.conn.send(data)
-        results = self.conn.wait_frame(timeout=4)
+        while results is None:
+            self.conn.send(data)
+            results = self.conn.wait_frame(timeout=4)
         return results
 
     def gainSecurityAccess(self, level, seed, params=None):
