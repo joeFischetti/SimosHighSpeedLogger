@@ -434,7 +434,7 @@ class hsl_logger:
             else:
                 self.getParams22()
 
-            time.sleep(0.05)
+            time.sleep(0.03)
 
     def getParams3E(self):
         for address in self.payload:
