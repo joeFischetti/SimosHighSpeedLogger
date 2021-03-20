@@ -736,7 +736,10 @@ class hsl_logger:
 
         while results is None:
             self.conn.send(data)
-            results = self.conn.wait_frame(timeout=4)
+            results = self.conn.wait_frame()
+            if results is None:
+                self.activityLogger.critical("No response from ECU")
+
         return results
 
     def gainSecurityAccess(self, level, seed, params=None):
