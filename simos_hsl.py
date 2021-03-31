@@ -399,7 +399,7 @@ class hsl_logger:
         while 1:
             if callback:
                 callback(dataStream)
-            time.sleep(0.5)
+            time.sleep(0.4)
 
     def getValuesFromECU(self):
         # Define the global variables that we'll use...  They're the logging parameters
