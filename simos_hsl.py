@@ -433,8 +433,10 @@ class hsl_logger:
                 self.getParams3E()
             else:
                 self.getParams22()
-
-            time.sleep(0.03)
+            if self.logFile:
+                self.logFile.flush()
+            
+            time.sleep(0.05)
 
     def getParams3E(self):
         for address in self.payload:
@@ -736,7 +738,7 @@ class hsl_logger:
 
         while results is None:
             self.conn.send(data)
-            results = self.conn.wait_frame()
+            results = self.conn.wait_frame(timeout=4)
             if results is None:
                 self.activityLogger.critical("No response from ECU")
 
