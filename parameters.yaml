@@ -5,6 +5,34 @@ Cruise:
     units: "-"
     location: '0xd001b3aa'
 
+Accelerator pedal:
+    length:  0x02
+    signed:  False
+    function:  "x/10.24"
+    units:  "%"
+    location: '0xD0012022'
+
+n:
+    length:  0x02
+    signed:  False
+    function:  "x/1.0"
+    units:  "RPM"
+    location: '0xD0012400'
+
+gear:
+    length:  0x01
+    signed:  False
+    function:  "x/1.0"
+    units:  "Gear"
+    location: '0xD000F39A'
+
+openflex_maf:
+    length: 0x02
+    signed: False
+    function: '(x)/23.6'
+    units: "-"
+    location: '0xd0013e5a'
+
 openflex_cor:
     length: 0x01
     signed: True
@@ -28,10 +56,17 @@ openflex_fac_cor:
 
 iga_bas_cor_cbk_sel:
     length:  0x01
-    signed:  True
-    function:  "(-x)/-2.66666666666667"
+    signed:  False
+    function:  "(95 -x)/-2.66666666666667"
     units:  "°CRK"
     location: '0xD000E59E'
+
+iga_bas_inter_cbk_sel:
+    length: 0x01
+    signed: False
+    function: "(95-x)/-2.666666666666667"
+    units: "crk"
+    location:  '0xd000e57e'
 
 iga_bas_temp_cor:
     length:  0x01
@@ -40,27 +75,6 @@ iga_bas_temp_cor:
     units:  "°CRK"
     location: '0xD000E580'
 
-
-#maf:
-#    length: 0x02
-#    signed: False
-#    function: 'x'
-#    units: 'mg/stk'
-#    location: '0xd0013e5a'
-##Accelerator pedal:
-#    length:  0x02
-#    signed:  False
-#    function:  "x/10.24"
-#    units:  "%"
-#    location: '0xD0012022'
-#
-#Engine speed:
-#    length:  0x02
-#    signed:  False
-#    function:  "x/1.0"
-#    units:  "RPM"
-#    location: '0xD0012400'
-#
 idx_cmb_mod_cur:
     length:  0x01
     signed: False
@@ -68,133 +82,187 @@ idx_cmb_mod_cur:
     units: "-"
     location: '0xd000c36e'
 
-#Actual gear:
-#    length:  0x01
-#    signed:  False
-#    function:  "x/1.0"
-#    units:  "Gear"
-#    location: '0xD000F39A'
+fac_afu_ratio_sens_mmv:
+    length: 0x01
+    signed: False
+    function: "x/128"
+    units: "-"
+    location: '0xd000c1d2'
+
+fac_afu_ratio:
+    length:  0x01
+    signed:  False
+    function:  "x/128"
+    units:  "[Percent?]"
+    location: '0xd000c1c5'
+ 
+#state_alfu:
+#    length: 0x01
+#    signed: False
+#    function: 'x/1.0'
+#    units: '-'
+#    #    0 "INACTIVE"
+#    #     1 "REFU_DET"
+#    #     2 "DFT_ST_ACT"
+#    #     3 "ERU_DET_ACT"
+#    #     4 "ERU_DET_VLD"
+#    #     5 "LAM_DET_ACT"
+#    #     6 "LAM_CTL_ACT"
+#    #     7 "LAM_DET_VLD"
+#    #     8 "ER_DET_ACT"
+#    #     9 "ER_DET_VLD"
+#    #     10 "FAC_AFU_VLD"
+#    #     11 "SENS_ERR"
+#    #     12 "SENS_VALUE"
+#    location: '0xd001864d'
+
+#fac_lam_lim_sae:
+#    length: 0x01
+#    signed: False
+#    function: '(128 - x)/1.28'
+#    units: "-"
+#    location: '0xd000f00c'
 #
-#Pressure upstream throttle:
+#fac_lam_ad_sae:
+#    length: 0x01
+#    signed: False
+#    function: '(128 - x)/1.28'
+#    units: "-"
+#    location: '0xd000f00b'
+#
+put:
+    length:  0x02
+    signed:  False
+    function:  "x/12.0601"
+    units:  "hPa"
+    location: '0xD0013FAE'
+
+put_sp:
+    length:  0x02
+    signed:  False
+    function:  "x/12.0601"
+    units:  "hPa"
+    location: '0xD0011EEE'
+
+#put_sp_tol:
 #    length:  0x02
 #    signed:  False
-#    function:  "x/12.0601"
+#    function:  "x/12.06017666543982"
 #    units:  "hPa"
-#    location: '0xD0013FAE'
-#
-#Pressure before throttle set point:
-#    length:  0x02
-#    signed:  False
-#    function:  "x/12.0601"
-#    units:  "hPa"
-#    location: '0xD0011EEE'
-#
-#Lambda value:
-#    length:  0x02
-#    signed:  False
-#    function:  "x/1024"
-#    units:  "-"
-#    location: '0xD00120C6'
-#
-#Lambda setpoint:
-#    length:  0x02
-#    signed:  False
-#    function:  "x/1024"
-#    units:  "-"
-#    location: '0xD00143F6'
-#
-#lambda controller output:
+#    location: '0xD0011EFC'
+
+lamb_ls_up:
+    length:  0x02
+    signed:  False
+    function:  "x/1024"
+    units:  "-"
+    location: '0xD00120C6'
+
+lamb_sp:
+    length:  0x02
+    signed:  False
+    function:  "x/1024"
+    units:  "-"
+    location: '0xD00143F6'
+
+fac_lam_mv[0]:
+    length:  0x02
+    signed:  True
+    function:  "x/655.36"
+    units:  "%"
+    location: '0xD001431A'
+
+#lambda controller output instant:
 #    length:  0x02
 #    signed:  True
 #    function:  "x/655.36"
 #    units:  "%"
-#    location: '0xD001431A'
-#
-#
-#Ambient pressure:
-#    length:  0x02
-#    signed:  False
-#    function:  "x/12.0601"
-#    units:  "hPa"
-#    location: '0xD0013C76'
-#
-#Injector pulsewidth MPI:
-#    length:  0x02
-#    signed:  False
-#    function:  "x/250"
-#    units:  "ms"
-#    location: '0xD0013824'
-#
-#Low pressure rail pressure:
-#    length:  0x02
-#    signed:  False
-#    function:  "x/.37688"
-#    units:  "hPa"
-#    location: '0xD0011B26'
-#
-#High pressure rail pressure:
-#    length:  0x02
-#    signed:  False
-#    function:  "x/0.1884402603974972"
-#    units:  "hPa"
-#    location: '0xD0013612'
-#
+#    location: '0xd0014326'
+
+Ambient pressure:
+    length:  0x02
+    signed:  False
+    function:  "x/12.0601"
+    units:  "hPa"
+    location: '0xD0013C76'
+
+Injector pulsewidth MPI:
+    length:  0x02
+    signed:  False
+    function:  "x/250"
+    units:  "ms"
+    location: '0xD0013824'
+
+Low pressure rail pressure:
+    length:  0x02
+    signed:  False
+    function:  "x/.37688"
+    units:  "hPa"
+    location: '0xD0011B26'
+
+High pressure rail pressure:
+    length:  0x02
+    signed:  False
+    function:  "x/0.1884402603974972"
+    units:  "hPa"
+    location: '0xD0013612'
+
 #Position of boost pressure actuator:
 #    length:  0x02
 #    signed:  True
 #    function:  "x/164"
 #    units:  "%"
 #    location: '0xD0011D8A'
-#
-#Position setpoint for boost pressure actuator:
-#    length:  0x02
-#    signed:  True
-#    function:  "x/164"
-#    units:  "%"
-#    location: '0xD0011D96'
-#
-#Turbine intake flow factor:
-#    length: 2
-#    signed:  False
-#    function: "x/16384"
-#    location: '0xd0011e08'
-#    units: 
-#
-#Turbine exhaust flow factor:
-#    length: 2
-#    signed:  False
-#    function: "x/16384"
-#    location: '0xd0011e04'    
-#    units: 'n/a'
-#
-#fac_pow_put_ctl_opl:
-#    length: 2
-#    signed:  False
-#    function:  "x/655.36"
-#    location:  '0xd0015c2c'
-#    units: 'n/a'
-#
-#fac_pow_put_ctl_rgl:
-#    length: 2
-#    signed:  False
-#    function: "x/655.36"
-#    location: '0xd0015c34'
-#    units:  'n/a'
-#
-#Ambient air temperature:
-#    length:  0x01
-#    signed:  False
-#    function:  "x/10.24"
-#    units:  "°C"
-#    location: '0xD000C177'
-#
-#Injector pulsewidth:
-#    length:  0x01
-#    signed:  False
-#    function:  "x/10"
-#    units:  "ms"
-#    location: '0xD000E683'
-#
+
+Position setpoint for boost pressure actuator:
+    length:  0x02
+    signed:  True
+    function:  "x/164"
+    units:  "%"
+    location: '0xD0011D96'
+
+Turbine intake flow factor:
+    length: 2
+    signed:  False
+    function: "x/16384"
+    location: '0xd0011e08'
+    units: 
+
+Turbine exhaust flow factor:
+    length: 2
+    signed:  False
+    function: "x/16384"
+    location: '0xd0011e04'    
+    units: 'n/a'
+
+fac_pow_put_ctl_opl:
+    length: 2
+    signed:  False
+    function:  "x/655.36"
+    location:  '0xd0015c2c'
+    units: 'n/a'
+
+fac_pow_put_ctl_rgl:
+    length: 2
+    signed:  False
+    function: "x/655.36"
+    location: '0xd0015c34'
+    units:  'n/a'
+
+Ambient air temperature:
+    length:  0x01
+    signed:  False
+    function:  "x/10.24"
+    units:  "°C"
+    location: '0xD000C177'
+
+Injector pulsewidth:
+    length:  0x01
+    signed:  False
+    function:  "x/10"
+    units:  "ms"
+    location: '0xD000E683'
+
 #"Adjustable boost: Adjustable top limit":
 #    length:  0x01
 #    signed:  False
@@ -230,35 +298,43 @@ idx_cmb_mod_cur:
 #    units:  "[-]"
 #    location: '0xD001DE8D'
 #
-#
-#Knock retard cylinder 1:
+#fac_afu_ratio_det:
 #    length:  0x01
 #    signed:  False
-#    function:  "(128.0 - x)/-2.66666666666667"
-#    units:  "°CRK"
-#    location: '0xD000EFB1'
-#
-#Knock retard cylinder 2:
-#    length:  0x01
-#    signed:  False
-#    function:  "(128.0 - x)/-2.66666666666667"
-#    units:  "°CRK"
-#    location: '0xD000EFB2'
-#
-#Knock retard cylinder 3:
-#    length:  0x01
-#    signed:  False
-#    function:  "(128.0 - x)/-2.66666666666667"
-#    units:  "°CRK"
-#    location: '0xD000EFB3'
-#
-#Knock retard cylinder 4:
-#    length:  0x01
-#    signed:  False
-#    function:  "(128.0 - x)/-2.66666666666667"
-#    units:  "°CRK"
-#    location: '0xD000EFB4'
-#
+#    function:  "x/128"
+#    units:  "[Percent?]"
+#    location: '0xd000c1c6'
+
+
+
+Knock retard cylinder 1:
+    length:  0x01
+    signed:  False
+    function:  "(128.0 - x)/-2.66666666666667"
+    units:  "°CRK"
+    location: '0xD000EFB1'
+
+Knock retard cylinder 2:
+    length:  0x01
+    signed:  False
+    function:  "(128.0 - x)/-2.66666666666667"
+    units:  "°CRK"
+    location: '0xD000EFB2'
+
+Knock retard cylinder 3:
+    length:  0x01
+    signed:  False
+    function:  "(128.0 - x)/-2.66666666666667"
+    units:  "°CRK"
+    location: '0xD000EFB3'
+
+Knock retard cylinder 4:
+    length:  0x01
+    signed:  False
+    function:  "(128.0 - x)/-2.66666666666667"
+    units:  "°CRK"
+    location: '0xD000EFB4'
+
 Ignition timing cylinder 1:
     length:  0x01
     signed:  False
@@ -266,115 +342,109 @@ Ignition timing cylinder 1:
     units:  "°CRK"
     location: '0xD000E565'
 
-#Ignition timing cylinder 2:
-#    length:  0x01
-#    signed:  False
-#    function:  "(95.0 - x)/-2.66666666666667"
-#    units:  "°CRK"
-#    location: '0xD000E566'
-#
-#Ignition timing cylinder 3:
-#    length:  0x01
-#    signed:  False
-#    function:  "(95.0 - x)/-2.66666666666667"
-#    units:  "°CRK"
-#    location: '0xD000E567'
-#
-#Ignition timing cylinder 4:
-#    length:  0x01
-#    signed:  False
-#    function:  "(95.0 - x)/-2.66666666666667"
-#    units:  "°CRK"
-#    location: '0xD000E568'
-#
-#Air mass:
-#    length:  0x02
-#    signed:  False
-#    function: "x/47.1814254859611"
-#    units:  "mg/stk"
-#    location: '0xD0013E42'
-#
-#Top limit of pressure upstream throttle setpoint:
-#    length:  0x02
-#    signed:  False
-#    function:  "x/12.06017666543982"
-#    units:  "hPa"
-#    location: '0xD0011EFC'
-#
-#Intake air temperature:
-#    length:  0x01
-#    signed:  False
-#    function: "(64.0 - x)/-1.33333333333333"
-#    units:  "°C"
-#    location: '0xD000C179'
-#
-#Throttle angle:
-#    length:  0x02
-#    signed:  False
-#    function:  "x/137.096234309623"
-#    units:  "°TPS"
-#    location: '0xD001522E'
-#
-#Actual engine torque:
-#    length:  0x02
-#    signed:  True
-#    function:  "x/32"
-#    units:  "Nm"
-#    location: '0xD001515C'
-#
-#Torque limit:
-#    length:  0x02
-#    signed:  False
-#    function:  "x/32"
-#    units:  "Nm"
-#    location: '0xD0015444'
-#
-#Low pressure fuel pump speed:
-#    length:  0x02
-#    signed:  False
-#    function:  "x/655.36"
-#    units:  "%"
-#    location: '0xD0013600'
-#
-#Recirculation actuator position:
-#    length:  0x02
-#    signed:  False
-#    function:  "x/655.36"
-#    units:  "%"
-#    location: '0xD0011DB2'
-#
-#Recirculation actuator setpoint:
-#    length:  0x02
-#    signed:  False
-#    function:  "x/655.36"
-#    units:  "%"
-#    location: '0xD0011EC0'
-#
-#m_air_cyl_pred:
-#    length:  0x04
-#    signed:  False
-#    function:  "struct.unpack('f',int(x).to_bytes(4,'little'))[0] * 1000000"
-#    units:  "mg/stk"
-#    location: '0xd00097e4'
-#    
-#m_cyl:
-#    length:  0x04
-#    signed:  False
-#    function:  "struct.unpack('f',int(x).to_bytes(4,'little'))[0] * 1000000"
-#    units:  "mg/stk"
-#    location: '0xd0009800'
-#    
-##fac_afu_ratio_det:
-##    length:  0x01
-##    signed:  False
-##    function:  "x/128"
-##    units:  "[Percent?]"
-##    location: '0xd000c1c6'
-##
-#fac_afu_ratio:
-#    length:  0x01
-#    signed:  False
-#    function:  "x/128"
-#    units:  "[Percent?]"
-#    location: '0xd000c1c5'
-#    
+Ignition timing cylinder 2:
+    length:  0x01
+    signed:  False
+    function:  "(95.0 - x)/-2.66666666666667"
+    units:  "°CRK"
+    location: '0xD000E566'
+
+Ignition timing cylinder 3:
+    length:  0x01
+    signed:  False
+    function:  "(95.0 - x)/-2.66666666666667"
+    units:  "°CRK"
+    location: '0xD000E567'
+
+Ignition timing cylinder 4:
+    length:  0x01
+    signed:  False
+    function:  "(95.0 - x)/-2.66666666666667"
+    units:  "°CRK"
+    location: '0xD000E568'
+
+airmass:
+    length: 0x04
+    signed: False
+    function:  "struct.unpack('f',int(x).to_bytes(4,'little'))[0] * 1000000"
+    units:  "mg/stk"
+    location: '0xd00097e4'
+
+Intake air temperature:
+    length:  0x01
+    signed:  False
+    function: "(64.0 - x)/-1.33333333333333"
+    units:  "°C"
+    location: '0xD000C179'
+
+Throttle angle:
+    length:  0x02
+    signed:  False
+    function:  "x/137.096234309623"
+    units:  "°TPS"
+    location: '0xD001522E'
+
+Actual engine torque:
+    length:  0x02
+    signed:  True
+    function:  "x/32"
+    units:  "Nm"
+    location: '0xD001515C'
+
+Torque limit:
+    length:  0x02
+    signed:  False
+    function:  "x/32"
+    units:  "Nm"
+    location: '0xD0015444'
+
+Low pressure fuel pump speed:
+    length:  0x02
+    signed:  False
+    function:  "x/655.36"
+    units:  "%"
+    location: '0xD0013600'
+
+Recirculation actuator position:
+    length:  0x02
+    signed:  False
+    function:  "x/655.36"
+    units:  "%"
+    location: '0xD0011DB2'
+
+Recirculation actuator setpoint:
+    length:  0x02
+    signed:  False
+    function:  "x/655.36"
+    units:  "%"
+    location: '0xD0011EC0'
+
+n_tcha:
+    length: 0x02
+    signed: False
+    function: "x*6.103515624994"
+    units: "rpm"
+    location: '0xd0011e76'
+
+Full Load Requested:
+    length:  0x01
+    signed:  False
+    function:  "x/1"
+    units:  "-"
+    location: '0xd00016a1'
+
+maf_kgh_max_tcha_prot:
+    length: 0x02
+    signed: False
+    function: "x/16"
+    location: '0xd0011e5c'
+    units: 'na'
+
+m_air_cyl_max_stnd_vvl:
+    length: 0x04
+    signed: False
+    function:  "struct.unpack('f',int(x).to_bytes(4,'little'))[0]"
+    units:  "mg/stk"
+    location: '0xd00097dc'
+
+
