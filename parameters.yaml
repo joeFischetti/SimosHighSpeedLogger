@@ -7,15 +7,15 @@ Cruise:
 
 openflex_cor:
     length: 0x01
-    signed: False
-    function: "(128.0 - x)/-2.66666666666667"
+    signed: True
+    function: "(-x)/-2.66666666666667"
     units: "-"
     location: '0xd000e578'
 
 openflex_max_cor:
     length: 0x01
-    signed: False
-    function: "(128.0 - x)/-2.66666666666667"
+    signed: True
+    function: "(-x)/-2.66666666666667"
     units: "-"
     location: '0xd001de8d'
 
@@ -25,6 +25,20 @@ openflex_fac_cor:
     function: 'x/128'
     units: '-'
     location: '0xD001DE8E'
+
+iga_bas_cor_cbk_sel:
+    length:  0x01
+    signed:  True
+    function:  "(-x)/-2.66666666666667"
+    units:  "°CRK"
+    location: '0xD000E59E'
+
+iga_bas_temp_cor:
+    length:  0x01
+    signed:  True
+    function:  "(-x)/-2.66666666666667"
+    units:  "°CRK"
+    location: '0xD000E580'
 
 
 #maf:
@@ -47,13 +61,13 @@ openflex_fac_cor:
 #    units:  "RPM"
 #    location: '0xD0012400'
 #
-#idx_cmb_mod_cur:
-#    length:  0x01
-#    signed: False
-#    function: "x/1.0"
-#    units: "-"
-#    location: '0xd000c36e'
-#
+idx_cmb_mod_cur:
+    length:  0x01
+    signed: False
+    function: "x/1.0"
+    units: "-"
+    location: '0xd000c36e'
+
 #Actual gear:
 #    length:  0x01
 #    signed:  False
