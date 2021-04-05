@@ -1,0 +1,122 @@
+<html lang="en"><head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="Responsive Admin &amp; Dashboard Template based on Bootstrap 5">
+	<meta name="author" content="AdminKit">
+	<meta name="keywords" content="adminkit, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web">
+
+	<link rel="shortcut icon" href="/static/img/icons/icon-48x48.png">
+
+	<title>VW_Flash Web GUI tool</title>
+
+	<link href="/static/css/app.css?v=1" rel="stylesheet">
+</head>
+
+<body>
+	<div class="wrapper">
+
+			{% include "sidebar.html" %}
+		<div class="main">
+			<nav class="navbar navbar-expand navbar-light navbar-bg">
+				<a class="sidebar-toggle d-flex">
+          <i class="hamburger align-self-center"></i>
+        </a>
+
+				<form class="d-none d-sm-inline-block">
+					<div class="input-group input-group-navbar">
+						
+						
+					</div>
+				</form>
+
+				<div class="navbar-collapse collapse">
+					<ul class="navbar-nav navbar-align">
+						
+						
+						
+					</ul>
+				</div>
+			</nav>
+
+
+		<div class="main">
+			<main class="content">
+				<div class="container-fluid p-0">
+						<div id="taskid">{{ context.taskID }}</div><br>
+					<button id="startLoggerButton" type="button" >Start Logger</button>
+					<button id="stopLoggerButton" type="button" >Stop Logger</button>
+					<div id="logger/datalogging"></div>
+			</main>
+
+		</div>
+
+			<footer class="footer">
+				<div class="container-fluid">
+					<div class="row text-muted">
+						<div class="col-6 text-left">
+							<p class="mb-0">
+								<a href="index.html" class="text-muted"><strong>AdminKit Demo</strong></a> ©
+							</p>
+						</div>
+						<div class="col-6 text-right">
+							<ul class="list-inline">
+								<li class="list-inline-item">
+									<a class="text-muted" href="#">Support</a>
+								</li>
+								<li class="list-inline-item">
+									<a class="text-muted" href="#">Help Center</a>
+								</li>
+								<li class="list-inline-item">
+									<a class="text-muted" href="#">Privacy</a>
+								</li>
+								<li class="list-inline-item">
+									<a class="text-muted" href="#">Terms</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</footer>
+		</div>
+	</div>
+
+	<script src="/static/js/app.js"></script>
+
+
+<script>
+window.onload = function() {
+  document.getElementById('logger/startstop').className = 'sidebar-item active';
+};
+
+var poller = '';
+
+document.getElementById("startLoggerButton").onclick = function () {
+    fetch('/logger/start_logger').then(response => response.json()).then(function(data){
+        console.log(data.taskID);
+        document.getElementById('taskid').innerHTML = "Task ID " + data.taskID;
+        poller = setInterval(updateScreen, 1000);
+    });
+};
+
+
+document.getElementById("stopLoggerButton").onclick = function () {
+    fetch('/logger/stop_logger').then(response => response.json()).then(function(data){
+        console.log(data.taskID);
+        document.getElementById('taskid').innerHTML = "Task ID " + data.taskID;
+        clearInterval(poller);
+    });
+};
+
+function updateScreen(){ 
+  fetch('/logger/logger_status').then(response => response.json()).then(function(data){
+    console.log(data);
+    document.getElementById('logger/datalogging').innerHTML = data['status'];
+    //document.getElementById('logger/enginerpm').innerHTML = data['Engine speed']['value'];
+    });
+}
+
+
+</script>
+
+</body></html>

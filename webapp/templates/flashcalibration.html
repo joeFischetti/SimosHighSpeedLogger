@@ -1,0 +1,201 @@
+<html lang="en"><head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="Responsive Admin &amp; Dashboard Template based on Bootstrap 5">
+	<meta name="author" content="AdminKit">
+	<meta name="keywords" content="adminkit, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web">
+
+	<link rel="shortcut icon" href="/static/img/icons/icon-48x48.png">
+
+	<title>VW_Flash Web GUI tool</title>
+
+	<link href="/static/css/app.css?v=1" rel="stylesheet">
+</head>
+
+<body>
+	<div class="wrapper">
+
+			{% include "global/sidebar.html" %}
+		<div class="main">
+			<nav class="navbar navbar-expand navbar-light navbar-bg">
+				<a class="sidebar-toggle d-flex">
+          <i class="hamburger align-self-center"></i>
+        </a>
+
+				<form class="d-none d-sm-inline-block">
+					<div class="input-group input-group-navbar">
+						
+						
+					</div>
+				</form>
+
+				<div class="navbar-collapse collapse">
+					<ul class="navbar-nav navbar-align">
+						
+						
+						
+					</ul>
+				</div>
+			</nav>
+
+
+		<div class="main">
+			<main class="content">
+				<div class="container-fluid p-0">
+					{% if callist %}
+					<h1 class="h3 mb-3">File Picker</h1>
+
+
+							<div class="card">
+								<div class="card-header">
+									<h5 class="card-title">Tune File List</h5>
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#confirmationModal">
+  Flash Selected File
+</button>
+
+
+
+
+									<!--<h6 class="card-subtitle text-muted">Click the <i data-feather="play"></i> to flash a file,<br>Files are located in {{caldir}}</h6>-->
+								</div>
+								<div class="table-responsive"><table class="table">
+									<thead>
+										<tr>
+											<th style="width:15%;">Select File</th>
+											<th style="width:65%;">Filename</th>
+											<th class="d-none d-md-table-cell" style="width:25%">Modify Time</th>
+											<!--<th style="width: 15%;">Actions</th>-->
+										</tr>
+									</thead>
+									<tbody>
+										<label class=="form-check">
+										{% for file in callist %}
+											<tr>
+											<td><input name="radio-check-input" value="{{file.filename}}" type="radio" class="form-check-input" onclick="setSelectedFile('{{file.filename}}');"></td>
+											<td>{{file.filename}}</td><td class="d-none d-md-table-cell">{{file.timestampstring}}</td>
+											<td class="table-action">
+											<!--<a href="/flasher/flashCal/{{file.filename}}"><i class="align-middle" data-feather="play"></i></a>-->
+
+											</td>
+											</tr>
+										{% endfor %}
+										</label>
+
+									</tbody>
+								</table></div>
+							</div>
+
+
+					</div>
+					{% elif filename %}
+						Flashing {{ filename }}<br>
+						Block number {{ blocknum }}<br>
+						Task ID {{ taskID }}<br>
+						<div id="flasher/step"></div>
+						<div id="flasher/status"></div>
+						<div id="flasher/progressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">Progress</div>
+					{% endif %}
+			</main>
+
+		</div>
+
+
+
+<!-- Button trigger modal -->
+<!-- Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmationModalLabel">Flash Confirmation</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+  <form id="selectedFile" action="">
+    <button type="submit" class="btn btn-primary">Flash Selected File</button>
+  </form>
+<div id="selectedFileConfirmation"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+			<footer class="footer">
+				<div class="container-fluid">
+					<div class="row text-muted">
+						<div class="col-6 text-left">
+							<p class="mb-0">
+								<a href="index.html" class="text-muted"><strong>AdminKit Demo</strong></a> ©
+							</p>
+						</div>
+						<div class="col-6 text-right">
+							<ul class="list-inline">
+								<li class="list-inline-item">
+									<a class="text-muted" href="#">Support</a>
+								</li>
+								<li class="list-inline-item">
+									<a class="text-muted" href="#">Help Center</a>
+								</li>
+								<li class="list-inline-item">
+									<a class="text-muted" href="#">Privacy</a>
+								</li>
+								<li class="list-inline-item">
+									<a class="text-muted" href="#">Terms</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</footer>
+		</div>
+	</div>
+
+	<script src="/static/js/app.js"></script>
+
+
+<script>
+window.onload = function() {
+  document.getElementById('flasher/flashCal').className = 'sidebar-item active';
+};
+
+
+function setSelectedFile(filename){
+    document.getElementById('selectedFile').setAttribute("action", '/flasher/flashCal/' + filename);
+    document.getElementById('selectedFileConfirmation').innerHTML = filename;
+    console.log(filename);
+
+}
+
+
+window.onload = function() {
+  document.getElementById('flasher/flashCal').className = 'sidebar-item active';
+};
+
+
+{% if filename %}
+
+setInterval(function(){ 
+  fetch('/flasher/flash_status').then(response => response.json()).then(function(data){
+    console.log(data);
+    document.getElementById('flasher/step').innerHTML = data.flasher_step;
+    document.getElementById('flasher/status').innerHTML = data.message;
+    document.getElementById('flasher/progressBar').setAttribute("aria-valuenow", data.flasher_progress);
+    document.getElementById('flasher/progressBar').setAttribute("style", "width: " + data.flasher_progress + "%");
+    document.getElementById('flasher/progressBar').innerHTML = data.flasher_step;
+    });
+}, 1000);
+
+
+{% endif %}
+
+
+
+</script>
+
+</body></html>

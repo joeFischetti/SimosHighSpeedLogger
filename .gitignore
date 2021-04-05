@@ -5,3 +5,4 @@ udsoncan.log
 logs
 config.yaml
 dist
+.flaskenv

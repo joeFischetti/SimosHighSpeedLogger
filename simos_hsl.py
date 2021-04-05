@@ -76,6 +76,7 @@ class hsl_logger:
         self.defineIdentifier = None
         self.SINGLECSV = singlecsv
         self.CURRENTTIME = datetime.now().strftime("%Y%m%d-%H%M%S")
+        self.kill = False
 
         # Set up the activity logging
         self.logfile = self.FILEPATH + "activity_" + self.CURRENTTIME + ".log"
@@ -95,6 +96,9 @@ class hsl_logger:
 
         else:
             self.activityLogger.setLevel(logging.INFO)
+
+        if self.callback_function:
+            self.callback_function({'status': "Setting up logger"})
 
         f_handler.setLevel(logging.DEBUG)
         c_handler = logging.StreamHandler()
@@ -307,6 +311,12 @@ class hsl_logger:
                             )
                     raise
 
+    def kill(self):
+        self.activityLogger.critical("Recieved kill signal")
+        if self.callback_function:
+            self.callback_function({'status': "Killing logger process"})
+        self.kill = True
+
     def main(self, client=None, callback=None):
 
         if client is not None:
@@ -397,6 +407,8 @@ class hsl_logger:
                 self.activityLogger.debug("Logging is: " + str(datalogging))
 
         while 1:
+            if self.kill:
+                exit()
             if callback:
                 callback(dataStream)
             time.sleep(0.4)
