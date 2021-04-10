@@ -3,3 +3,4 @@ can-isotp
 pyyaml
 dashing
 flask
+python-dotenv

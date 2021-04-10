@@ -114,7 +114,8 @@ def stop_logger():
     global hsl_logger
 
     if hsl_logger is not None:
-        hsl_logger.kill()
+        hsl_logger.stop()
+        hsl_logger = None
 
     return jsonify({'taskID': "Stopping Logger"})
   

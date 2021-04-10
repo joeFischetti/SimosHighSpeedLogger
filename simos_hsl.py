@@ -311,7 +311,7 @@ class hsl_logger:
                             )
                     raise
 
-    def kill(self):
+    def stop(self):
         self.activityLogger.critical("Recieved kill signal")
         if self.callback_function:
             self.callback_function({'status': "Killing logger process"})
@@ -409,8 +409,9 @@ class hsl_logger:
         while 1:
             if self.kill:
                 exit()
-            if callback:
-                callback(dataStream)
+            if self.callback_function:
+                self.callback_function({'status': "Logger Running"})
+
             time.sleep(0.4)
 
     def getValuesFromECU(self):
