@@ -32,7 +32,7 @@ def send_static(path):
 
 @webapp.route('/logger/filemanager')
 def logfilemanager():
-    
+
     logFiles = []
     for (dirpath, dirnames, filenames) in os.walk(logFilePath):
         for logfile in filenames:
@@ -68,6 +68,17 @@ def logfilemanager():
 @webapp.route('/logger/download/<string:filename>')
 def download_file(filename):
     return send_from_directory(logFilePath, filename)
+
+@webapp.route('/logger/delete/<string:filename>')
+def delete_file(filename):
+
+    if os.path.exists(logFilePath + filename):
+        os.rename(logFilePath + filename, logFilePath + "old/" + filename)
+    else:
+        print("The file does not exist")
+
+
+    return logfilemanager()
 
 
 

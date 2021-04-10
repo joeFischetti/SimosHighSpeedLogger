@@ -65,7 +65,7 @@
 										{% for file in context.filelist %}
 											<tr><td>{{file.filename}}</td><td class="d-none d-md-table-cell">{{file.timestampstring}}</td>
 											<td class="table-action">
-												<a href="#"><i class="align-middle" data-feather="trash"></i></a>
+												<a href="/logger/delete/{{file.filename}}"><i class="align-middle" data-feather="trash"></i></a>
 												<a href="/logger/download/{{file.filename}}" download><i class="align-middle" data-feather="download"></i></a>
 
 											</td>
@@ -95,7 +95,7 @@
 										{% for file in context.activityfiles %}
 											<tr><td>{{file.filename}}</td><td class="d-none d-md-table-cell">{{file.timestampstring}}</td>
 											<td class="table-action">
-												<a href="#"><i class="align-middle" data-feather="trash"></i></a>
+												<a href="/logger/delete/{{file.filename}}"><i class="align-middle" data-feather="trash"></i></a>
 												<a href="/logger/download/{{file.filename}}" download><i class="align-middle" data-feather="download"></i></a>
 
 											</td>
