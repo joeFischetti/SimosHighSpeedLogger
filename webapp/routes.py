@@ -14,6 +14,7 @@ import yaml
 logFilePath = os.environ.get('LOGFILEPATH')
 aswFilePath = os.environ.get('ASWFILEPATH')
 calFilePath = os.environ.get('CALFILEPATH')
+flashingTaskID = None
 
 
 hsl_logger = None
@@ -180,8 +181,55 @@ def flashfilemanager():
 
     return render_template('flashfilemanager.html', context=context)
 
+@webapp.route("/flasher/flashCal")  
+def flash_calibration_picker():
+    flashFiles = []
+    for (dirpath, dirnames, filenames) in os.walk(calFilePath):
+        for tunefile in filenames:
+            if re.match("^.*\.bin$", tunefile):
+                flashFiles.append({
+                    'filename': str(tunefile),
+                    'timestamp': os.path.getmtime(calFilePath + tunefile), 
+                    'timestampstring': str(datetime.fromtimestamp(os.path.getmtime(calFilePath + tunefile)).strftime('%Y-%m-%d %H:%M:%S')),
+                })
 
-  
-#
+        break
+    flashFiles = sorted(flashFiles, key=itemgetter('timestamp'), reverse=True)
+ 
+
+    context = {'callist': flashFiles, 'caldir': calFilePath} 
+    return render_template('flashcalibration.html', context = context)
+
+@webapp.route("/flasher/flashCal/<string:filename>")
+def flash_calibration(filename):
+    global flashingTaskID
+
+    blocks_infile = {}
+
+    blocks_infile[calFilePath + filename] = {'blocknum': 5, 'binary_data': calFilePath + filename}
+
+    if flashingTaskID is None:
+        flashingTaskID = "In Progress"
+
+    context = {'filename': filename, 'caldir': calFilePath, 'filename': calFilePath + filename, 'blocknum': 5, 'taskID': flashingTaskID} 
+    return render_template('flashcalibration.html', context=context)
+
+
+def flash_status(request):
+
+    status = AsyncResult(str(flashingTaskID)).result
+
+    try:
+        response = HttpResponse(json.dumps(status), content_type='application/json')
+
+    except:
+        with open('/tmp/celery-task-meta-' + str(flashingTaskID), 'r') as statusFile:
+            detailedStatus = statusFile.read()
+        response = HttpResponse(json.dumps({'flasher_step': "FAILED", 'flasher_progress': 100, 'message': detailedStatus}), content_type='application/json')
+    #response = HttpResponse(str(flashingTaskID.backend))
+    return response
+
+
+
 
 

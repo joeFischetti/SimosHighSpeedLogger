@@ -16,7 +16,7 @@
 <body>
 	<div class="wrapper">
 
-			{% include "global/sidebar.html" %}
+			{% include "sidebar.html" %}
 		<div class="main">
 			<nav class="navbar navbar-expand navbar-light navbar-bg">
 				<a class="sidebar-toggle d-flex">
@@ -43,7 +43,7 @@
 		<div class="main">
 			<main class="content">
 				<div class="container-fluid p-0">
-					{% if callist %}
+					{% if context.callist %}
 					<h1 class="h3 mb-3">File Picker</h1>
 
 
@@ -70,7 +70,7 @@
 									</thead>
 									<tbody>
 										<label class=="form-check">
-										{% for file in callist %}
+										{% for file in context.callist %}
 											<tr>
 											<td><input name="radio-check-input" value="{{file.filename}}" type="radio" class="form-check-input" onclick="setSelectedFile('{{file.filename}}');"></td>
 											<td>{{file.filename}}</td><td class="d-none d-md-table-cell">{{file.timestampstring}}</td>
@@ -88,10 +88,9 @@
 
 
 					</div>
-					{% elif filename %}
-						Flashing {{ filename }}<br>
-						Block number {{ blocknum }}<br>
-						Task ID {{ taskID }}<br>
+					{% elif context.filename %}
+						Flashing {{ context.filename }}<br>
+						Block number {{ context.blocknum }}<br>
 						<div id="flasher/step"></div>
 						<div id="flasher/status"></div>
 						<div id="flasher/progressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">Progress</div>
