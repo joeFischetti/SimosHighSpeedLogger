@@ -200,6 +200,27 @@ def flash_calibration_picker():
     context = {'callist': flashFiles, 'caldir': calFilePath} 
     return render_template('flashcalibration.html', context = context)
 
+@webapp.route("/system")  
+def systemcommand():
+
+    commands = ['shutdown', 'reboot', 'restart_webserver']
+
+    context = {'commands': commands} 
+    return render_template('systemcommands.html', context = context)
+
+
+@webapp.route("/system/<string:command>")  
+def systemcommands(command):
+    if command == "shutdown":
+        os.system("sudo shutdown 0")
+    elif command == "reboot":
+        os.system("sudo reboot")
+    elif command == "restart_webserver":
+        os.system("sudo systemctl restart hslwebapp.service")
+
+    return render_template('index.html')
+
+
 @webapp.route("/flasher/flashCal/<string:filename>")
 def flash_calibration(filename):
     global flashingTaskID
