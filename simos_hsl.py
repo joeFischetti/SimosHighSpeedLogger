@@ -98,7 +98,7 @@ class hsl_logger:
             self.activityLogger.setLevel(logging.INFO)
 
         if self.callback_function:
-            self.callback_function(logger_status = "Setting up logger")
+            self.callback_function(logger_status="Setting up logger")
 
         f_handler.setLevel(logging.DEBUG)
         c_handler = logging.StreamHandler()
@@ -216,6 +216,7 @@ class hsl_logger:
             self.activityLogger.debug("Opening logfile at: " + self.filename)
             self.logFile = open(self.filename, "a")
             self.logFile.write(self.csvHeader + "\n")
+            self.logFile.writa(self.csvDivider + "\n")
             self.logFile.close()
 
     def start_logger(self):
@@ -314,7 +315,7 @@ class hsl_logger:
     def stop(self):
         self.activityLogger.critical("Recieved kill signal")
         if self.callback_function:
-            self.callback_function(logger_status = "Killing logger process")
+            self.callback_function(logger_status="Killing logger process")
         self.kill = True
 
     def main(self, client=None, callback=None):
@@ -410,7 +411,9 @@ class hsl_logger:
             if self.kill:
                 exit()
             if self.callback_function:
-                self.callback_function(logger_status = "Logger Running", dataStream = self.dataStream)
+                self.callback_function(
+                    logger_status="Logger Running", dataStream=self.dataStream
+                )
 
             time.sleep(0.2)
 
@@ -448,7 +451,7 @@ class hsl_logger:
                 self.getParams22()
             if self.logFile:
                 self.logFile.flush()
-            
+
             time.sleep(0.05)
 
     def getParams3E(self):
@@ -577,9 +580,7 @@ class hsl_logger:
                                 "Opening logfile at: " + self.filename
                             )
                             self.logFile = open(self.filename, "a")
-                            if self.SINGLECSV:
-                                self.logFile.write(self.csvDivider + "\n")
-                            else:
+                            if not self.SINGLECSV:
                                 self.logFile.write(self.csvHeader + "\n")
 
                         self.logFile.write(row + "\n")
