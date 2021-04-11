@@ -7,6 +7,7 @@ from operator import itemgetter
 import simos_hsl
 import json
 import threading
+import yaml
 
 
 
@@ -68,6 +69,18 @@ def logfilemanager():
 @webapp.route('/logger/download/<string:filename>')
 def download_file(filename):
     return send_from_directory(logFilePath, filename)
+
+@webapp.route('/logger/configuration')
+def loggerconfig():
+    with open(logFilePath + "config.yaml") as configfile:
+        configuration = yaml.load(configfile, Loader = yaml.FullLoader)
+
+    context = {'logfilepath': logFilePath,
+                'configuration': configuration}
+
+    return render_template('loggerconfig.html', context = context)
+
+
 
 @webapp.route('/logger/delete/<string:filename>')
 def delete_file(filename):
