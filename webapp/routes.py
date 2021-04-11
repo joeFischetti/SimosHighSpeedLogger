@@ -1,5 +1,5 @@
 from webapp import webapp
-from flask import render_template, jsonify, send_from_directory
+from flask import render_template, jsonify, send_from_directory, request
 import os
 import re
 from datetime import datetime
@@ -73,9 +73,18 @@ def logfilemanager():
 def download_file(filename):
     return send_from_directory(logFilePath, filename)
 
-@webapp.route('/logger/configuration')
+@webapp.route('/logger/configuration', methods = ['GET', 'POST'])
 def loggerconfig():
-    with open(logFilePath + "config.yaml") as configfile:
+
+       
+    if request.method == "POST":
+
+        os.rename(logFilePath + "config.yaml", logFilePath + "config.yaml.bak")
+
+        with open(logFilePath + "config.yaml", 'w') as configfile:
+            yaml.dump(request.form.to_dict(), configfile, default_flow_style=False)
+
+    with open(logFilePath + "config.yaml", 'r') as configfile:
         configuration = yaml.load(configfile, Loader = yaml.FullLoader)
 
     context = {'logfilepath': logFilePath,

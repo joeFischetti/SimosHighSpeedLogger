@@ -59,7 +59,7 @@
 									<h5 class="card-title mb-0">{{parameter}}</h5>
 								</div>
 								<div class="card-body">
-									<input type="text" class="form-control" placeholder="{{context.configuration.get(parameter)}}">
+									<input type="text" id="{{parameter}}" name="{{parameter}}" class="form-control" value="{{context.configuration.get(parameter)}}">
 								</div>
 							</div>
 

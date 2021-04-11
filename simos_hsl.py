@@ -755,6 +755,9 @@ class hsl_logger:
             if results is None:
                 self.activityLogger.critical("No response from ECU")
 
+            if self.kill:
+                exit()
+
         return results
 
     def gainSecurityAccess(self, level, seed, params=None):
