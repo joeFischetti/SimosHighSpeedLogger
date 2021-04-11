@@ -12,6 +12,8 @@ import yaml
 
 
 logFilePath = os.environ.get('LOGFILEPATH')
+aswFilePath = os.environ.get('ASWFILEPATH')
+calFilePath = os.environ.get('CALFILEPATH')
 
 
 hsl_logger = None
@@ -142,6 +144,43 @@ def stop_logger():
         hsl_logger = None
 
     return jsonify({'taskID': "Stopping Logger"})
+
+@webapp.route('/flasher/filemanager')
+def flashfilemanager():
+
+    calFiles = []
+    for (dirpath, dirnames, filenames) in os.walk(calFilePath):
+        for logfile in filenames:
+            if re.match(".*\.bin$", logfile):
+                calFiles.append({
+                    'filename': str(logfile), 
+                    'timestamp': os.path.getmtime(calFilePath + logfile), 
+                    'timestampstring': str(datetime.fromtimestamp(os.path.getmtime(calFilePath + logfile)).strftime('%Y-%m-%d %H:%M:%S')),
+                })
+        break
+
+    calFiles = sorted(calFiles, key=itemgetter('timestamp'), reverse=True)
+
+    aswFiles = []
+    for (dirpath, dirnames, filenames) in os.walk(aswFilePath):
+        for activityfile in filenames:
+            if re.match(".*\.bin$", activityfile):
+                aswFiles.append({
+                    'filename': str(activityfile), 
+                    'timestamp': os.path.getmtime(aswFilePath + activityfile), 
+                    'timestampstring': str(datetime.fromtimestamp(os.path.getmtime(aswFilePath + activityfile)).strftime('%Y-%m-%d %H:%M:%S')),
+                })
+        break
+
+    aswFiles = sorted(aswFiles, key=itemgetter('timestamp'), reverse=True)
+
+
+
+    context = {'callist': calFiles, 'aswlist': aswFiles} 
+
+    return render_template('flashfilemanager.html', context=context)
+
+
   
 #
 
