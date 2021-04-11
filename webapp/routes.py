@@ -26,6 +26,12 @@ def update_callback(callback):
     status = callback
 
 
+def handle_uploaded_file(path, f):
+    with open(path + str(f), 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+
+
 @webapp.route("/")
 def hello():
     return render_template('index.html', title="Simos High Speed Logger")
@@ -155,8 +161,13 @@ def stop_logger():
 
     return jsonify({'taskID': "Stopping Logger"})
 
-@webapp.route('/flasher/filemanager')
+@webapp.route('/flasher/filemanager', methods=["GET", "POST"])
 def flashfilemanager():
+
+    if request.method == "POST":
+        if request.files['file']:
+            request.files['file'].save(calFilePath + request.files['file'].filename)
+
 
     calFiles = []
     for (dirpath, dirnames, filenames) in os.walk(calFilePath):
