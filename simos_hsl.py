@@ -140,7 +140,7 @@ class hsl_logger:
                 self.conn = IsoTPSocketConnection(
                     "can0", rxid=0x7E8, txid=0x7E0, params=params
                 )
-                self.conn.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
+                self.conn.tpsock.set_opts(txpad=0x55, tx_stmin=2500000, stmin=0xF5)
                 self.conn.open()
 
         # try to open the parameter file, if we can't, we'll work with a static
@@ -216,7 +216,7 @@ class hsl_logger:
             self.activityLogger.debug("Opening logfile at: " + self.filename)
             self.logFile = open(self.filename, "a")
             self.logFile.write(self.csvHeader + "\n")
-            self.logFile.writa(self.csvDivider + "\n")
+            self.logFile.write(self.csvDivider + "\n")
             self.logFile.close()
 
     def start_logger(self):
@@ -452,7 +452,7 @@ class hsl_logger:
             if self.logFile:
                 self.logFile.flush()
 
-            time.sleep(0.05)
+            # time.sleep(0.05)
 
     def getParams3E(self):
         for address in self.payload:
