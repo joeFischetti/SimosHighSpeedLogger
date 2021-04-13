@@ -177,7 +177,7 @@ window.onload = function() {
 };
 
 
-{% if filename %}
+{% if context.filename %}
 
 setInterval(function(){ 
   fetch('/flasher/flash_status').then(response => response.json()).then(function(data){

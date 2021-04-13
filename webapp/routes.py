@@ -35,6 +35,7 @@ def update_callback(callback = None, *args, **kwargs):
         print("callback msg: " + callback)
 
     if kwargs:
+        status = kwargs
         print("callback kwargs: " + str(kwargs))
 
 
@@ -282,20 +283,10 @@ def flash_calibration(filename):
     context = {'filename': filename, 'caldir': calFilePath, 'filename': calFilePath + filename, 'blocknum': 5, 'taskID': "Flashing Started"} 
     return render_template('flashcalibration.html', context=context)
 
+@webapp.route("/flasher/flash_status")
+def flash_status():
 
-def flash_status(request):
-
-    status = AsyncResult(str(flashingTaskID)).result
-
-    try:
-        response = HttpResponse(json.dumps(status), content_type='application/json')
-
-    except:
-        with open('/tmp/celery-task-meta-' + str(flashingTaskID), 'r') as statusFile:
-            detailedStatus = statusFile.read()
-        response = HttpResponse(json.dumps({'flasher_step': "FAILED", 'flasher_progress': 100, 'message': detailedStatus}), content_type='application/json')
-    #response = HttpResponse(str(flashingTaskID.backend))
-    return response
+    return jsonify(status)
 
 
 
