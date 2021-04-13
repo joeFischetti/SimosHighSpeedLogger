@@ -1,15 +1,10 @@
 from webapp import webapp
 from flask import render_template, jsonify, send_from_directory, request
-import os
-import re
 from datetime import datetime
 from operator import itemgetter
-import simos_hsl
-import json
-import threading
-import yaml
 
-import sys
+import os, re, simos_hsl, json, threading, yaml, sys
+
 sys.path.insert(1, os.environ.get('HOME'))
 
 from VW_Flash.lib import simos_flash_utils
@@ -33,7 +28,7 @@ def update_callback(callback = None, *args, **kwargs):
     global status
     if callback:
         status = callback
-        print("callback msg: " + callback)
+        print("callback msg: " + str(callback))
 
     if kwargs:
         status = kwargs
