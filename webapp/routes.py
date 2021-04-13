@@ -28,11 +28,11 @@ def update_callback(callback = None, *args, **kwargs):
     global status
     if callback:
         status = callback
-        print("callback msg: " + str(callback))
+        #print("callback msg: " + str(callback))
 
     if kwargs:
         status = kwargs
-        print("callback kwargs: " + str(kwargs))
+        #print("callback kwargs: " + str(kwargs))
 
 
 def handle_uploaded_file(path, f):
@@ -150,7 +150,7 @@ def start_logger():
         interface="CAN",
         singlecsv=False,
         mode="3E",
-        level="INFO",
+        level="INFO"
     )
 
     logger_thread = threading.Thread(target=hsl_logger.start_logger)

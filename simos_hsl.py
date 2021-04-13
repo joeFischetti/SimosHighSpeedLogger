@@ -98,7 +98,7 @@ class hsl_logger:
             self.activityLogger.setLevel(logging.INFO)
 
         if self.callback_function:
-            self.callback_function({'status': "Setting up logger"})
+            self.callback_function(logger_status = "Setting up logger")
 
         f_handler.setLevel(logging.DEBUG)
         c_handler = logging.StreamHandler()
@@ -314,7 +314,7 @@ class hsl_logger:
     def stop(self):
         self.activityLogger.critical("Recieved kill signal")
         if self.callback_function:
-            self.callback_function({'status': "Killing logger process"})
+            self.callback_function(logger_status = "Killing logger process")
         self.kill = True
 
     def main(self, client=None, callback=None):
@@ -410,9 +410,9 @@ class hsl_logger:
             if self.kill:
                 exit()
             if self.callback_function:
-                self.callback_function({'status': "Logger Running"})
+                self.callback_function(logger_status = "Logger Running", dataStream = self.dataStream)
 
-            time.sleep(0.4)
+            time.sleep(0.2)
 
     def getValuesFromECU(self):
         # Define the global variables that we'll use...  They're the logging parameters

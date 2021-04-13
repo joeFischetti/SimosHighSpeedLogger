@@ -47,6 +47,8 @@
 					<button id="startLoggerButton" type="button" >Start Logger</button>
 					<button id="stopLoggerButton" type="button" >Stop Logger</button>
 					<div id="logger/datalogging"></div>
+					<div id="logger/logdata"></div>
+
 			</main>
 
 		</div>
@@ -95,7 +97,7 @@ document.getElementById("startLoggerButton").onclick = function () {
     fetch('/logger/start_logger').then(response => response.json()).then(function(data){
         console.log(data.taskID);
         document.getElementById('taskid').innerHTML = "Task ID " + data.taskID;
-        poller = setInterval(updateScreen, 1000);
+        poller = setInterval(updateScreen, 500);
     });
 };
 
@@ -111,8 +113,10 @@ document.getElementById("stopLoggerButton").onclick = function () {
 function updateScreen(){ 
   fetch('/logger/logger_status').then(response => response.json()).then(function(data){
     console.log(data);
-    document.getElementById('logger/datalogging').innerHTML = data['status'];
-    //document.getElementById('logger/enginerpm').innerHTML = data['Engine speed']['value'];
+    document.getElementById('logger/datalogging').innerHTML = data['logger_status'];
+    if('dataStream' in data){
+        document.getElementById('logger/logdata').innerHTML = JSON.stringify(data['dataStream']);
+    }
     });
 }
 
