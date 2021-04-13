@@ -9,6 +9,10 @@ import json
 import threading
 import yaml
 
+import sys
+sys.path.insert(1, os.environ.get('HOME'))
+
+from VW_Flash.lib import simos_flash_utils
 
 
 logFilePath = os.environ.get('LOGFILEPATH')
@@ -18,12 +22,20 @@ flashingTaskID = None
 
 
 hsl_logger = None
+flasher = None
 logger_thread = None
+flasher_thread = None
+
 status = None
 
-def update_callback(callback):
+def update_callback(callback = None, *args, **kwargs):
     global status
-    status = callback
+    if callback:
+        status = callback
+        print("callback msg: " + callback)
+
+    if kwargs:
+        print("callback kwargs: " + str(kwargs))
 
 
 def handle_uploaded_file(path, f):
@@ -203,6 +215,13 @@ def flashfilemanager():
 
 @webapp.route("/flasher/flashCal")  
 def flash_calibration_picker():
+    global flasher_thread
+
+    if flasher_thread:
+        context = {'filename': filename, 'caldir': calFilePath, 'filename': calFilePath + filename, 'blocknum': 5, 'taskID': "Flashing Started"} 
+
+        return render_template('flashcalibration.html', context = context)
+
     flashFiles = []
     for (dirpath, dirnames, filenames) in os.walk(calFilePath):
         for tunefile in filenames:
@@ -243,16 +262,24 @@ def systemcommands(command):
 
 @webapp.route("/flasher/flashCal/<string:filename>")
 def flash_calibration(filename):
-    global flashingTaskID
+    global flasher_thread
 
-    blocks_infile = {}
 
-    blocks_infile[calFilePath + filename] = {'blocknum': 5, 'binary_data': calFilePath + filename}
 
-    if flashingTaskID is None:
-        flashingTaskID = "In Progress"
+    if flasher_thread is None:
+        def read_from_file(infile = None):
+            f = open(infile, "rb")
+            return f.read()
 
-    context = {'filename': filename, 'caldir': calFilePath, 'filename': calFilePath + filename, 'blocknum': 5, 'taskID': flashingTaskID} 
+        blocks_infile = {}
+
+        blocks_infile[calFilePath + filename] = {'blocknum': 5, 'binary_data': read_from_file(infile = str(calFilePath + filename))}
+        flasher_thread = threading.Thread(target=simos_flash_utils.flash_bin, args=(blocks_infile, update_callback, "SocketCAN", ))
+        flasher_thread.daemon = True
+        flasher_thread.start()
+
+
+    context = {'filename': filename, 'caldir': calFilePath, 'filename': calFilePath + filename, 'blocknum': 5, 'taskID': "Flashing Started"} 
     return render_template('flashcalibration.html', context=context)
 
 
