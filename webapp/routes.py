@@ -25,6 +25,7 @@ hsl_logger = None
 flasher = None
 logger_thread = None
 flasher_thread = None
+flasher_filename = None
 
 status = None
 
@@ -217,9 +218,10 @@ def flashfilemanager():
 @webapp.route("/flasher/flashCal")  
 def flash_calibration_picker():
     global flasher_thread
+    global flasher_filename
 
     if flasher_thread:
-        context = {'filename': filename, 'caldir': calFilePath, 'filename': calFilePath + filename, 'blocknum': 5, 'taskID': "Flashing Started"} 
+        context = {'filename': flasher_filename, 'caldir': calFilePath, 'filename': calFilePath + flasher_filename, 'blocknum': 5, 'taskID': "Flashing Active"} 
 
         return render_template('flashcalibration.html', context = context)
 
@@ -264,10 +266,11 @@ def systemcommands(command):
 @webapp.route("/flasher/flashCal/<string:filename>")
 def flash_calibration(filename):
     global flasher_thread
-
+    global flasher_filename
 
 
     if flasher_thread is None:
+        flasher_filename = filename
         def read_from_file(infile = None):
             f = open(infile, "rb")
             return f.read()
