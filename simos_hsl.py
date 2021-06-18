@@ -5,8 +5,8 @@
 from datetime import datetime, timedelta
 
 try:
-    from python_j2534.connections import J2534Connection
-    from python_j2534.connections import FakeConnection
+    from .connections import J2534Connection
+    from .connections import FakeConnection
 except Exception as e:
     print(e)
 
@@ -58,6 +58,7 @@ class hsl_logger:
         callback_function=None,
         interface="J2534",
         singlecsv=False,
+        interface_path=None,
     ):
 
         self.activityLogger = logging.getLogger("SimosHSL")
@@ -68,6 +69,7 @@ class hsl_logger:
         self.RUNSERVER = runserver
         self.INTERACTIVE = interactive
         self.INTERFACE = interface
+        self.INTERFACE_PATH = interface_path
         self.callback_function = callback_function
         self.MODE = mode
         self.FILEPATH = path
@@ -127,11 +129,23 @@ class hsl_logger:
                 self.conn.open()
 
             elif self.INTERFACE == "J2534":
-                self.conn = J2534Connection(
-                    windll="C:/Program Files (x86)/OpenECU/OpenPort 2.0/drivers/openport 2.0/op20pt32.dll",
-                    rxid=0x7E8,
-                    txid=0x7E0,
-                )
+                if self.INTERFACE_PATH:
+                    self.activityLogger.info(
+                        "Connecting to J2534 interface with dll: "
+                        + str(self.INTERFACE_PATH)
+                    )
+                    self.conn = J2534Connection(
+                        dll=self.INTERFACE_PATH, rxid=0x7E8, txid=0x7E0
+                    )
+                else:
+                    self.activityLogger.info(
+                        "Connecting to J2534 interface with default openport dll"
+                    )
+                    self.conn = J2534Connection(
+                        dll="C:/Program Files (x86)/OpenECU/OpenPort 2.0/drivers/openport 2.0/op20pt32.dll",
+                        rxid=0x7E8,
+                        txid=0x7E0,
+                    )
                 self.conn.open()
 
             else:
@@ -140,8 +154,7 @@ class hsl_logger:
                 self.conn = IsoTPSocketConnection(
                     "can0", rxid=0x7E8, txid=0x7E0, params=params
                 )
-                self.conn.tpsock.set_opts(txpad=0x55, tx_stmin=2500000)
-                self.conn.tpsock.set_fc_opts(stmin=0xF5)
+                self.conn.tpsock.set_opts(txpad=0x55, tx_stmin=2500000, stmin=0xF5)
                 self.conn.open()
 
         # try to open the parameter file, if we can't, we'll work with a static
@@ -410,6 +423,7 @@ class hsl_logger:
 
         while 1:
             if self.kill:
+                del logging.Logger.manager.loggerDict["SimosHSL"]
                 exit()
             if self.callback_function:
                 self.callback_function(
@@ -453,7 +467,7 @@ class hsl_logger:
             if self.logFile:
                 self.logFile.flush()
 
-            time.sleep(0.05)
+            # time.sleep(0.05)
 
     def getParams3E(self):
         for address in self.payload:

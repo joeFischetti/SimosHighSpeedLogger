@@ -63,6 +63,7 @@ hsl_logger = simos_hsl.hsl_logger(
     singlecsv=args.singlecsv,
     mode=args.mode,
     level=args.level or "DEBUG",
+    interface_path = "../j2534/j2534.so",
 )
 
 
