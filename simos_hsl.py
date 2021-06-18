@@ -5,10 +5,10 @@
 from datetime import datetime, timedelta
 
 try:
-    from .connections import J2534Connection
-    from .connections import FakeConnection
+    from connections import J2534Connection
+    from connections import FakeConnection
 except Exception as e:
-    print("Failed to import J2534 modules" + str(e))
+    print("Failed to import J2534 modules: " + str(e))
 
 try:
     import can
